@@ -1,4 +1,4 @@
-<!-- meta-title: 端到端機器學習專案實戰：從數據到模型的完整指南 -->
+<!-- meta-title: 🐍 端到端機器學習專案實戰：從數據到模型的完整指南 -->
 <!-- meta-description: 本教學將引導您完成一個完整的端到端機器學習專案。我們將從獲取真實世界的房價數據開始，一路進行數據探索、預處理、模型訓練、微調，最終部署一個能夠預測房價的模型。這是一個專為初學者到中級開發者設計的實戰演練。 -->
 <!-- meta-keywords: Python, 機器學習, Scikit-Learn, Pandas, 數據科學, 端到端專案, 房價預測, 數據分析, 模型訓練 -->
 <!-- meta-hashtags: #Python #機器學習 #數據科學 #ScikitLearn #Pandas #專案實戰 #房價預測 #技術教學 #程式設計 -->
@@ -33,11 +33,11 @@ import sys
 assert sys.version_info >= (3, 7)
 
 # Scikit-Learn ≥1.0.1 is required
+from packaging import version
 import sklearn
-assert sklearn.__version__ >= "1.0.1"
+assert version.parse(sklearn.__version__) >= version.parse("1.0.1")
 
 # To plot pretty figures
-%matplotlib inline
 import matplotlib.pyplot as plt
 
 plt.rc('font', size=14)

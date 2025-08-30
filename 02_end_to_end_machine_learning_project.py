@@ -21,17 +21,15 @@ from pathlib import Path
 import tarfile
 import urllib.request
 from typing import Tuple, Dict, Any, List, Optional
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from scipy.stats import randint
 from scipy import stats
 
@@ -122,6 +120,7 @@ print(housing.describe())
 # =============================================================================
 print("\n=== 範例 4: 繪製數據分佈直方圖 ===")
 # 由於這是在腳本中運行，我們將保存圖像而不是顯示它
+Path("images").mkdir(parents=True, exist_ok=True)
 housing.hist(bins=50, figsize=(12, 8))
 plt.suptitle("所有數值特徵的直方圖")
 plt.savefig("images/housing_histograms.png")
@@ -162,12 +161,12 @@ print("地理位置散點圖已保存至 images/housing_geographical_plot.png")
 plt.close()
 
 # =============================================================================
-# EXAMPLE 6 & 7 & 8: 數據前處理 Pipeline
+# EXAMPLE 6, 7, 8: 數據前處理 Pipeline
 # =============================================================================
 print("\n=== 範例 6, 7, 8: 數據前處理 Pipeline ===")
 
 # 從訓練集中分離特徵和標籤
-housing: pd.DataFrame = strat_train_set.drop("median_house_value", axis=1)
+housing = strat_train_set.drop("median_house_value", axis=1)
 housing_labels: pd.Series = strat_train_set["median_house_value"].copy()
 
 # 選擇數值和類別欄位
@@ -210,7 +209,7 @@ some_data: pd.DataFrame = housing.iloc[:5]
 some_labels: pd.Series = housing_labels.iloc[:5]
 some_data_prepared: np.ndarray = full_pipeline.transform(some_data)
 predictions: np.ndarray = lin_reg.predict(some_data_prepared)
-print("預測值:", predictions)
+print("預測值:", predictions.round(2))
 print("實際值:", list(some_labels))
 
 # =============================================================================
@@ -222,7 +221,7 @@ print("\n=== 範例 10: 使用交叉驗證評估模型 ===")
 lin_scores: np.ndarray = cross_val_score(lin_reg, housing_prepared, housing_labels,
                                          scoring="neg_mean_squared_error", cv=10)
 lin_rmse_scores: np.ndarray = np.sqrt(-lin_scores)
-print("線性回歸 RMSE 分數:", lin_rmse_scores)
+print("線性回歸 RMSE 分數:", lin_rmse_scores.round(2))
 print(f"平均 RMSE: {lin_rmse_scores.mean():.2f}")
 print(f"標準差: {lin_rmse_scores.std():.2f}")
 
@@ -231,40 +230,43 @@ tree_reg: DecisionTreeRegressor = DecisionTreeRegressor(random_state=42)
 tree_scores: np.ndarray = cross_val_score(tree_reg, housing_prepared, housing_labels,
                                          scoring="neg_mean_squared_error", cv=10)
 tree_rmse_scores: np.ndarray = np.sqrt(-tree_scores)
-print("\n決策樹 RMSE 分數:", tree_rmse_scores)
+print("\n決策樹 RMSE 分數:", tree_rmse_scores.round(2))
 print(f"平均 RMSE: {tree_rmse_scores.mean():.2f}")
 print(f"標準差: {tree_rmse_scores.std():.2f}")
 
 # 訓練並評估隨機森林 (通常性能較好，能減少過擬合)
-forest_reg: RandomForestRegressor = RandomForestRegressor(random_state=42)
-forest_scores: np.ndarray = cross_val_score(forest_reg, housing_prepared, housing_labels,
-                                           scoring="neg_mean_squared_error", cv=10)
-forest_rmse_scores: np.ndarray = np.sqrt(-forest_scores)
-print("\n隨機森林 RMSE 分數:", forest_rmse_scores)
-print(f"平均 RMSE: {forest_rmse_scores.mean():.2f}")
-print(f"標準差: {forest_rmse_scores.std():.2f}")
+forest_reg_pipeline = make_pipeline(full_pipeline, RandomForestRegressor(random_state=42))
+forest_scores: np.ndarray = -cross_val_score(forest_reg_pipeline, housing, housing_labels,
+                                           scoring="neg_root_mean_squared_error", cv=10)
+print("\n隨機森林 RMSE 分數:", forest_scores.round(2))
+print(f"平均 RMSE: {forest_scores.mean():.2f}")
+print(f"標準差: {forest_scores.std():.2f}")
 
 # =============================================================================
 # EXAMPLE 11: 使用網格搜索進行超參數調優
 # =============================================================================
 print("\n=== 範例 11: 使用網格搜索進行超參數調優 ===")
 
+# 建立包含前處理和模型的完整 Pipeline
+full_model_pipeline = Pipeline([
+    ("preprocessing", full_pipeline),
+    ("random_forest", RandomForestRegressor(random_state=42)),
+])
+
 # 定義超參數搜索空間 (組合會產生大量的模型訓練)
 param_grid: List[Dict[str, Any]] = [
     # 嘗試 12 (3×4) 種 n_estimators 和 max_features 的組合
-    {'n_estimators': [3, 10, 30], 'max_features': [2, 4, 6, 8]},
+    {'random_forest__n_estimators': [3, 10, 30], 'random_forest__max_features': [2, 4, 6, 8]},
     # 然後嘗試 6 (2×3) 種 bootstrap 為 False 的組合
-    {'bootstrap': [False], 'n_estimators': [3, 10], 'max_features': [2, 3, 4]},
+    {'random_forest__bootstrap': [False], 'random_forest__n_estimators': [3, 10], 'random_forest__max_features': [2, 3, 4]},
 ]
 
-forest_reg: RandomForestRegressor = RandomForestRegressor(random_state=42)
-
 # 使用 5 折交叉驗證，總共會訓練 (12 + 6) * 5 = 90 次
-grid_search: GridSearchCV = GridSearchCV(forest_reg, param_grid, cv=5,
+grid_search: GridSearchCV = GridSearchCV(full_model_pipeline, param_grid, cv=5,
                                         scoring='neg_mean_squared_error',
                                         return_train_score=True)
 
-grid_search.fit(housing_prepared, housing_labels)
+grid_search.fit(housing, housing_labels)
 
 print("網格搜索完成。")
 print("最佳超參數組合:", grid_search.best_params_)
@@ -283,18 +285,15 @@ for mean_score, params in zip(cvres["mean_test_score"], cvres["params"]):
 print("\n=== 範例 12: 在測試集上評估最終模型 ===")
 
 # 從網格搜索中獲取最佳模型 (已經過超參數調優)
-final_model: RandomForestRegressor = grid_search.best_estimator_
+final_model = grid_search.best_estimator_
 
 # 準備測試集數據 (分離特徵和目標變數)
 X_test: pd.DataFrame = strat_test_set.drop("median_house_value", axis=1)
 y_test: pd.Series = strat_test_set["median_house_value"].copy()
 
-# **重要**: 只使用 transform()，不使用 fit_transform()
-# 必須使用從訓練集學習的轉換參數，避免數據洩漏
-X_test_prepared: np.ndarray = full_pipeline.transform(X_test)
-
-# 進行預測 (使用最終調優後的模型)
-final_predictions: np.ndarray = final_model.predict(X_test_prepared)
+# **重要**: 這裡直接使用 fit 好的 final_model (包含 pipeline)
+# 它會自動對 X_test 進行 transform
+final_predictions: np.ndarray = final_model.predict(X_test)
 
 # 計算最終的 RMSE (模型在未見過數據上的泛化性能)
 final_mse: float = mean_squared_error(y_test, final_predictions)
@@ -304,9 +303,24 @@ print(f"最終模型在測試集上的 RMSE: {final_rmse:.2f}")
 # 計算 95% 信賴區間 (提供性能估計的不確定性範圍)
 confidence: float = 0.95
 squared_errors: np.ndarray = (final_predictions - y_test) ** 2
-confidence_interval: np.ndarray = np.sqrt(stats.t.interval(confidence, len(squared_errors) - 1,
-                                                          loc=squared_errors.mean(),
-                                                          scale=stats.sem(squared_errors)))
-print(f"RMSE 的 {confidence*100}% 信賴區間: {confidence_interval}")
+
+# 使用 stats.bootstrap (需要 SciPy 1.7.0+)
+try:
+    def rmse_func(data, axis):
+        return np.sqrt(np.mean(data, axis=axis))
+    
+    res = stats.bootstrap((squared_errors,), rmse_func, confidence_level=0.95, random_state=42)
+    confidence_interval = res.confidence_interval
+    print(f"RMSE 的 {confidence*100}% 信賴區間 (bootstrap): [{confidence_interval.low:.2f}, {confidence_interval.high:.2f}]")
+
+except (AttributeError, TypeError):
+    # Fallback for older SciPy versions
+    t_score = stats.t.ppf((1 + confidence) / 2, len(squared_errors) - 1)
+    sem = stats.sem(squared_errors)
+    margin_of_error = t_score * sem
+    mean_se = np.mean(squared_errors)
+    confidence_interval_manual = np.sqrt([mean_se - margin_of_error, mean_se + margin_of_error])
+    print(f"RMSE 的 {confidence*100}% 信賴區間 (manual t-dist): [{confidence_interval_manual[0]:.2f}, {confidence_interval_manual[1]:.2f}]")
+
 
 print("\n=== 所有範例執行完畢 ===")
