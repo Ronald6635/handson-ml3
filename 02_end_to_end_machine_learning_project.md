@@ -165,10 +165,96 @@ plt.show()
 - **潛在問題**: 這張圖清楚地顯示了房價與地理位置（特別是沿海地區）以及人口密度有很強的關聯性。
 - **最佳使用情境**: 當數據集包含地理資訊（如經緯度）時，繪製此類圖表有助於發現空間上的關聯性。
 
+## <a id="stratified-sampling"></a>🔬 特徵工程與分層抽樣
+💡 **實際應用情境：** 在建立測試集時，如果我們使用純隨機抽樣，可能會因為偶然性導致測試集無法代表整體數據的分佈，特別是在重要特徵上。這稱為抽樣偏差（sampling bias）。為了解決這個問題，我們使用**分層抽樣（Stratified Sampling）**。我們根據一個重要的特徵（如此處的收入中位數）將數據分成幾個階層（strata），然後從每個階層中抽取等比例的樣本來組成測試集，以確保測試集能反映整體的特徵分佈。
+
+### 範例 6: 建立收入類別以進行分層抽樣
+為了進行分層抽樣，我們首先需要將連續的收入中位數特徵轉換為類別特徵。
+```python
+housing["income_cat"] = pd.cut(housing["median_income"],
+                               bins=[0., 1.5, 3.0, 4.5, 6., np.inf],
+                               labels=[1, 2, 3, 4, 5])
+```
+
+**✅ 程式碼逐行解析：**
+1.  `第 1 行`: 我們使用 `pd.cut` 函式將 `median_income` 這個連續型特徵切分成數個區間（bins）。
+2.  `bins=[...]`: 這個列表定義了區間的邊界。例如，`0.` 到 `1.5` 是一個區間。`np.inf` 代表正無窮大，確保所有高於 6.0 的值都被包含在最後一個區間。
+3.  `labels=[1, 2, 3, 4, 5]`: 為每個區間指定一個標籤。所有收入在 0 到 1.5 之間的地區都會被標記為 1，依此類推。
+4.  結果會被存儲在一個新的 `income_cat` 欄位中。
+
+**🎯 重點摘要:**
+- **核心功能**: 將連續特徵離散化（discretize），為分層抽樣做準備。
+- **潛在問題**: 區間的選擇是主觀的，需要對數據有一定了解。不合理的切分可能會影響抽樣的代表性。
+- **最佳使用情境**: 當某個連續特徵對目標變數有顯著影響，且希望在訓練集和測試集中保持其分佈一致時。
+
+### 範例 7: 使用 Scikit-Learn 進行分層抽樣
+現在我們可以使用這個新的類別來進行分層抽樣。
+```python
+from sklearn.model_selection import train_test_split
+
+strat_train_set, strat_test_set = train_test_split(
+    housing, test_size=0.2, stratify=housing["income_cat"], random_state=42)
+```
+
+**✅ 程式碼逐行解析：**
+1.  `第 3 行`: 我們使用 Scikit-Learn 的 `train_test_split` 函式。
+2.  `stratify=housing["income_cat"]`: 這是分層抽樣的關鍵。它告訴函式在切分數據時，要確保訓練集和測試集中的 `income_cat` 欄位的類別比例與原始數據集中的比例相同。
+3.  `test_size=0.2`: 指定測試集應佔總數據的 20%。
+4.  `random_state=42`: 確保每次執行的切分結果都一樣，以利於重現。
+
+**🎯 重點摘要:**
+- **核心功能**: 根據指定特徵（`income_cat`）的分佈比例來切分數據，確保測試集的代表性。
+- **最佳使用情境**: 在任何監督式學習任務中，建立訓練集和測試集時都推薦使用分層抽樣，特別是當數據集不大或類別不平衡時。
+
+### 範例 8: 比較不同抽樣方法的誤差
+讓我們來看看分層抽樣與純隨機抽樣相比，在收入類別分佈上的表現。
+```python
+def income_cat_proportions(data):
+    return data["income_cat"].value_counts() / len(data)
+
+train_set, test_set = train_test_split(housing, test_size=0.2, random_state=42)
+
+compare_props = pd.DataFrame({
+    "Overall %": income_cat_proportions(housing),
+    "Stratified %": income_cat_proportions(strat_test_set),
+    "Random %": income_cat_proportions(test_set),
+}).sort_index()
+compare_props["Strat. Error %"] = (compare_props["Stratified %"] /
+                                   compare_props["Overall %"] - 1)
+compare_props["Rand. Error %"] = (compare_props["Random %"] /
+                                  compare_props["Overall %"] - 1)
+(compare_props * 100).round(2)
+```
+
+**✅ 程式碼逐行解析：**
+1.  `第 1-2 行`: 定義一個輔助函式來計算每個收入類別的比例。
+2.  `第 4 行`: 產生一個純隨機抽樣的測試集作為對比。
+3.  `第 6-14 行`: 建立一個 DataFrame 來比較三種分佈：整體數據、分層抽樣測試集、隨機抽樣測試集。並計算分層抽樣和隨機抽樣相對於整體數據的誤差百分比。
+4.  `第 15 行`: 顯示結果，乘以 100 並四捨五入到小數點後兩位，方便閱讀。
+
+**🎯 重點摘要:**
+- **核心功能**: 量化比較不同抽樣方法所產生的抽樣偏差。
+- **結論**: 從結果中可以看出，分層抽樣（Stratified）的誤差遠小於純隨機抽樣（Random），證明了其在維持數據分佈代表性上的優越性。
+
+### 範例 9: 清理數據
+在完成抽樣後，我們應該移除臨時創建的 `income_cat` 欄位，以免它干擾後續的模型訓練。
+```python
+for set_ in (strat_train_set, strat_test_set):
+    set_.drop("income_cat", axis=1, inplace=True)
+```
+
+**✅ 程式碼逐行解析：**
+1.  `第 1 行`: 遍歷訓練集和測試集。
+2.  `第 2 行`: 從每個數據集中移除 `income_cat` 欄位。`axis=1` 表示我們要移除的是欄位，`inplace=True` 表示直接在原始 DataFrame 上進行修改。
+
+**🎯 重點摘要:**
+- **核心功能**: 清理輔助特徵，避免數據洩漏。
+- **最佳實踐**: 用於輔助數據處理（如分層抽樣）的臨時特徵，在完成其任務後應立即移除。
+
 ## <a id="prepare-data"></a>🛠️ 數據前處理
 💡 **實際應用情境：** 真實世界的數據很少是完美的。它們通常包含缺失值、異常值，或者其格式不適合直接用於機器學習模型。數據前處理是整個專案中至關重要且通常最耗時的階段。Scikit-Learn 的 `Pipeline` 和 `ColumnTransformer` 是處理這個階段的強大工具。
 
-### 範例 6: 處理缺失值
+### 範例 10: 處理缺失值
 ```python
 from sklearn.impute import SimpleImputer
 
@@ -197,7 +283,7 @@ X = imputer.transform(housing_num)
 - **潛在問題**: 選擇 "median" 策略對處理有異常值的數據比較穩健。其他策略還有 "mean"（平均值）和 "most_frequent"（眾數）。
 - **最佳使用情境**: 當數值特徵存在缺失值時，`SimpleImputer` 提供了一個簡單而有效的解決方案。
 
-### 範例 7: 處理文本與類別屬性
+### 範例 11: 處理文本與類別屬性
 ```python
 from sklearn.preprocessing import OneHotEncoder
 
@@ -219,7 +305,7 @@ housing_cat_1hot = cat_encoder.fit_transform(housing[["ocean_proximity"]])
 - **潛在問題**: 獨熱編碼會產生很多新的欄位，如果一個類別特徵有非常多的類別，可能會導致維度災難。
 - **最佳使用情境**: 當類別特徵的類別數量不多時，獨熱編碼是處理標稱型（Nominal）類別數據的標準方法。
 
-### 範例 8: 建立數據轉換 Pipeline
+### 範例 12: 建立數據轉換 Pipeline
 ```python
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -263,7 +349,7 @@ housing_prepared = full_pipeline.fit_transform(housing)
 ## <a id="select-train-model"></a>🧠 選擇與訓練模型
 💡 **實際應用情境：** 在數據準備好之後，下一步就是選擇、訓練和評估模型。通常我們會從一些簡單的模型開始，建立一個基準性能，然後再嘗試更複雜的模型。
 
-### 範例 9: 訓練線性回歸模型
+### 範例 13: 訓練線性回歸模型
 ```python
 from sklearn.linear_model import LinearRegression
 
@@ -280,7 +366,7 @@ lin_reg.fit(housing_prepared, housing["median_house_value"])
 - **核心功能**: 訓練一個基本的線性回歸模型。
 - **最佳使用情境**: 作為建立性能基準的第一個模型。線性回歸速度快、易於解釋，但可能因為對數據的假設過於簡單而導致欠擬合（underfitting）。
 
-### 範例 10: 使用交叉驗證評估模型
+### 範例 14: 使用交叉驗證評估模型
 ```python
 from sklearn.model_selection import cross_val_score
 
@@ -307,7 +393,7 @@ lin_rmse_scores = np.sqrt(-scores)
 ## <a id="fine-tune-model"></a>⚙️ 模型微調
 💡 **實際應用情境：** 大多數機器學習模型都帶有超參數（Hyperparameters），這些是在訓練前設定的參數，例如決策樹的最大深度。找到一組好的超參數組合可以顯著提升模型性能。網格搜索和隨機搜索是兩種常用的自動化超參數調優方法。
 
-### 範例 11: 使用網格搜索進行超參數調優
+### 範例 15: 使用網格搜索進行超參數調優
 ```python
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
@@ -339,7 +425,7 @@ grid_search.fit(housing_prepared, housing["median_house_value"])
 ## <a id="evaluate-model"></a>📊 評估最終模型
 💡 **實際應用情境：** 在經過多輪的模型選擇和微調後，我們選出了最終的模型。現在，我們需要在「從未見過」的測試集上對其進行最後一次評估，以估計它在真實世界中的泛化性能。
 
-### 範例 12: 在測試集上評估最終模型
+### 範例 16: 在測試集上評估最終模型
 ```python
 # 獲取網格搜索找到的最佳模型
 final_model = grid_search.best_estimator_

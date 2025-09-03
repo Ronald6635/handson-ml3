@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import tarfile
 import urllib.request
+import urllib.error
 from typing import Tuple, Dict, Any, List, Optional
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 from sklearn.impute import SimpleImputer
@@ -127,16 +128,38 @@ plt.savefig("images/housing_histograms.png")
 print("直方圖已保存至 images/housing_histograms.png")
 plt.close() # 關閉圖形以釋放記憶體
 
+# =============================================================================
+# EXAMPLE 6, 7, 8, 9: 特徵工程與分層抽樣
+# =============================================================================
+print("\n=== 範例 6, 7, 8, 9: 特徵工程與分層抽樣 ===")
+
 # 為了後續步驟，我們需要創建分層抽樣所需的 'income_cat' 欄位
 housing["income_cat"] = pd.cut(housing["median_income"],
                                bins=[0., 1.5, 3.0, 4.5, 6., np.inf],
                                labels=[1, 2, 3, 4, 5])
 
 # 創建訓練集與測試集 (使用分層抽樣確保收入分佈的代表性)
-strat_train_set: pd.DataFrame
-strat_test_set: pd.DataFrame
 strat_train_set, strat_test_set = train_test_split(
     housing, test_size=0.2, stratify=housing["income_cat"], random_state=42)
+
+# 比較不同抽樣方法的誤差
+def income_cat_proportions(data):
+    return data["income_cat"].value_counts() / len(data)
+
+train_set, test_set = train_test_split(housing, test_size=0.2, random_state=42)
+
+compare_props = pd.DataFrame({
+    "Overall %": income_cat_proportions(housing),
+    "Stratified %": income_cat_proportions(strat_test_set),
+    "Random %": income_cat_proportions(test_set),
+}).sort_index()
+compare_props["Strat. Error %"] = (compare_props["Stratified %"] /
+                                   compare_props["Overall %"] - 1)
+compare_props["Rand. Error %"] = (compare_props["Random %"] /
+                                  compare_props["Overall %"] - 1)
+print("\n--- 抽樣方法誤差比較 ---")
+print((compare_props * 100).round(2))
+
 
 # 移除 'income_cat' 欄位 (這是臨時創建的輔助欄位)
 for set_ in (strat_train_set, strat_test_set):
@@ -144,26 +167,13 @@ for set_ in (strat_train_set, strat_test_set):
 
 # 創建一個探索用的數據副本 (避免意外修改原始訓練數據)
 housing = strat_train_set.copy()
+print("\n分層抽樣完成，並已移除臨時的 'income_cat' 欄位。")
+
 
 # =============================================================================
-# EXAMPLE 5: 地理位置散點圖
+# EXAMPLE 10, 11, 12: 數據前處理 Pipeline
 # =============================================================================
-print("\n=== 範例 5: 地理位置散點圖 ===")
-housing.plot(kind="scatter", x="longitude", y="latitude", grid=True,
-             s=housing["population"] / 100, label="population",
-             c="median_house_value", cmap="jet", colorbar=True,
-             legend=True, sharex=False, figsize=(10, 7))
-plt.title("加州房價地理分佈圖 (依人口與房價中位數)")
-plt.xlabel("經度 (Longitude)")
-plt.ylabel("緯度 (Latitude)")
-plt.savefig("images/housing_geographical_plot.png")
-print("地理位置散點圖已保存至 images/housing_geographical_plot.png")
-plt.close()
-
-# =============================================================================
-# EXAMPLE 6, 7, 8: 數據前處理 Pipeline
-# =============================================================================
-print("\n=== 範例 6, 7, 8: 數據前處理 Pipeline ===")
+print("\n=== 範例 10, 11, 12: 數據前處理 Pipeline ===")
 
 # 從訓練集中分離特徵和標籤
 housing = strat_train_set.drop("median_house_value", axis=1)
@@ -171,7 +181,7 @@ housing_labels: pd.Series = strat_train_set["median_house_value"].copy()
 
 # 選擇數值和類別欄位
 housing_num: pd.DataFrame = housing.select_dtypes(include=[np.number])
-num_attribs: List[str] = list(housing_num)
+num_attribs: List[str] = housing_num.columns.tolist()
 cat_attribs: List[str] = ["ocean_proximity"]
 
 # 建立數值特徵的處理 pipeline
@@ -191,14 +201,14 @@ full_pipeline: ColumnTransformer = ColumnTransformer([
 ])
 
 # 應用 pipeline 到數據上
-housing_prepared: np.ndarray = full_pipeline.fit_transform(housing)
+housing_prepared: Any = full_pipeline.fit_transform(housing)
 print("數據前處理完成。")
 print(f"處理後數據的維度: {housing_prepared.shape}")
 
 # =============================================================================
-# EXAMPLE 9: 訓練線性回歸模型
+# EXAMPLE 13: 訓練線性回歸模型
 # =============================================================================
-print("\n=== 範例 9: 訓練線性回歸模型 ===")
+print("\n=== 範例 13: 訓練線性回歸模型 ===")
 
 lin_reg: LinearRegression = LinearRegression()
 lin_reg.fit(housing_prepared, housing_labels)
@@ -207,15 +217,15 @@ print("線性回歸模型訓練完成。")
 # 測試一下模型 (選取前5個樣本進行預測測試)
 some_data: pd.DataFrame = housing.iloc[:5]
 some_labels: pd.Series = housing_labels.iloc[:5]
-some_data_prepared: np.ndarray = full_pipeline.transform(some_data)
+some_data_prepared: Any = full_pipeline.transform(some_data)
 predictions: np.ndarray = lin_reg.predict(some_data_prepared)
 print("預測值:", predictions.round(2))
 print("實際值:", list(some_labels))
 
 # =============================================================================
-# EXAMPLE 10: 使用交叉驗證評估模型
+# EXAMPLE 14: 使用交叉驗證評估模型
 # =============================================================================
-print("\n=== 範例 10: 使用交叉驗證評估模型 ===")
+print("\n=== 範例 14: 使用交叉驗證評估模型 ===")
 
 # 評估線性回歸 (使用10折交叉驗證獲得更穩健的性能評估)
 lin_scores: np.ndarray = cross_val_score(lin_reg, housing_prepared, housing_labels,
@@ -243,9 +253,9 @@ print(f"平均 RMSE: {forest_scores.mean():.2f}")
 print(f"標準差: {forest_scores.std():.2f}")
 
 # =============================================================================
-# EXAMPLE 11: 使用網格搜索進行超參數調優
+# EXAMPLE 15: 使用網格搜索進行超參數調優
 # =============================================================================
-print("\n=== 範例 11: 使用網格搜索進行超參數調優 ===")
+print("\n=== 範例 15: 使用網格搜索進行超參數調優 ===")
 
 # 建立包含前處理和模型的完整 Pipeline
 full_model_pipeline = Pipeline([
@@ -280,9 +290,9 @@ for mean_score, params in zip(cvres["mean_test_score"], cvres["params"]):
     print(f"RMSE: {rmse_score:.2f}, 參數組合: {params}")
 
 # =============================================================================
-# EXAMPLE 12: 在測試集上評估最終模型
+# EXAMPLE 16: 在測試集上評估最終模型
 # =============================================================================
-print("\n=== 範例 12: 在測試集上評估最終模型 ===")
+print("\n=== 範例 16: 在測試集上評估最終模型 ===")
 
 # 從網格搜索中獲取最佳模型 (已經過超參數調優)
 final_model = grid_search.best_estimator_
@@ -293,7 +303,7 @@ y_test: pd.Series = strat_test_set["median_house_value"].copy()
 
 # **重要**: 這裡直接使用 fit 好的 final_model (包含 pipeline)
 # 它會自動對 X_test 進行 transform
-final_predictions: np.ndarray = final_model.predict(X_test)
+final_predictions: Any = final_model.predict(X_test)
 
 # 計算最終的 RMSE (模型在未見過數據上的泛化性能)
 final_mse: float = mean_squared_error(y_test, final_predictions)
