@@ -16,3 +16,9 @@ my_*
 /person_pb2.py
 /datasets
 .venv/
+venv/
+.mypy_cache/
+.gitignore
+podcast/
+__pycache__/
+*.sqlite3
