@@ -27,6 +27,18 @@ import sklearn  # Scikit-Learn 機器學習函式庫
 from pathlib import Path  # 路徑操作工具
 from math import ceil  # 無條件進位函數
 from copy import deepcopy  # 深度複製物件
+from matplotlib import rcParams # Matplotlib 繪圖參數設定
+
+# 設定 Matplotlib 支援繁體中文顯示
+def setup_chinese_font():
+    """Configure matplotlib to display Traditional Chinese characters."""
+    # Try Microsoft JhengHei first, fallback to Noto Sans TC
+    try:
+        rcParams['font.sans-serif'] = ['Microsoft JhengHei']
+    except:
+        rcParams['font.sans-serif'] = ['Noto Sans TC']
+    rcParams['axes.unicode_minus'] = False  # Ensure minus sign is displayed correctly
+setup_chinese_font()
 
 # 資料前處理相關
 from sklearn.preprocessing import add_dummy_feature, PolynomialFeatures, StandardScaler
@@ -722,7 +734,7 @@ X_new = np.linspace(0, 3, 100).reshape(100, 1)
 ridge_reg = Ridge(alpha=0.1, solver="cholesky")
 ridge_reg.fit(X, y)
 
-print(f"Ridge 迴歸對 x=1.5 的預測: {ridge_reg.predict([[1.5]])[0]:.4f}")
+print(f"Ridge 迴歸對 x=1.5 的預測: {ridge_reg.predict(np.array([[1.5]]))[0][0]:.4f}")
 print(f"Ridge 迴歸係數: {ridge_reg.coef_[0]}")
 
 # 使用 SGD 實現 Ridge 迴歸
@@ -731,7 +743,7 @@ sgd_reg = SGDRegressor(penalty="l2", alpha=0.1 / m, tol=None,
                        max_iter=1000, eta0=0.01, random_state=42)
 sgd_reg.fit(X, y.ravel())
 
-print(f"\nSGD Ridge 迴歸對 x=1.5 的預測: {sgd_reg.predict([[1.5]])[0]:.4f}")
+print(f"\nSGD Ridge 迴歸對 x=1.5 的預測: {sgd_reg.predict(np.array([[1.5]]))[0]:.4f}")
 print(f"SGD Ridge 迴歸係數: {sgd_reg.coef_}")
 
 print("\n" + "=" * 80)
@@ -743,7 +755,7 @@ print("=" * 80)
 lasso_reg = Lasso(alpha=0.1)
 lasso_reg.fit(X, y)
 
-print(f"Lasso 迴歸對 x=1.5 的預測: {lasso_reg.predict([[1.5]])[0]:.4f}")
+print(f"Lasso 迴歸對 x=1.5 的預測: {lasso_reg.predict(np.array([[1.5]]))[0]:.4f}")
 print(f"Lasso 迴歸係數: {lasso_reg.coef_}")
 
 print("\n" + "=" * 80)
@@ -756,7 +768,7 @@ print("=" * 80)
 elastic_net = ElasticNet(alpha=0.1, l1_ratio=0.5)
 elastic_net.fit(X, y)
 
-print(f"Elastic Net 對 x=1.5 的預測: {elastic_net.predict([[1.5]])[0]:.4f}")
+print(f"Elastic Net 對 x=1.5 的預測: {elastic_net.predict(np.array([[1.5]]))[0]:.4f}")
 print(f"Elastic Net 係數: {elastic_net.coef_}")
 print(f"l1_ratio=0.5 表示 L1 和 L2 正規化各佔 50%")
 
@@ -897,8 +909,8 @@ y_proba = log_reg.predict_proba(X_new)
 decision_boundary = X_new[y_proba[:, 1] >= 0.5][0, 0]
 
 print(f"\n決策邊界位於花瓣寬度: {decision_boundary:.2f} cm")
-print(f"預測花瓣寬度為 1.7cm 的類別: {log_reg.predict([[1.7]])[0]}")
-print(f"預測花瓣寬度為 1.5cm 的類別: {log_reg.predict([[1.5]])[0]}")
+print(f"預測花瓣寬度為 1.7cm 的類別: {log_reg.predict(np.array([[1.7]]))[0]}")
+print(f"預測花瓣寬度為 1.5cm 的類別: {log_reg.predict(np.array([[1.5]]))[0]}")
 
 # 繪製機率曲線與決策邊界
 plt.figure(figsize=(8, 3))
@@ -1059,19 +1071,19 @@ print(f"模型截距形狀: {softmax_reg.intercept_.shape}")  # (3,) - 每個類
 
 # 3) 預測方法演示
 # predict(): 返回最高機率的類別標籤 (0, 1 或 2)
-predicted_class = softmax_reg.predict([[5, 2]])[0]
+predicted_class = softmax_reg.predict(np.array([[5, 2]]))[0]
 print(f"\n對於花瓣長度 5cm、寬度 2cm 的預測類別: {predicted_class}")
 print(f"對應的物種名稱: {iris.target_names[predicted_class]}")
 
 # predict_proba(): 返回所有三個類別的機率估計 (總和為 1.0)
-proba = softmax_reg.predict_proba([[5, 2]]).round(2)
+proba = softmax_reg.predict_proba(np.array([[5, 2]])).round(2)
 print(f"各類別的預測機率: {proba}")
 print(f"  - P(setosa)     = {proba[0, 0]:.2f}")
 print(f"  - P(versicolor) = {proba[0, 1]:.2f}")
 print(f"  - P(virginica)  = {proba[0, 2]:.2f}")
 
 # decision_function(): 返回 softmax 轉換前的原始類別分數
-scores = softmax_reg.decision_function([[5, 2]])
+scores = softmax_reg.decision_function(np.array([[5, 2]]))
 print(f"原始類別分數: {scores.round(2)}")
 
 # ==========================================
