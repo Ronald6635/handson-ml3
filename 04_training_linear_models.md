@@ -517,16 +517,44 @@ for epoch in range(n_epochs):
 
 **✅ 程式碼逐行解析：**
 
-1.  `learning_schedule(t)`: 定義一個學習率遞減的排程，有助於模型收斂。
-2.  `random_index = np.random.randint(m)`: 在每次迭代中隨機選擇一個樣本。
-3.  `gradients = 2 * xi.T @ (xi @ theta - yi)`: 只用一個樣本來計算梯度。
-4.  `eta = learning_schedule(epoch * m + i)`: 根據排程更新學習率。
+1.  `n_epochs = 50`: SGD 通常需要較少的 epoch 數
+2.  `t0, t1 = 5, 50`: 學習率衰減的超參數
+3.  `def learning_schedule(t)`: 定義學習率隨時間遞減的函數
+4.  `random_index = np.random.randint(m)`: 在每次迭代中隨機選擇一個樣本。
+5.  `xi = X_b[random_index:random_index+1]`: 取出該樣本的特徵
+6.  `gradients = 2 * xi.T @ (xi @ theta - yi)`: 只用一個樣本來計算梯度。
+7.  `eta = learning_schedule(epoch * m + i)`: 根據排程更新學習率。
+8.  `theta = theta - eta * gradients`: 根據梯度更新參數 (梯度下降步驟)。
 
 **🎯 重點摘要:**
 
 - **核心功能**: 每次只用一個樣本來更新參數，速度快，適合線上學習。
 - **潛在問題**: 更新方向不穩定，成本函式會上下波動。
 - **最佳使用情境**: 超大型資料集或需要線上學習的場景。
+
+### 範例 5.1: 使用 Scikit-Learn 的 SGD
+
+```python
+from sklearn.linear_model import SGDRegressor
+
+sgd_reg = SGDRegressor(max_iter=1000, tol=1e-5, penalty=None, eta0=0.01,
+                       n_iter_no_change=100, random_state=42)
+sgd_reg.fit(X, y.ravel())
+```
+
+**✅ 程式碼逐行解析：**
+
+1.  `max_iter=1000`: 設定最大迭代次數為1000
+2.  `tol=1e-5`: 設定收斂容忍度
+3.  `penalty=None`: 不使用正規化
+4.  `eta0=0.01`: 初始學習率為0.01
+5.  `n_iter_no_change=100`: 如果100次迭代內損失未改善則提前停止
+6.  `sgd_reg.fit(X, y.ravel())`: 訓練模型
+
+**🎯 重點摘要:**
+
+- **核心功能**: 提供現成的 SGD 實作，包含許多優化技巧
+- **最佳使用情境**: 需要快速訓練大規模線性模型時
 
 ### <a id="minibatch-gd"></a>小批次梯度下降 (Mini-batch GD)
 
@@ -597,7 +625,7 @@ lin_reg.fit(X_poly, y)
 
 1.  `y = 0.5 * X ** 2 + X + 2 + np.random.randn(m, 1)`: 生成一個二次方程式的非線性資料集。
 2.  `poly_features = PolynomialFeatures(degree=2, include_bias=False)`: 建立一個 `PolynomialFeatures` 轉換器。
-3.  `X_poly = poly_features.fit_transform(X)`: 將 `X` 轉換為包含原始特徵和其平方的 `X_poly`。
+3.  `X_poly = poly_features.fit_transform(X)`:將 `X` 轉換為包含原始特徵和其平方的 `X_poly`。
 4.  `lin_reg.fit(X_poly, y)`: 使用轉換後的多項式特徵來訓練線性迴歸模型。
 
 **🎯 重點摘要:**
@@ -624,13 +652,16 @@ valid_errors = -valid_scores.mean(axis=1)
 
 plt.plot(train_sizes, train_errors, "r-+", linewidth=2, label="train")
 plt.plot(train_sizes, valid_errors, "b-", linewidth=3, label="valid")
+plt.legend()
 ```
 
 **✅ 程式碼逐行解析：**
 
-1.  `learning_curve()`: Scikit-Learn 的函式，用於計算不同訓練集大小下的模型效能。
-2.  `train_errors`, `valid_errors`: 將得分轉換為均方根誤差 (RMSE)。
-3.  `plt.plot()`: 繪製訓練誤差和驗證誤差隨訓練集大小變化的曲線。
+1. `learning_curve()`: Scikit-Learn 的函式，用於計算不同訓練集大小下的模型效能。
+2. `train_sizes=np.linspace(0.01, 1.0, 40)`: 測試40個不同的訓練集大小。
+3. `cv=5`: 使用5折交叉驗證。
+4. `train_errors`, `valid_errors`: 將得分轉換為均方根誤差 (RMSE)。
+5. `plt.plot()`: 繪製訓練誤差和驗證誤差隨訓練集大小變化的曲線。
 
 **🎯 重點摘要:**
 
@@ -651,16 +682,16 @@ plt.plot(train_sizes, valid_errors, "b-", linewidth=3, label="valid")
 ```python
 from sklearn.linear_model import Ridge
 
-ridge_reg = Ridge(alpha=0.1, solver="cholesky")
+ridge_reg = Ridge(alpha=1, solver="cholesky", random_state=42)
 ridge_reg.fit(X, y)
 ```
 
 **✅ 程式碼逐行解析：**
 
-1.  `ridge_reg = Ridge(alpha=0.1, solver="cholesky")`: 建立一個 Ridge 迴歸模型。
-2.  `alpha`: 正規化強度。
-3.  `solver`: 求解器。
-4.  `ridge_reg.fit(X, y)`: 訓練模型。
+1. `from sklearn.linear_model import Ridge`: 導入 Ridge 迴歸類別
+2. `alpha=1`: 設定正規化強度，值越大正規化越強
+3. `solver="cholesky"`: 使用 Cholesky 分解求解，適合中小型資料集
+4. `ridge_reg.fit(X, y)`: 訓練模型
 
 **🎯 重點摘要:**
 
@@ -676,7 +707,7 @@ ridge_reg.fit(X, y)
 ```python
 from sklearn.linear_model import Lasso
 
-lasso_reg = Lasso(alpha=0.1)
+lasso_reg = Lasso(alpha=0.1, random_state=42)
 lasso_reg.fit(X, y)
 ```
 
@@ -694,7 +725,7 @@ lasso_reg.fit(X, y)
 ```python
 from sklearn.linear_model import ElasticNet
 
-elastic_net = ElasticNet(alpha=0.1, l1_ratio=0.5)
+elastic_net = ElasticNet(alpha=0.1, l1_ratio=0.5, random_state=42)
 elastic_net.fit(X, y)
 ```
 
@@ -713,6 +744,8 @@ elastic_net.fit(X, y)
 from copy import deepcopy
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import SGDRegressor
 try:
     from sklearn.metrics import root_mean_squared_error
 except ImportError:
@@ -724,7 +757,7 @@ np.random.seed(42)
 m = 100
 X = 6 * np.random.rand(m, 1) - 3
 y = 0.5 * X ** 2 + X + 2 + np.random.randn(m, 1)
-X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.5, shuffle=False)
+X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.5, random_state=42)
 
 preprocessing = make_pipeline(PolynomialFeatures(degree=90, include_bias=False),
                               StandardScaler())
@@ -929,631 +962,6 @@ x0.ravel() = [2.9, 2.91, 2.92, 2.9, 2.91, 2.92]  # 形狀: (6,)
   - 計算線性決策邊界的數學公式
 - **最佳使用情境**: 理解邏輯迴歸如何在 2D 特徵空間中劃分類別，診斷模型行為
 
-## <a id="softmax-regression"></a>Softmax 迴歸
-
-💡 **實際應用情境：** 當分類問題有多個類別時，Softmax 迴歸 (也稱為多項式邏輯迴歸) 是邏輯迴歸的自然推廣，用於同時分類多個互斥的類別。
-
-### 範例 14.1: Softmax 迴歸用於多類別分類
-
-此範例展示如何使用 Softmax 迴歸同時分類所有三個 Iris 物種。
-
-```python
-# 準備多類別分類資料
-X = iris.data[["petal length (cm)", "petal width (cm)"]].values
-y = iris.target  # 0=setosa, 1=versicolor, 2=virginica
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
-
-# 訓練 Softmax 迴歸模型
-softmax_reg = LogisticRegression(C=30, random_state=42)
-softmax_reg.fit(X_train, y_train)
-
-# 預測新樣本的類別
-softmax_reg.predict([[5, 2]])  # 輸出: array([2])
-
-# 檢視所有類別的機率
-softmax_reg.predict_proba([[5, 2]]).round(2)  # 輸出: array([[0.  , 0.01, 0.99]])
-```
-
-**✅ 程式碼逐行解析：**
-
-#### 1) 資料準備
-
-1. **特徵選擇**: `X = iris.data[["petal length (cm)", "petal width (cm)"]].values`
-   - 使用兩個特徵 (花瓣長度和寬度) 而非一個，提供更多資訊用於區分三個物種
-   - `.values` 轉換 DataFrame 為 NumPy 陣列
-
-2. **目標變數**: `y = iris.target`
-   - 使用原始的三類別目標變數 (0, 1, 2) 而非二元分類
-   - 0 = setosa, 1 = versicolor, 2 = virginica
-
-3. **資料分割**: `train_test_split(X, y, random_state=42)`
-   - 分割訓練集和測試集以確保可重現性
-
-#### 2) 模型配置
-
-4. **LogisticRegression 用於多類別**:
-   - `C=30`: 高正規化參數 (正規化強度的倒數)，允許模型更靈活地擬合訓練資料
-   - `random_state=42`: 確保結果可重現
-   - **預設行為**: 當 `y` 有超過 2 個類別時，Scikit-Learn 的 `LogisticRegression` 自動使用 **multinomial** (Softmax) 迴歸
-
-#### 3) 與二元分類的關鍵差異
-
-**Softmax 函數**:
-- 不使用 sigmoid 函數，而是使用 softmax 將類別分數轉換為機率
-- 確保所有類別機率的總和為 1
-- 每個類別都有自己的一組參數 (每個類別都有 θ₀, θ₁, θ₂)
-
-**決策邊界**:
-- 建立同時分離三個類別的決策邊界
-- 比二元分類更複雜，因為必須同時區分多個類別
-
-**應用場景**:
-- 當需要將實例分類到多個互斥類別之一時，此方法非常理想
-- 模型會為每個預測輸出所有三個 Iris 物種的機率估計
-
-#### 4) 預測方法
-
-5. **predict()**: 返回最高機率的類別標籤 (0, 1 或 2)
-   - 計算每個類別的分數
-   - 使用 softmax 轉換為機率
-   - 選擇機率最高的類別 (argmax)
-
-6. **predict_proba()**: 返回所有三個類別的機率估計
-   - 機率總和為 1.0
-   - 可用於評估模型信心
-
-7. **decision_function()**: 返回 softmax 轉換前的原始類別分數
-
-### 範例 14.2: Softmax 迴歸決策邊界視覺化
-
-此程式碼建立一個全面的視覺化，展示 Softmax 迴歸如何使用花瓣長度和寬度測量值分類三個 Iris 物種。
-
-```python
-from matplotlib.colors import ListedColormap
-
-# 建立自訂顏色映射
-custom_cmap = ListedColormap(["#fafab0", "#9898ff", "#a0faa0"])
-
-# 建立網格點覆蓋特徵空間
-x0, x1 = np.meshgrid(np.linspace(0, 8, 500).reshape(-1, 1),
-                     np.linspace(0, 3.5, 200).reshape(-1, 1))
-X_new = np.c_[x0.ravel(), x1.ravel()]
-
-# 在整個特徵空間進行預測
-y_proba = softmax_reg.predict_proba(X_new)
-y_predict = softmax_reg.predict(X_new)
-
-zz1 = y_proba[:, 1].reshape(x0.shape)  # Iris versicolor 機率
-zz = y_predict.reshape(x0.shape)        # 預測類別
-
-# 繪製決策區域和資料點
-plt.figure(figsize=(10, 4))
-plt.plot(X[y == 2, 0], X[y == 2, 1], "g^", label="Iris virginica")
-plt.plot(X[y == 1, 0], X[y == 1, 1], "bs", label="Iris versicolor")
-plt.plot(X[y == 0, 0], X[y == 0, 1], "yo", label="Iris setosa")
-
-plt.contourf(x0, x1, zz, cmap=custom_cmap)
-contour = plt.contour(x0, x1, zz1, cmap="hot")
-plt.clabel(contour, inline=1)
-plt.xlabel("Petal length")
-plt.ylabel("Petal width")
-plt.legend(loc="center left")
-plt.axis([0.5, 7, 0, 3.5])
-plt.grid()
-save_fig("softmax_regression_contour_plot")
-plt.show()
-```
-
-**✅ 程式碼逐行解析：**
-
-#### 1) 視覺化設定
-
-1. **自訂顏色映射**:
-   - `ListedColormap(["#fafab0", "#9898ff", "#a0faa0"])`: 為三個分類區域建立自訂顏色
-   - 淡黃色代表 *Iris setosa*
-   - 淡藍色代表 *Iris versicolor*
-   - 淡綠色代表 *Iris virginica*
-
-2. **網格建立**:
-   - `np.meshgrid(...)`: 建立覆蓋特徵空間的細緻網格
-   - 花瓣長度: 0 到 8 cm (500 個點)
-   - 花瓣寬度: 0 到 3.5 cm (200 個點)
-   - `X_new = np.c_[x0.ravel(), x1.ravel()]`: 將 2D 網格轉換為適合模型預測的格式
-
-#### 2) 整個特徵空間的模型預測
-
-3. **機率和類別預測**:
-   - `y_proba = softmax_reg.predict_proba(X_new)`: 計算網格中每個點的類別機率
-   - `y_predict = softmax_reg.predict(X_new)`: 確定每個網格點的預測類別
-   - `zz1 = y_proba[:, 1].reshape(x0.shape)`: 提取 *Iris versicolor* 機率用於等高線
-   - `zz = y_predict.reshape(x0.shape)`: 將預測重塑回網格格式用於視覺化
-
-#### 3) 圖表組成
-
-4. **資料點**:
-   - **綠色三角形 (^)**: *Iris virginica* 訓練實例
-   - **藍色方塊 (s)**: *Iris versicolor* 訓練實例
-   - **黃色圓圈 (o)**: *Iris setosa* 訓練實例
-
-5. **決策區域**:
-   - `plt.contourf()`: 用顏色填充區域，顯示預測每個類別的位置
-   - 建立不同的彩色區域，代表模型的分類決策
-
-6. **機率等高線**:
-   - `plt.contour()` 配合 `plt.clabel()`: 繪製顯示 *Iris versicolor* 機率等級的等高線
-   - "hot" 顏色映射建立顯示機率轉變的漸層線
-   - 幫助視覺化模型在不同區域的信心程度
-
-#### 4) 關鍵洞察
-
-此視覺化揭示:
-- **清楚分離**: *Iris setosa* (黃色區域) 以較小的花瓣測量值容易區分
-- **複雜邊界**: *Iris versicolor* 和 *Iris virginica* 之間的邊界更複雜，反映這些物種之間的相似性
-- **機率梯度**: 等高線顯示平滑的機率轉變而非尖銳的邊界
-- **模型信心**: 接近訓練資料群集的區域顯示更高的信心 (更深的等高線)
-
-**🎯 重點摘要:**
-
-- **核心功能**: Softmax 迴歸將邏輯迴歸擴展到多類別分類，計算每個類別的機率並預測機率最高的類別
-- **關鍵技術**:
-  - 使用 softmax 函數確保機率總和為 1
-  - 每個類別有獨立的參數集
-  - 建立複雜的非線性決策邊界分離多個類別
-- **最佳使用情境**: 
-  - 多類別分類問題 (如手寫數字辨識、文字分類)
-  - 需要機率估計以評估信心
-  - 類別互斥 (每個實例只屬於一個類別)
-- **與二元邏輯迴歸的差異**:
-  - 使用 softmax 而非 sigmoid
-  - 輸出 K 個機率 (K 個類別) 而非 1 個
-  - 自動處理多類別場景
-
-## 💡 總結與最佳實踐
-
-- **從簡單開始**: 始終先嘗試簡單的模型作為基準。
-- **資料縮放**: 在使用梯度下降或正規化時，務必對特徵進行縮放。
-- **選擇正確的梯度下降**: 小批次 GD 在大多數情況下是最佳選擇。
-- **處理非線性**: 嘗試多項式迴歸。
-- **防止過擬合**: 使用正規化或 Early Stopping。
-- **診斷模型**: 使用學習曲線。
-
-## ❓ 常見問答 (FAQ)
-
-**Q: 正規方程式和梯度下降，我應該選擇哪一個？**
-A: 如果特徵數量不多，正規方程式是個好選擇。否則，梯度下降是更佳的選擇。
-
-**Q: 為什麼需要對資料進行縮放？**
-A: 梯度下降在特徵尺度相似時收斂得更快。
-
-**Q: Lasso 和 Ridge 有什麼主要區別？**
-A: Lasso (L1) 可以用於特徵選擇，Ridge (L2) 不行。
-
-## 🏷️ 推薦標籤 (Suggested Hashtags)
-
-#Python #機器學習 #程式設計 #教學 #線性模型 #數據科學 #AI開發
-import sklearn
-assert sklearn.__version__ >= "0.20"
-
-# 設定繪圖參數
-import matplotlib.pyplot as plt
-plt.rc('font', size=14)
-plt.rc('axes', labelsize=14, titlesize=14)
-plt.rc('legend', fontsize=14)
-plt.rc('xtick', labelsize=10)
-plt.rc('ytick', labelsize=10)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `import sys` 和 `assert sys.version_info >= (3, 5)`: 確保使用 Python 3.5 或更高版本
-2. `import sklearn` 和 `assert sklearn.__version__ >= "0.20"`: 確保 Scikit-Learn 版本符合需求
-3. `plt.rc('font', size=14)`: 設定matplotlib的預設字型大小為14，提升圖表可讀性
-4. `plt.rc('axes', ...)`: 設定座標軸標籤和標題的字型大小
-5. `plt.rc('legend', ...)`: 設定圖例字型大小
-6. `plt.rc('xtick', ...)` 和 `plt.rc('ytick', ...)`: 設定刻度標籤字型大小為10
-
-**🎯 重點摘要:**
-
-- **核心功能**: 確保開發環境符合最低版本要求，並設定一致的視覺化參數
-- **潛在問題**: 版本檢查失敗會導致程式中斷，需要升級相關套件
-- **最佳使用情境**: 在專案開始時執行，確保所有協作者使用相同的環境設定
-
-### 範例 2: 生成線性資料
-
-```python
-import numpy as np
-
-np.random.seed(42)
-m = 100  # number of instances
-X = 2 * np.random.rand(m, 1)
-y = 4 + 3 * X + np.random.randn(m, 1)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `np.random.seed(42)`: 設定隨機種子為42，確保每次執行產生相同的隨機數據
-2. `m = 100`: 定義資料點數量為100個實例
-3. `X = 2 * np.random.rand(m, 1)`: 生成100個介於0到2之間的隨機值作為特徵
-4. `y = 4 + 3 * X + np.random.randn(m, 1)`: 生成目標值，遵循 y = 4 + 3x + noise 的線性關係
-
-**🎯 重點摘要:**
-
-- **核心功能**: 產生符合線性關係的模擬資料集，用於測試線性模型
-- **潛在問題**: 真實世界的資料通常不會這麼完美地符合線性關係
-- **最佳使用情境**: 學習和驗證線性模型的基本概念時使用
-
-## <a id="linear-regression"></a>📈 線性迴歸 (Linear Regression)
-
-💡 **實際應用情境：** 線性迴歸是最基本的機器學習演算法，用於預測連續值，如房價預測、銷售預測等。
-
-### <a id="normal-equation"></a>範例 3: 使用正規方程式 (Normal Equation)
-
-```python
-X_b = np.c_[np.ones((m, 1)), X]  # add x0 = 1 to each instance
-theta_best = np.linalg.inv(X_b.T @ X_b) @ X_b.T @ y
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `np.c_[np.ones((m, 1)), X]`: 在特徵矩陣前加入一列全為1的偏差項（bias term），用於表示截距
-2. `X_b.T @ X_b`: 計算 X 轉置與 X 的矩陣乘積
-3. `np.linalg.inv(...)`: 計算矩陣的反矩陣
-4. `@ X_b.T @ y`: 完成正規方程式的計算，得到最佳參數 θ
-
-**🎯 重點摘要:**
-
-- **核心功能**: 直接計算出使成本函數最小化的最佳參數
-- **潛在問題**: 當特徵數量很大時，計算反矩陣會非常耗時（O(n³)複雜度）
-- **最佳使用情境**: 特徵數量較少（<10000）且記憶體充足的情況
-
-### 範例 4: 使用 Scikit-Learn
-
-```python
-from sklearn.linear_model import LinearRegression
-
-lin_reg = LinearRegression()
-lin_reg.fit(X, y)
-print(lin_reg.intercept_, lin_reg.coef_)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `from sklearn.linear_model import LinearRegression`: 導入 Scikit-Learn 的線性迴歸類別
-2. `lin_reg = LinearRegression()`: 建立線性迴歸模型實例
-3. `lin_reg.fit(X, y)`: 訓練模型，內部使用 SVD 分解而非正規方程式
-4. `print(lin_reg.intercept_, lin_reg.coef_)`: 輸出截距和係數
-
-**🎯 重點摘要:**
-
-- **核心功能**: 使用業界標準函式庫進行線性迴歸，程式碼簡潔且效能優化
-- **潛在問題**: 預設使用 SVD，可能不適合超大規模資料集
-- **最佳使用情境**: 大多數實際應用場景，特別是需要快速原型開發時
-
-## <a id="gradient-descent"></a>⛰️ 梯度下降 (Gradient Descent)
-
-💡 **實際應用情境：** 梯度下降是訓練各種機器學習模型的核心優化演算法，特別適合大規模資料集。
-
-### <a id="batch-gd"></a>範例 5: 批次梯度下降 (Batch Gradient Descent)
-
-```python
-eta = 0.1  # learning rate
-n_epochs = 1000
-m = len(X_b)
-
-theta = np.random.randn(2, 1)  # random initialization
-
-for epoch in range(n_epochs):
-    gradients = 2/m * X_b.T @ (X_b @ theta - y)
-    theta = theta - eta * gradients
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `eta = 0.1`: 設定學習率為0.1，控制每次參數更新的步長
-2. `n_epochs = 1000`: 設定訓練週期數為1000次
-3. `theta = np.random.randn(2, 1)`: 隨機初始化參數
-4. `gradients = 2/m * X_b.T @ (X_b @ theta - y)`: 計算成本函數對參數的梯度
-5. `theta = theta - eta * gradients`: 沿著梯度的反方向更新參數
-
-**🎯 重點摘要:**
-
-- **核心功能**: 使用全部訓練資料計算梯度，保證收斂到全域最小值（對凸函數）
-- **潛在問題**: 每次迭代需要使用全部資料，對大資料集效率較低
-- **最佳使用情境**: 資料集大小適中且需要精確收斂時
-
-### <a id="stochastic-gd"></a>範例 6: 隨機梯度下降 (Stochastic Gradient Descent)
-
-```python
-n_epochs = 50
-t0, t1 = 5, 50  # learning schedule hyperparameters
-
-def learning_schedule(t):
-    return t0 / (t + t1)
-
-theta = np.random.randn(2, 1)
-
-for epoch in range(n_epochs):
-    for iteration in range(m):
-        random_index = np.random.randint(m)
-        xi = X_b[random_index:random_index+1]
-        yi = y[random_index:random_index+1]
-        gradients = 2 * xi.T @ (xi @ theta - yi)
-        eta = learning_schedule(epoch * m + iteration)
-        theta = theta - eta * gradients
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `n_epochs = 50`: SGD 通常需要較少的 epoch 數
-2. `t0, t1 = 5, 50`: 學習率衰減的超參數
-3. `def learning_schedule(t)`: 定義學習率隨時間遞減的函數
-4. `random_index = np.random.randint(m)`: 隨機選擇一個訓練樣本
-5. `xi = X_b[random_index:random_index+1]`: 取出該樣本的特徵
-6. `gradients = 2 * xi.T @ (xi @ theta - yi)`: 僅使用一個樣本計算梯度
-7. `eta = learning_schedule(...)`: 根據當前迭代次數調整學習率
-8. `theta = theta - eta * gradients`: 更新參數
-
-**🎯 重點摘要:**
-
-- **核心功能**: 每次只用一個樣本更新參數，訓練速度快，適合大資料集
-- **潛在問題**: 參數更新有較大的隨機性，可能在最小值附近震盪
-- **最佳使用情境**: 大規模資料集或線上學習場景
-
-### 範例 7: 使用 Scikit-Learn 的 SGD
-
-```python
-from sklearn.linear_model import SGDRegressor
-
-sgd_reg = SGDRegressor(max_iter=1000, tol=1e-5, penalty=None, eta0=0.01,
-                       n_iter_no_change=100, random_state=42)
-sgd_reg.fit(X, y.ravel())
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `max_iter=1000`: 設定最大迭代次數為1000
-2. `tol=1e-5`: 設定收斂容忍度
-3. `penalty=None`: 不使用正規化
-4. `eta0=0.01`: 初始學習率為0.01
-5. `n_iter_no_change=100`: 如果100次迭代內損失未改善則提前停止
-6. `sgd_reg.fit(X, y.ravel())`: 訓練模型
-
-**🎯 重點摘要:**
-
-- **核心功能**: 提供現成的 SGD 實作，包含許多優化技巧
-- **潛在問題**: 需要仔細調整超參數以獲得最佳效能
-- **最佳使用情境**: 需要快速訓練大規模線性模型時
-
-## <a id="polynomial-regression"></a>🔢 多項式迴歸 (Polynomial Regression)
-
-💡 **實際應用情境：** 當資料呈現非線性關係時，多項式迴歸可以透過增加特徵的多項式項來擬合曲線。
-
-### 範例 8: 建立多項式特徵
-
-```python
-from sklearn.preprocessing import PolynomialFeatures
-
-poly_features = PolynomialFeatures(degree=2, include_bias=False)
-X_poly = poly_features.fit_transform(X)
-
-lin_reg = LinearRegression()
-lin_reg.fit(X_poly, y)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `PolynomialFeatures(degree=2, include_bias=False)`: 建立2次多項式特徵轉換器
-2. `X_poly = poly_features.fit_transform(X)`: 將原始特徵轉換為多項式特徵（如 x, x²）
-3. `lin_reg = LinearRegression()`: 建立線性迴歸模型
-4. `lin_reg.fit(X_poly, y)`: 在多項式特徵上訓練線性模型
-
-**🎯 重點摘要:**
-
-- **核心功能**: 透過特徵工程將線性模型擴展到非線性問題
-- **潛在問題**: 高次多項式容易導致過擬合
-- **最佳使用情境**: 資料呈現明顯的非線性但又不是特別複雜的模式時
-
-## <a id="learning-curves"></a>📊 學習曲線 (Learning Curves)
-
-💡 **實際應用情境：** 學習曲線可以幫助我們診斷模型是否存在高偏差（欠擬合）或高變異（過擬合）問題。
-
-### 範例 9: 繪製學習曲線
-
-```python
-from sklearn.model_selection import learning_curve
-
-train_sizes, train_scores, valid_scores = learning_curve(
-    LinearRegression(), X, y, train_sizes=np.linspace(0.01, 1.0, 40),
-    cv=5, scoring="neg_mean_squared_error")
-
-train_errors = -train_scores.mean(axis=1)
-valid_errors = -valid_scores.mean(axis=1)
-
-plt.plot(train_sizes, train_errors, "r-+", linewidth=2, label="train")
-plt.plot(train_sizes, valid_errors, "b-", linewidth=3, label="valid")
-plt.legend()
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `learning_curve(LinearRegression(), X, y, ...)`: 計算不同訓練集大小下的模型效能
-2. `train_sizes=np.linspace(0.01, 1.0, 40)`: 測試40個不同的訓練集大小
-3. `cv=5`: 使用5折交叉驗證
-4. `train_errors = -train_scores.mean(axis=1)`: 計算訓練誤差的平均值（轉為正值）
-5. `valid_errors = -valid_scores.mean(axis=1)`: 計算驗證誤差的平均值
-6. `plt.plot(...)`: 繪製訓練和驗證曲線
-
-**🎯 重點摘要:**
-
-- **核心功能**: 視覺化模型在不同資料量下的效能，診斷偏差-變異問題
-- **潛在問題**: 計算學習曲線需要多次訓練模型，耗時較長
-- **最佳使用情境**: 模型效能不如預期時，用於診斷問題所在
-
-## <a id="regularized-models"></a>🛡️ 正規化線性模型
-
-💡 **實際應用情境：** 正規化技術透過懲罰過大的參數來防止過擬合，在實際應用中非常重要。
-
-### <a id="ridge-regression"></a>範例 10: Ridge 迴歸
-
-```python
-from sklearn.linear_model import Ridge
-
-ridge_reg = Ridge(alpha=1, solver="cholesky", random_state=42)
-ridge_reg.fit(X, y)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `from sklearn.linear_model import Ridge`: 導入 Ridge 迴歸類別
-2. `alpha=1`: 設定正規化強度，值越大正規化越強
-3. `solver="cholesky"`: 使用 Cholesky 分解求解，適合中小型資料集
-4. `ridge_reg.fit(X, y)`: 訓練模型
-
-**🎯 重點摘要:**
-
-- **核心功能**: 使用 L2 正規化，懲罰參數的平方和，防止過擬合
-- **潛在問題**: alpha 參數需要透過交叉驗證調整
-- **最佳使用情境**: 存在多重共線性或特徵數量接近樣本數時
-
-### <a id="lasso-regression"></a>範例 11: Lasso 迴歸
-
-```python
-from sklearn.linear_model import Lasso
-
-lasso_reg = Lasso(alpha=0.1, random_state=42)
-lasso_reg.fit(X, y)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `from sklearn.linear_model import Lasso`: 導入 Lasso 迴歸類別
-2. `alpha=0.1`: 設定正規化強度
-3. `lasso_reg.fit(X, y)`: 訓練模型
-
-**🎯 重點摘要:**
-
-- **核心功能**: 使用 L1 正規化，會將某些參數縮減為0，實現特徵選擇
-- **潛在問題**: 可能不穩定，特別是當特徵高度相關時
-- **最佳使用情境**: 需要自動特徵選擇或認為只有少數特徵真正重要時
-
-### <a id="elastic-net"></a>範例 12: Elastic Net
-
-```python
-from sklearn.linear_model import ElasticNet
-
-elastic_net = ElasticNet(alpha=0.1, l1_ratio=0.5, random_state=42)
-elastic_net.fit(X, y)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `from sklearn.linear_model import ElasticNet`: 導入 Elastic Net 類別
-2. `alpha=0.1`: 設定正規化強度
-3. `l1_ratio=0.5`: 設定 L1 和 L2 正規化的混合比例（0.5表示各半）
-4. `elastic_net.fit(X, y)`: 訓練模型
-
-**🎯 重點摘要:**
-
-- **核心功能**: 結合 Ridge 和 Lasso 的優點，平衡兩者的特性
-- **潛在問題**: 需要調整兩個超參數（alpha 和 l1_ratio）
-- **最佳使用情境**: 當特徵數量遠大於樣本數，或特徵間有強相關性時
-
-### <a id="early-stopping"></a>範例 13: Early Stopping
-
-```python
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-
-X_train, X_val, y_train, y_val = train_test_split(X, y, random_state=42)
-
-sgd_reg = SGDRegressor(max_iter=1, warm_start=True, penalty=None,
-                       learning_rate="constant", eta0=0.0005, random_state=42)
-
-minimum_val_error = float("inf")
-best_epoch = None
-best_model = None
-
-for epoch in range(1000):
-    sgd_reg.fit(X_train, y_train.ravel())
-    y_val_predict = sgd_reg.predict(X_val)
-    val_error = mean_squared_error(y_val, y_val_predict)
-    if val_error < minimum_val_error:
-        minimum_val_error = val_error
-        best_epoch = epoch
-        best_model = deepcopy(sgd_reg)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `train_test_split(X, y, random_state=42)`: 分割資料為訓練集和驗證集
-2. `max_iter=1, warm_start=True`: 每次只訓練一個 epoch，並保留上次訓練的參數
-3. `penalty=None`: 不使用正規化（early stopping 本身就是一種正規化）
-4. `for epoch in range(1000)`: 手動控制訓練週期
-5. `sgd_reg.fit(X_train, y_train.ravel())`: 訓練一個 epoch
-6. `val_error = mean_squared_error(y_val, y_val_predict)`: 計算驗證誤差
-7. `if val_error < minimum_val_error`: 如果驗證誤差降低，保存當前模型
-
-**🎯 重點摘要:**
-
-- **核心功能**: 透過監控驗證誤差，在模型開始過擬合前停止訓練
-- **潛在問題**: 需要額外的驗證集，減少可用於訓練的資料
-- **最佳使用情境**: 訓練深度學習模型或其他容易過擬合的複雜模型時
-
-## <a id="logistic-regression"></a>🎯 邏輯迴歸 (Logistic Regression)
-
-💡 **實際應用情境：** 邏輯迴歸是最常用的二元分類演算法，如垃圾郵件檢測、疾病診斷等。
-
-### 範例 14: 基本邏輯迴歸
-
-```python
-from sklearn.linear_model import LogisticRegression
-from sklearn.datasets import load_iris
-
-iris = load_iris(as_frame=True)
-X = iris.data[["petal width (cm)"]].values
-y = (iris.target == 2)  # Iris virginica
-
-log_reg = LogisticRegression(random_state=42)
-log_reg.fit(X, y)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `iris = load_iris(as_frame=True)`: 載入鳶尾花資料集
-2. `X = iris.data[["petal width (cm)"]].values`: 只使用花瓣寬度作為特徵
-3. `y = (iris.target == 2)`: 建立二元標籤（是否為 Iris virginica）
-4. `log_reg = LogisticRegression(random_state=42)`: 建立邏輯迴歸模型
-5. `log_reg.fit(X, y)`: 訓練模型
-
-**🎯 重點摘要:**
-
-- **核心功能**: 透過 Sigmoid 函數將線性模型的輸出轉換為機率值
-- **潛在問題**: 對離群值敏感，需要特徵縮放
-- **最佳使用情境**: 二元分類問題，特別是需要機率輸出時
-
-### 範例 15: 多特徵邏輯迴歸
-
-```python
-X = iris.data[["petal length (cm)", "petal width (cm)"]].values
-y = (iris.target == 2)
-
-log_reg = LogisticRegression(C=2, random_state=42)
-log_reg.fit(X, y)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `X = iris.data[["petal length (cm)", "petal width (cm)"]].values`: 使用兩個特徵
-2. `C=2`: 設定正規化強度的反向參數（C越大，正規化越弱）
-3. `log_reg.fit(X, y)`: 訓練模型
-
-**🎯 重點摘要:**
-
-- **核心功能**: 處理多個特徵的二元分類，支援L1和L2正規化
-- **潛在問題**: C 參數需要調整以平衡偏差和變異
-- **最佳使用情境**: 需要控制模型複雜度的二元分類問題
-
 ## <a id="softmax-regression"></a>🌈 Softmax 迴歸
 
 💡 **實際應用情境：** Softmax 迴歸（也稱為多項式邏輯迴歸）用於多類別分類，如手寫數字辨識、物品分類等。
@@ -1579,7 +987,7 @@ softmax_reg.fit(X, y)
 
 - **核心功能**: 將邏輯迴歸擴展到多類別分類，輸出每個類別的機率
 - **潛在問題**: 假設類別互斥，不適合多標籤分類問題
-- **最佳使用情境**: 多類別分類問題且類別互斥時
+- **最佳使用情境**: 多類別分類問題且類別互斷時
 
 ### 範例 17: 預測機率
 
@@ -1665,4 +1073,4 @@ A: 透過學習曲線：如果訓練誤差低但驗證誤差高，是過擬合�
 
 ## 🏷️ 推薦標籤 (Suggested Hashtags)
 
-#Python #機器學習 #線性迴歸 #梯度下降 #正規化 #邏輯迴歸 #Softmax #數據科學 #AI開發 #程式設計 #教學 #ScikitLearn #深度學習基礎 #模型訓練 #特徵工程
+#Python #機器學習 #程式設計 #教學 #線性模型 #數據科學 #AI開發
