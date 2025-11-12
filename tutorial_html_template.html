@@ -1,0 +1,145 @@
+<!--
+[Module Name] HTML Documentation
+
+This document is the HTML version of the tutorial, optimized for web viewing with mathematical equation rendering.
+
+Key features:
+- Detailed explanation of concepts with examples.
+- Mathematical derivations using MathJax.
+- Responsive design with dark mode support.
+- Clear, organized sections for easy navigation.
+
+Dependencies:
+- Google Fonts (Noto Sans TC)
+- MathJax for LaTeX rendering.
+- ES6 Polyfill for older browser compatibility.
+
+Template Context:
+- This is a static HTML file with no server-side template variables.
+
+Browser Support:
+- Modern browsers (Chrome, Firefox, Safari, Edge).
+
+Last Updated: [Date]
+Author: HowToolHelp.com powered by GitHub Copilot
+-->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>[SEO-optimized title]</title>
+  <meta name="description" content="[Comprehensive description]"/>
+  <meta name="keywords" content="[Relevant keywords]"/>
+  
+  <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
+  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+  
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  
+  <!-- MathJax -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --heading-color: #265D94;
+      --link-color: #0056b3;
+      --border-color: #dddddd;
+      --code-bg-color: #f5f5f5;
+      --summary-bg-color: #eef3f8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #cccccc;
+        --heading-color: #87b5e1;
+        --link-color: #6caeef;
+        --border-color: #444444;
+        --code-bg-color: #2c2c2c;
+        --summary-bg-color: #252a30;
+      }
+    }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      line-height: 1.8;
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 900px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    h1, h2, h3, h4 {
+      color: var(--heading-color);
+      font-weight: 700;
+      margin-top: 1.5em;
+    }
+    h1 { font-size: 2.2em; text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+    h2 { font-size: 1.8em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    h3 { font-size: 1.4em; }
+    h4 { font-size: 1.2em; }
+    a { color: var(--link-color); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header, footer { text-align: center; margin-bottom: 2em; }
+    .meta { font-size: 0.9em; color: #666; }
+    .toc { background-color: var(--summary-bg-color); padding: 15px 25px; border-radius: 8px; margin-bottom: 2em; }
+    .toc h2 { margin-top: 0; }
+    .toc ul { padding-left: 20px; }
+    .toc ul ul { padding-left: 20px; }
+    .section { margin-bottom: 2em; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+    th { background-color: var(--summary-bg-color); }
+    .summary-box { background-color: var(--summary-bg-color); border-left: 5px solid var(--heading-color); padding: 15px 20px; margin: 1.5em 0; border-radius: 5px; }
+    .faq p { margin: 0.5em 0; }
+    .hashtags { background-color: var(--summary-bg-color); padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; word-spacing: 10px; }
+    mjx-container { text-align: center !important; margin: 1em 0; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- =============================================================================
+       HEADER AND TABLE OF CONTENTS
+       ============================================================================= -->
+  <header>
+    <h1>[Title]</h1>
+    <p class="meta">[Introductory paragraph]</p>
+  </header>
+
+  <!--====================================
+      TABLE OF CONTENTS
+      ===================================-->
+  <nav class="toc" aria-label="本文目錄">
+    <h2>📝 本文目錄</h2>
+    <!-- [Table of Contents list will be generated here] -->
+  </nav>
+
+  <!-- =============================================================================
+       MAIN CONTENT AREA
+       ============================================================================= -->
+  <main>
+    <!-- [Main content converted from Markdown will be generated here as <section> blocks] -->
+  </main>
+
+  <!-- =============================================================================
+       FOOTER
+       ============================================================================= -->
+  <footer class="hashtags" id="hashtags">
+    <!-- [Hashtags will be generated here] -->
+  </footer>
+</body>
+</html>

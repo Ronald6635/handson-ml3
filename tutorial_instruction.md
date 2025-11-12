@@ -83,6 +83,76 @@ This document outlines the process for creating comprehensive Python tutorial co
    - Include error handling for robust demonstrations
    - **Add comprehensive inline comments for enhanced readability**
 
+### Phase 3: Tutorial to HTML Document (.html)
+
+**HTML Generation Process:**
+
+1.  **Template Structure**
+    -   Start with the standard HTML5 boilerplate from `tutorial_html_template.html`.
+    -   Populate SEO meta tags (`title`, `description`, `keywords`) from the Markdown's `<!-- meta-... -->` comments.
+    -   The template includes a comprehensive `<style>` block with light/dark mode support and Google Fonts integration.
+
+2.  **MathJax Integration**
+    -   The template already includes the necessary scripts for MathJax library, configuration, and a polyfill for compatibility.
+    -   Ensure LaTeX code from Markdown is preserved as-is in the HTML.
+
+3.  **Content Conversion**
+    -   **Header**: The main `<h1>` and the introductory paragraph (`<p class="meta">`) should be placed in the `<header>`.
+    -   **Table of Contents**: Generate a nested `<ul>` list from the Markdown's ToC and place it inside `<nav class="toc">`.
+    -   **Main Content**: Each major section from Markdown should be converted into a `<section class="section">` tag within `<main>`.
+    -   **Section Headers**: Use `<h2>`, `<h3>`, etc., for section titles. Each `<section>` should have an `id` and `aria-labelledby` attribute, and the corresponding `<h2>` should have a matching `id`.
+    -   **Summary Boxes**: Convert "🎯 重點摘要" blocks into `<div class="summary-box">`.
+    -   **Footer**: Place the hashtags in the `<footer class="hashtags">`.
+    -   Convert standard Markdown (lists, tables, bold text) to semantic HTML.
+
+### HTML Document Template
+
+請直接使用 `tutorial_html_template.html` 作為生成 HTML 文件的標準範本。該範本已包含所有必要的結構、CSS 樣式（含深色模式）、以及 MathJax 數學公式的設定。
+
+在轉換過程中，請根據 Markdown 內容動態填寫範本中的預留位置，例如：
+- **`<title>`**: 來自 `<!-- meta-title -->`
+- **`<meta name="description">`**: 來自 `<!-- meta-description -->`
+- **`<meta name="keywords">`**: 來自 `<!-- meta-keywords -->`
+- **`<header>`**: 包含 `<h1>` 和介紹性段落 `<p class="meta">`
+- **`<nav class="toc">`**: 包含自動生成的目錄列表
+- **`<main>`**: 包含所有從 Markdown 轉換而來的 `<section>` 內容
+- **`<footer>`**: 包含 `<!-- meta-hashtags -->` 的內容
+
+### Python Code Template
+
+```python
+"""
+[Module Name] Module
+
+This module demonstrates [topic].
+
+Key features:
+- [Feature list]
+
+Examples are based on the markdown documentation [filename].md
+"""
+
+import [required modules]
+from typing import [type hints]
+
+# =============================================================================
+# EXAMPLE [N]: [SECTION TITLE]
+# =============================================================================
+
+print("=== Example [N]: [Description] ===")
+
+# [Example code with detailed comments]
+[variable] = [value]  # [Explanation of purpose]
+
+# [More complex operations with explanations]
+if [condition]:  # [Why this condition matters]
+    [action]  # [What this accomplishes]
+
+print(f"[Descriptive output]: {[variable]}")
+
+print("\n=== [Section] Examples Complete ===")
+```
+
 ## 🎯 Threads Platform Optimization Guidelines
 
 ### Content Strategy for Threads
@@ -263,14 +333,15 @@ print("\n=== [Section] Examples Complete ===")
 
 ### Quality Assurance
 
-1. Verify all links and anchors work correctly. Ensure anchors use the compatible `<a id="..."></a>` format.
-2. Test code examples in clean Python environment
-3. Ensure content flows logically from basic to advanced
-4. Check that explanations match the code exactly
-5. Validate that examples demonstrate real-world utility
-6. **Verify Traditional Chinese linguistic conventions for Taiwan**
-7. **Test hashtag effectiveness for Threads platform**
-8. **Ensure line-by-line breakdowns are comprehensive and accurate**
+1.  Verify all links and anchors work correctly. Ensure anchors use the compatible `<a id="..."></a>` format.
+2.  Test code examples in clean Python environment
+3.  Ensure content flows logically from basic to advanced
+4.  Check that explanations match the code exactly
+5.  Validate that examples demonstrate real-world utility
+6.  **Verify Mathematical Equations**: When generating HTML, confirm that all LaTeX equations are rendered correctly by MathJax.
+7.  **Verify Traditional Chinese linguistic conventions for Taiwan**
+8.  **Test hashtag effectiveness for Threads platform**
+9.  **Ensure line-by-line breakdowns are comprehensive and accurate**
 
 ## 📈 Success Metrics
 

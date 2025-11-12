@@ -1,0 +1,663 @@
+<!--
+Optimization Duality Guide HTML Template
+
+This template provides a comprehensive guide to understanding optimization duality, including primal and dual problems, their relationships, and applications.
+
+Key features:
+- Detailed explanation of primal vs. dual problems with examples.
+- Mathematical derivations using MathJax.
+- Responsive design with dark mode support.
+- Clear, organized sections for easy navigation.
+
+Dependencies:
+- Google Fonts (Noto Sans TC)
+- MathJax for rendering mathematical equations.
+- ES6 Polyfill for older browser compatibility with MathJax.
+
+Template Context:
+- This is a static HTML file with no server-side template variables.
+
+Browser Support:
+- Modern browsers (Chrome, Firefox, Safari, Edge). Polyfills included for older versions.
+
+Last Updated: November 12, 2025
+Author: HowToolHelp.com powered by GitHub Copilot
+-->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>深入理解優化理論：原始問題與對偶問題完全指南 | 線性規劃教學</title>
+  <meta name="description" content="透過實際工廠範例，完整解析原始問題 (Primal Problem) 與對偶問題 (Dual Problem) 的數學關係、影子價格概念及拉格朗日對偶性推導。適合機器學習與最佳化理論學習者。"/>
+  <meta name="keywords" content="原始問題, 對偶問題, 線性規劃, 影子價格, 拉格朗日對偶性, 優化理論, 機器學習, SVM, 最佳化, 弱對偶性, 強對偶性, 互補鬆弛"/>
+  
+  <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
+  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+  
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  
+  <!-- MathJax -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --heading-color: #265D94;
+      --link-color: #0056b3;
+      --border-color: #dddddd;
+      --code-bg-color: #f5f5f5;
+      --summary-bg-color: #eef3f8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #cccccc;
+        --heading-color: #87b5e1;
+        --link-color: #6caeef;
+        --border-color: #444444;
+        --code-bg-color: #2c2c2c;
+        --summary-bg-color: #252a30;
+      }
+    }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      line-height: 1.8;
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 900px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    h1, h2, h3, h4 {
+      color: var(--heading-color);
+      font-weight: 700;
+      margin-top: 1.5em;
+    }
+    h1 { font-size: 2.2em; text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+    h2 { font-size: 1.8em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    h3 { font-size: 1.4em; }
+    h4 { font-size: 1.2em; }
+    a { color: var(--link-color); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header, footer { text-align: center; margin-bottom: 2em; }
+    .meta { font-size: 0.9em; color: #666; }
+    .toc { background-color: var(--summary-bg-color); padding: 15px 25px; border-radius: 8px; margin-bottom: 2em; }
+    .toc h2 { margin-top: 0; }
+    .toc ul { padding-left: 20px; }
+    .toc ul ul { padding-left: 20px; }
+    .section { margin-bottom: 2em; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+    th { background-color: var(--summary-bg-color); }
+    .summary-box { background-color: var(--summary-bg-color); border-left: 5px solid var(--heading-color); padding: 15px 20px; margin: 1.5em 0; border-radius: 5px; }
+    .faq p { margin: 0.5em 0; }
+    .hashtags { background-color: var(--summary-bg-color); padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; word-spacing: 10px; }
+    mjx-container { text-align: center !important; margin: 1em 0; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- =============================================================================
+     HEADER AND TABLE OF CONTENTS
+     ============================================================================= -->
+<header>
+  <h1>🎯 深入理解優化理論：原始問題與對偶問題完全指南</h1>
+  <p class="meta">
+    原始問題 (Primal Problem) 和對偶問題 (Dual Problem) 是優化理論（特別是線性規劃）中一對相互關聯、互為鏡像的數學問題。理解這兩個問題之間的關係，不僅能幫助我們更有效地求解優化問題，更能深入洞察資源配置的經濟意義。本教學將透過實際範例，帶您完整掌握對偶理論的精髓。
+  </p>
+</header>
+
+<!--====================================
+    TABLE OF CONTENTS
+    ===================================-->
+<nav class="toc" aria-label="本文目錄">
+    <h2>📝 本文目錄</h2>
+    <ul>
+      <li><a href="#key-takeaways">關鍵重點</a></li>
+      <li><a href="#primal-problem">什麼是原始問題</a>
+        <ul><li><a href="#primal-example">範例：最大化利潤</a></li></ul>
+      </li>
+      <li><a href="#dual-problem">什麼是對偶問題</a>
+        <ul><li><a href="#dual-example">範例：最小化資源價值</a></li></ul>
+      </li>
+      <li><a href="#duality-relationships">原始與對偶的關鍵關係</a>
+        <ul>
+          <li><a href="#weak-duality">弱對偶性</a></li>
+          <li><a href="#strong-duality">強對偶性</a></li>
+          <li><a href="#complementary-slackness">互補鬆弛</a></li>
+        </ul>
+      </li>
+      <li><a href="#importance">對偶問題的重要性</a></li>
+      <li><a href="#standard-transformation">標準原始問題的轉換</a>
+        <ul>
+          <li><a href="#matrix-form">矩陣形式</a></li>
+          <li><a href="#transformation-rules">轉換規則總覽</a></li>
+          <li><a href="#example-verification">實際範例驗證</a></li>
+        </ul>
+      </li>
+      <li><a href="#non-standard">處理非標準型問題</a></li>
+      <li><a href="#lagrangian-derivation">拉格朗日對偶性數學推導</a>
+        <ul>
+          <li><a href="#step-1">步驟一：定義原始問題</a></li>
+          <li><a href="#step-2">步驟二：建構拉格朗日函數</a></li>
+          <li><a href="#step-3">步驟三：定義對偶函數</a></li>
+          <li><a href="#step-4">步驟四：分析對偶函數</a></li>
+          <li><a href="#step-5">步驟五：定義對偶問題</a></li>
+        </ul>
+      </li>
+      <li><a href="#convex-optimization">凸優化中的對偶理論</a></li>
+      <li><a href="#applications">實際應用案例</a></li>
+      <li><a href="#faq">常見問答</a></li>
+      <li><a href="#summary">總結與最佳實踐</a></li>
+      <li><a href="#hashtags">推薦標籤</a></li>
+    </ul>
+</nav>
+
+<!-- =============================================================================
+     MAIN CONTENT AREA
+     ============================================================================= -->
+<main>
+
+  <!--====================================
+      KEY TAKEAWAYS
+      ===================================-->
+  <section class="section" id="key-takeaways" aria-labelledby="key-takeaways-heading">
+    <h2 id="key-takeaways-heading">🎯 關鍵重點 (Key Takeaways)</h2>
+    <p>在開始深入學習之前，先掌握以下核心概念：</p>
+    <ul>
+      <li><strong>原始問題 (Primal Problem)</strong>：我們最初想要解決的優化問題，通常涉及直接優化目標函數。</li>
+      <li><strong>對偶問題 (Dual Problem)</strong>：從原始問題衍生的鏡像問題，提供不同的求解視角，並揭示資源的內在價值。</li>
+      <li><strong>弱對偶性 (Weak Duality)</strong>：對偶問題的可行解為原始問題的最優值提供一個界限（上界或下界）。</li>
+      <li><strong>強對偶性 (Strong Duality)</strong>：在特定條件下（如線性規劃），兩個問題的最優值相等，可以互相求解。</li>
+      <li><strong>影子價格 (Shadow Prices)</strong>：對偶變數具有重要的經濟意義，代表資源的邊際價值，是決策的關鍵依據。</li>
+      <li><strong>拉格朗日對偶性 (Lagrangian Duality)</strong>：一個嚴謹的數學框架，不僅能推導對偶問題，也適用於更廣泛的非線性優化。</li>
+      <li><strong>實務應用</strong>：廣泛應用於機器學習（如 SVM）、資源分配、生產規劃、金融投資組合等領域。</li>
+    </ul>
+    <p>💡 <strong>實際應用情境：</strong> 在機器學習中，支援向量機 (SVM) 就是透過求解對偶問題來找到最佳分類超平面 ($\mathbf{w}^\top \mathbf{x} + b = 0$)，並巧妙地引入核技巧 (Kernel Trick)；在商業決策中，對偶理論可以幫助管理者評估資源的真實價值，做出更明智的投資決策。</p>
+  </section>
+
+  <!--====================================
+      PRIMAL PROBLEM
+      ===================================-->
+  <section class="section" id="primal-problem" aria-labelledby="primal-problem-heading">
+    <h2 id="primal-problem-heading">🧐 什麼是原始問題 (Primal Problem)？</h2>
+    <p><strong>原始問題</strong>（Primal Problem）通常是我們<strong>最初想要解決的問題</strong>。它直接反映了我們的優化目標和面臨的限制條件。</p>
+    <p>在典型的商業情境中，這通常是一個<strong>最大化 (Maximize)</strong> 問題（例如：最大化利潤）或<strong>最小化 (Minimize)</strong> 問題（例如：最小化成本），並且會受到一系列<strong>限制條件 (Constraints)</strong>（例如：資源有限、時間有限、需求必須滿足）。</p>
+
+    <h3 id="primal-example">範例：最大化利潤</h3>
+    <p>💼 <strong>實際商業情境：</strong></p>
+    <p>一家工廠生產兩種產品 A 和 B：</p>
+    <ul>
+      <li>產品 A 的單位利潤是 3 元，產品 B 的單位利潤是 5 元。</li>
+      <li>生產這兩種產品需要兩種有限的資源：<strong>工時</strong>和<strong>原料</strong>。</li>
+      <li><strong>限制 1 (工時)</strong>：總共只有 100 小時。生產 1 單位 A 需 1 小時，生產 1 單位 B 需 2 小時。</li>
+      <li><strong>限制 2 (原料)</strong>：總共只有 300 單位。生產 1 單位 A 需 4 單位，生產 1 單位 B 需 3 單位。</li>
+    </ul>
+
+    <h4>📊 原始問題 (Primal) 數學表述：</h4>
+    <p><strong>目標函數：</strong></p>
+    $$ \text{Maximize } Z = 3x_A + 5x_B \quad \text{(總利潤)} $$
+    <p><strong>限制條件 (Constraints)：</strong></p>
+    $$ \begin{align} 1x_A + 2x_B &\le 100 \quad \text{(工時限制)} \\ 4x_A + 3x_B &\le 300 \quad \text{(原料限制)} \\ x_A, x_B &\ge 0 \quad \text{(產量非負)} \end{align} $$
+    <div class="summary-box">
+      <strong>🎯 重點摘要：</strong>
+      <ul>
+        <li><strong>核心功能</strong>：尋找最佳的產品組合 $(x_A, x_B)$ 以最大化總利潤 ($Z$)。</li>
+        <li><strong>決策變數 (Decision Variables)</strong>：$x_A$ 和 $x_B$ 分別代表產品 A 和 B 的生產數量。</li>
+        <li><strong>約束條件 (Constraints)</strong>：反映了現實中資源（工時、原料）的稀缺性。</li>
+        <li><strong>最佳使用情境</strong>：資源配置、生產規劃、投資組合優化等決策問題</li>
+      </ul>
+    </div>
+  </section>
+
+  <!--====================================
+      DUAL PROBLEM
+      ===================================-->
+  <section class="section" id="dual-problem" aria-labelledby="dual-problem-heading">
+    <h2 id="dual-problem-heading">🪞 什麼是對偶問題 (Dual Problem)？</h2>
+    <p><strong>對偶問題</strong>（Dual Problem）是從原始問題的數學結構中<strong>衍生</strong>出來的「鏡像」問題。它提供了看待原始問題的<strong>不同視角</strong>，特別是從<strong>資源價值</strong>的角度來思考優化問題。</p>
+    <p>🔑 <strong>核心概念：</strong> 如果原始問題是「最大化」，對偶問題通常就是「最小化」，反之亦然。</p>
+
+    <h3 id="dual-example">範例：最小化資源價值（影子價格）</h3>
+    <p>💡 <strong>經濟學直觀解釋：</strong></p>
+    <p>接續上例，對偶問題的視角變成：</p>
+    <p>假設有另一個競爭者想來「購買」你的所有資源（工時和原料）。他希望用<strong>最小的總成本</strong>（$Y$）來購買這些資源，但他開出的「資源價格」必須<strong>至少</strong>讓你覺得「賣資源」比「自己生產產品」來得划算。</p>
+    <p><strong>定義影子價格變數 (Shadow Price Variables)：</strong></p>
+    <ul>
+      <li>$y_1$：每小時工時的價格（影子價格）</li>
+      <li>$y_2$：每單位原料的價格（影子價格）</li>
+    </ul>
+    <p><strong>經濟合理性約束：</strong></p>
+    <ol>
+      <li><strong>「賣資源」比「生產 A」划算：</strong>
+        <ul>
+          <li>生產 1 單位 A 需要：1 小時工時 + 4 單位原料。</li>
+          <li>從 A 獲得的利潤是 3 元。</li>
+          <li>競爭者出價必須滿足：$1y_1 + 4y_2 \ge 3$</li>
+        </ul>
+      </li>
+      <li><strong>「賣資源」比「生產 B」划算：</strong>
+        <ul>
+          <li>生產 1 單位 B 需要：2 小時工時 + 3 單位原料。</li>
+          <li>從 B 獲得的利潤是 5 元。</li>
+          <li>競爭者出價必須滿足：$2y_1 + 3y_2 \ge 5$</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h4>📊 對偶問題 (Dual) 數學表述：</h4>
+    <p><strong>目標函數：</strong></p>
+    $$ \text{Minimize } Y = 100y_1 + 300y_2 \quad \text{(購買所有資源的總成本)} $$
+    <p><strong>限制條件 (Constraints)：</strong></p>
+    $$ \begin{align} 1y_1 + 4y_2 &\ge 3 \quad \text{(對 A 產品的利潤約束)} \\ 2y_1 + 3y_2 &\ge 5 \quad \text{(對 B 產品的利潤約束)} \\ y_1, y_2 &\ge 0 \quad \text{(資源價格非負)} \end{align} $$
+    <div class="summary-box">
+      <strong>🎯 重點摘要：</strong>
+      <ul>
+        <li><strong>核心功能</strong>：尋找資源的最小價值評估，同時確保這個評估對原生產者來說是合理的。</li>
+        <li><strong>對偶變數 (Dual Variables)</strong>：$y_1$ 和 $y_2$ 代表每單位資源的「影子價格 (Shadow Prices)」（邊際價值; Marginal Values）。</li>
+        <li><strong>經濟意義</strong>：影子價格告訴我們增加一單位資源能帶來多少額外利潤。</li>
+        <li><strong>最佳使用情境</strong>：資源價值評估、敏感度分析、投資決策。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!--====================================
+      DUALITY RELATIONSHIPS
+      ===================================-->
+  <section class="section" id="duality-relationships" aria-labelledby="duality-relationships-heading">
+    <h2 id="duality-relationships-heading">🤝 原始與對偶的關鍵關係</h2>
+    <p>原始問題和對偶問題之間的關係，由幾個強大的數學定理來定義。這些定理不僅具有理論意義，更為實際問題的求解提供了重要工具。</p>
+
+    <h3 id="weak-duality">1. 弱對偶性 (Weak Duality)</h3>
+    <p><strong>定理陳述：</strong></p>
+    <p>對於任何<strong>可行的</strong> (Feasible) 原始解（利潤 $Z$）和任何<strong>可行的</strong>對偶解（成本 $Y$），一定會滿足：</p>
+    $$ Z \le Y \quad \text{(在最大化問題中)} $$
+    <p><strong>直觀理解：</strong></p>
+    <p>你（原始問題）能賺到的最大利潤，永遠<strong>不會</strong>超過競爭者（對偶問題）為了買你資源所需要付出的最小成本。</p>
+    <p><strong>實際意義：</strong></p>
+    <ul>
+      <li>對偶問題提供了原始問題最優值的<strong>上界</strong>。</li>
+      <li>即使無法求出精確解，也能透過對偶問題估計最優值的範圍。</li>
+      <li>廣泛應用於演算法的收斂性分析和品質保證。</li>
+    </ul>
+
+    <h3 id="strong-duality">2. 強對偶性 (Strong Duality)</h3>
+    <p><strong>定理陳述：</strong></p>
+    <p>這是最重要的結論：如果原始問題存在一個<strong>最佳解</strong>（$Z^*$），那麼對偶問題也<strong>必然</strong>存在一個最佳解（$Y^*$），並且：</p>
+    $$ Z^* = Y^* \quad \text{(最佳利潤 = 最小資源總成本)} $$
+    <p><strong>數學表達：</strong></p>
+    $$ \max_{x} \{ c^T x : Ax \le b, x \ge 0 \} = \min_{y} \{ b^T y : A^T y \ge c, y \ge 0 \} $$
+    <p><strong>實際意義：</strong></p>
+    <ul>
+      <li>當兩者相等時，我們就知道已經找到了最佳方案。</li>
+      <li>可以選擇求解較簡單的那個問題（原始或對偶）。</li>
+      <li>為 KKT 條件提供了理論基礎。</li>
+    </ul>
+    <p><strong>⚠️ 重要條件：</strong> 強對偶性並非總是成立，需要滿足某些條件（如 Slater 條件）。線性規劃問題通常滿足強對偶性。</p>
+
+    <h3 id="complementary-slackness">3. 互補鬆弛 (Complementary Slackness)</h3>
+    <p>這個關係連結了原始問題的「限制」和對偶問題的「變數」，提供了最優解的必要條件。</p>
+    <p><strong>定理陳述：</strong></p>
+    <p>在最優解處，以下條件必須同時滿足：</p>
+    $$ \begin{align} y_i^* (b_i - \sum_j a_{ij} x_j^*) &= 0 \quad \forall i \\ x_j^* (\sum_i a_{ij} y_i^* - c_j) &= 0 \quad \forall j \end{align} $$
+    <p><strong>直觀解釋：</strong></p>
+    <h4>情況一：資源有剩餘（鬆弛）</h4>
+    <ul>
+      <li>如果原始問題的某個資源「沒有用完」（限制是鬆的，Slack > 0）
+        <ul><li>例如：工時 (限制 1) 只用了 90 小時（剩下 10 小時）</li></ul>
+      </li>
+      <li><strong>結論</strong>：對偶問題中該資源的「價格」($y_1$) 必定為 0</li>
+      <li><strong>經濟解釋</strong>：既然這個資源（工時）都沒用完，表示它不稀缺，它的邊際價值（影子價格）就是 0。多給你 1 小時工時，你的總利潤也不會增加</li>
+    </ul>
+    <h4>情況二：資源被完全使用（緊湊）</h4>
+    <ul>
+      <li>如果對偶問題中某個資源的「價格」為正（$y_1 > 0$）
+        <ul><li>例如：工時的影子價格是 2 元</li></ul>
+      </li>
+      <li><strong>結論</strong>：原始問題中該資源必定「剛好用完」（限制是緊的，Slack = 0）</li>
+      <li><strong>經濟解釋</strong>：只有當資源（工時）被完全用盡時，它才具有正的邊際價值。多 1 小時工時能讓你多賺 2 元</li>
+    </ul>
+    <div class="summary-box">
+      <strong>🎯 重點摘要：</strong>
+      <ul>
+        <li><strong>核心功能</strong>：互補鬆弛條件可用於驗證解的最優性</li>
+        <li><strong>實務應用</strong>：幫助分析哪些資源是瓶頸，哪些資源有剩餘</li>
+        <li><strong>最佳使用情境</strong>：敏感度分析、資源配置優化、投資優先順序決策</li>
+      </ul>
+    </div>
+  </section>
+
+  <!--====================================
+      IMPORTANCE OF DUAL PROBLEM
+      ===================================-->
+  <section class="section" id="importance" aria-labelledby="importance-heading">
+    <h2 id="importance-heading">💡 為什麼對偶問題很重要？</h2>
+    <p>對偶問題不僅是原始問題的數學鏡像，它更提供了深刻的經濟洞察和計算上的優勢，是優化決策中不可或缺的工具。</p>
+    <h3>1. 📈 提供經濟解釋 (影子價格)</h3>
+    <p>對偶問題的變數（$y_1, y_2$）具有非常重要的經濟意義，它們被稱為 <strong>「影子價格」 (Shadow Prices)</strong> 或 <strong>「邊際價值」 (Marginal Values)</strong>。</p>
+    <ul>
+      <li><strong>定義</strong>：影子價格代表當某個資源的限制增加一單位時，目標函數（如總利潤）會增加多少。</li>
+      <li><strong>決策依據</strong>：$y_1$（工時的影子價格）告訴我們，如果工時限制 (100小時) 增加 1 單位（變成 101 小時），我們的最大總利潤 $Z^*$ 會增加 $y_1$ 元。</li>
+      <li><strong>實際應用</strong>：這對於管理者決定「是否該花錢購買更多資源」提供了關鍵依據。如果工時的影子價格是 2 元，而加班 1 小時的成本是 1.5 元，那麼增加工時就是一個划算的決策。</li>
+    </ul>
+    <h3>2. 💻 帶來計算優勢</h3>
+    <p>有時候，求解對偶問題比求解原始問題更有效率：</p>
+    <ul>
+      <li><strong>問題轉換</strong>：如果原始問題的限制條件非常多，但變數很少，其對偶問題將會是變數很多，但限制條件很少。</li>
+      <li><strong>演算法效率</strong>：某些演算法（如對偶單純形法、內點法）在處理特定結構的對偶問題時速度更快。</li>
+      <li><strong>機器學習應用</strong>：在支援向量機 (SVM) 中，求解對偶問題可以將計算複雜度從依賴樣本特徵維度轉為依賴樣本數量，並能自然地引入「核技巧 (Kernel Trick)」。</li>
+    </ul>
+    <h3>3. 📊 進行敏感度分析</h3>
+    <p>透過對偶問題，我們可以分析當原始問題的參數（如：產品利潤 $c$、資源總量 $b$）發生變化時，最佳解會如何改變，這就是<strong>敏感度分析</strong>。</p>
+    <ul>
+      <li><strong>分析資源變化</strong>：影子價格本身就是一種敏感度分析，它告訴我們資源總量 $b$ 的微小變動對目標函數的影響。</li>
+      <li><strong>分析成本/利潤變化</strong>：對偶問題的限制條件 $A^T y \ge c$ 提供了關於產品利潤 $c$ 變動的資訊。</li>
+    </ul>
+    <div class="summary-box">
+      <strong>🎯 重點摘要：</strong>
+      <ul>
+        <li><strong>核心功能</strong>：對偶問題提供了經濟洞察、計算捷徑和分析工具。</li>
+        <li><strong>影子價格</strong>：是決策者評估資源價值的關鍵指標。</li>
+        <li><strong>計算效益</strong>：在特定情況下，求解對偶問題比原始問題更簡單。</li>
+        <li><strong>最佳使用情境</strong>：資源評估、演算法設計 (特別是 SVM)、企業策略規劃。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!--====================================
+      STANDARD TRANSFORMATION
+      ===================================-->
+  <section class="section" id="standard-transformation" aria-labelledby="standard-transformation-heading">
+    <h2 id="standard-transformation-heading">📐 標準原始問題的轉換</h2>
+    <p>將原始問題轉換為對偶問題有一套非常清晰、如鏡像般的規則。我們先從「標準型」原始問題開始，然後展示如何處理更一般化的情況。</p>
+    <p>最常被提及的「標準原始問題」是一個<strong>最大化 (Maximize)</strong> 問題，其所有限制條件均為<strong>小於等於 (≤)</strong>，且所有變數均為<strong>非負 (≥ 0)</strong>。</p>
+    
+    <h3 id="matrix-form">1. 標準原始與對偶問題 (矩陣形式)</h3>
+    <p>假設我們有 $n$ 個變數 ($x_1, ..., x_n$) 和 $m$ 條限制式。</p>
+    <h4>📊 原始問題 (Primal): 最大化 (Maximize)</h4>
+    $$ \begin{aligned} \text{Maximize} \quad & Z = c^T x \\ \text{subject to} \quad & Ax \le b \\ & x \ge 0 \end{aligned} $$
+    <ul>
+      <li>$x$: $n \times 1$ 的變數向量 (e.g., $x_1, x_2$)</li>
+      <li>$c$: $n \times 1$ 的利潤向量 (e.g., $c_1, c_2$)</li>
+      <li>$A$: $m \times n$ 的係數矩陣 (資源使用)</li>
+      <li>$b$: $m \times 1$ 的資源向量 (資源上限)</li>
+    </ul>
+    <h4>📊 對應的對偶問題 (Dual): 最小化 (Minimize)</h4>
+    $$ \begin{aligned} \text{Minimize} \quad & Y = b^T y \\ \text{subject to} \quad & A^T y \ge c \\ & y \ge 0 \end{aligned} $$
+    <ul>
+      <li>$y$: $m \times 1$ 的對偶變數向量 (e.g., $y_1, y_2$)</li>
+      <li>$b^T$: $1 \times m$ 的目標函數係數 (來自原始的 $b$)</li>
+      <li>$A^T$: $n \times m$ 的<strong>轉置</strong> (Transpose) 矩陣</li>
+      <li>$c$: $n \times 1$ 的限制右側 (來自原始的 $c$)</li>
+    </ul>
+    <p>💡 <strong>關鍵洞察：</strong> 原始問題中的<strong>每一條限制</strong>，都對應到對偶問題中的<strong>一個變數</strong>。反之，原始問題中的<strong>每一個變數</strong>，都對應到對偶問題中的<strong>一條限制</strong>。</p>
+
+    <h3 id="transformation-rules">2. 規則總覽 (標準型)</h3>
+    <p>這個轉換過程就像是把原始問題「順時針旋轉 90 度」：</p>
+    <table>
+      <thead><tr><th>原始問題 (Primal - Max)</th><th>鏡像轉換</th><th>對偶問題 (Dual - Min)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>目標</strong>：最大化 (Max)</td><td>$\longleftrightarrow$</td><td><strong>目標</strong>：最小化 (Min)</td></tr>
+        <tr><td><strong>目標函數係數</strong>：$c$</td><td>$\longleftrightarrow$</td><td><strong>限制式右側</strong>：$c$</td></tr>
+        <tr><td><strong>限制式右側</strong>：$b$</td><td>$\longleftrightarrow$</td><td><strong>目標函數係數</strong>：$b$</td></tr>
+        <tr><td><strong>限制矩陣</strong>：$A$</td><td>$\longleftrightarrow$</td><td><strong>限制矩陣</strong>：$A^T$ (轉置)</td></tr>
+        <tr><td><strong>限制類型</strong>：$\le$</td><td>$\longleftrightarrow$</td><td><strong>變數符號</strong>：$\ge 0$</td></tr>
+        <tr><td><strong>變數符號</strong>：$\ge 0$</td><td>$\longleftrightarrow$</td><td><strong>限制類型</strong>：$\ge$</td></tr>
+        <tr><td>$n$ 個變數</td><td>$\longleftrightarrow$</td><td>$n$ 條限制</td></tr>
+        <tr><td>$m$ 條限制</td><td>$\longleftrightarrow$</td><td>$m$ 個變數</td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="example-verification">3. 實際範例驗證</h3>
+    <p>讓我們用前面的工廠範例來驗證這個規則。</p>
+    <p><strong>原始問題 (Primal):</strong></p>
+    $$ \begin{aligned} \text{Maximize} \quad & Z = 3x_A + 5x_B \\ \text{subject to} \quad & 1x_A + 2x_B \le 100 \\ & 4x_A + 3x_B \le 300 \\ & x_A, x_B \ge 0 \end{aligned} $$
+    <h4>✅ 步驟 1：寫成矩陣形式</h4>
+    <ul>
+      <li>$c = \begin{bmatrix} 3 \\ 5 \end{bmatrix}$</li>
+      <li>$x = \begin{bmatrix} x_A \\ x_B \end{bmatrix}$</li>
+      <li>$A = \begin{bmatrix} 1 & 2 \\ 4 & 3 \end{bmatrix}$</li>
+      <li>$b = \begin{bmatrix} 100 \\ 300 \end{bmatrix}$</li>
+    </ul>
+    <h4>✅ 步驟 2：應用對偶規則</h4>
+    <ul>
+      <li><strong>目標：</strong> 最小化 $Y$</li>
+      <li><strong>新變數：</strong> $y = \begin{bmatrix} y_1 \\ y_2 \end{bmatrix}$ (因為原始問題有 2 條限制)</li>
+      <li><strong>目標函數 (Min $b^T y$)：</strong> $Y = \begin{bmatrix} 100 & 300 \end{bmatrix} \begin{bmatrix} y_1 \\ y_2 \end{bmatrix} \implies \text{Min } Y = 100y_1 + 300y_2$</li>
+      <li><strong>限制矩陣 (取 $A^T$)：</strong> $A^T = \begin{bmatrix} 1 & 4 \\ 2 & 3 \end{bmatrix}$</li>
+      <li><strong>限制條件 ($A^T y \ge c$)：</strong> $\begin{bmatrix} 1 & 4 \\ 2 & 3 \end{bmatrix} \begin{bmatrix} y_1 \\ y_2 \end{bmatrix} \ge \begin{bmatrix} 3 \\ 5 \end{bmatrix}$
+        <p>這會展開成 2 條限制：</p>
+        <ol>
+          <li>$1y_1 + 4y_2 \ge 3$</li>
+          <li>$2y_1 + 3y_2 \ge 5$</li>
+        </ol>
+      </li>
+      <li><strong>變數符號 ($y \ge 0$)：</strong> $y_1 \ge 0, y_2 \ge 0$ (因為原始限制是 $\le$)</li>
+    </ul>
+    <h4>✅ 步驟 3：組合對偶問題</h4>
+    $$ \begin{aligned} \text{Minimize} \quad & Y = 100y_1 + 300y_2 \\ \text{subject to} \quad & 1y_1 + 4y_2 \ge 3 \\ & 2y_1 + 3y_2 \ge 5 \\ & y_1, y_2 \ge 0 \end{aligned} $$
+    <div class="summary-box">
+      <strong>🎯 重點摘要：</strong>
+      <ul>
+        <li><strong>核心功能</strong>：此轉換提供了一個系統化的方法，將任何標準線性規劃問題轉為其對偶形式。</li>
+        <li><strong>潛在問題</strong>：此標準規則僅適用於「最大化 + ≤ 約束」或「最小化 + ≥ 約束」的標準型問題。</li>
+        <li><strong>最佳使用情境</strong>：當需要從不同角度分析問題，或原始問題求解困難時，可利用此規則轉換為對偶問題。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!--====================================
+      NON-STANDARD TRANSFORMATION
+      ===================================-->
+  <section class="section" id="non-standard" aria-labelledby="non-standard-heading">
+    <h2 id="non-standard-heading">🌐 處理非標準型：一般化規則</h2>
+    <p>真實世界的原始問題很少是「標準型」。您可能遇到「最小化」問題、(≥) 限制或「等於」(=) 限制。</p>
+    <p><strong>轉換的關鍵：</strong> 無論如何，<strong>Max 問題的限制</strong> 總是對應到 <strong>Min 問題的變數</strong>；而 <strong>Max 問題的變數</strong> 總是對應到 <strong>Min 問題的限制</strong>。</p>
+    <p>以下是「Max → Min」轉換的完整規則：</p>
+    <table>
+      <thead><tr><th>原始問題 (Primal - Max)</th><th></th><th>對偶問題 (Dual - Min)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>第 $i$ 條限制是</strong></td><td>$\longleftrightarrow$</td><td><strong>第 $i$ 個變數是</strong></td></tr>
+        <tr><td>$\le b_i$ (標準型)</td><td></td><td>$y_i \ge 0$ (標準型)</td></tr>
+        <tr><td>$\ge b_i$</td><td></td><td>$y_i \le 0$ (注意符號)</td></tr>
+        <tr><td>$= b_i$</td><td></td><td>$y_i$ 任意符號 (URS)</td></tr>
+        <tr><td colspan="3" style="background-color: var(--summary-bg-color);">&nbsp;</td></tr>
+        <tr><td><strong>第 $j$ 個變數是</strong></td><td>$\longleftrightarrow$</td><td><strong>第 $j$ 條限制是</strong></td></tr>
+        <tr><td>$x_j \ge 0$ (標準型)</td><td></td><td>$\ge c_j$ (標準型)</td></tr>
+        <tr><td>$x_j \le 0$</td><td></td><td>$\le c_j$</td></tr>
+        <tr><td>$x_j$ 任意符號 (URS)</td><td></td><td>$= c_j$</td></tr>
+      </tbody>
+    </table>
+    <p><strong>註：</strong> URS (Unrestricted in Sign) = 任意符號、無正負號限制。</p>
+    <p><strong>如果您從「最小化」問題開始呢？</strong></p>
+    <p>您可以：</p>
+    <ol>
+      <li>先將 Min $Z$ 轉換為 Max $(-Z)$，然後套用上述規則。</li>
+      <li>或者直接使用對稱的「Min $\to$ Max」規則（例如：Min 問題的 $\ge$ 限制，會對應到 Max 問題的 $\ge 0$ 變數）。</li>
+    </ol>
+    <p>透過這些規則，您可以將任何形式的線性規劃問題轉換為其對偶形式。</p>
+  </section>
+
+  <!--====================================
+      LAGRANGIAN DERIVATION
+      ===================================-->
+  <section class="section" id="lagrangian-derivation" aria-labelledby="lagrangian-derivation-heading">
+    <h2 id="lagrangian-derivation-heading">🔬 拉格朗日對偶性數學推導</h2>
+    <p>從數學上推導對偶問題，最經典且最嚴謹的方法是使用<strong>拉格朗日對偶性 (Lagrangian Duality)</strong>。這個推導過程不僅適用於線性規劃，也適用於更廣泛的非線性凸優化問題。</p>
+    <p><strong>核心思想：</strong></p>
+    <ol>
+      <li>我們將原始問題的「限制條件」($Ax \le b$) 透過「拉格朗日乘數」($y$) 融入到「目標函數」($c^T x$) 中，形成一個新的函數，即拉格朗日函數 $L(x, y)$。</li>
+      <li>然後，我們從一個新的「對偶」視角來優化這個函數，從而自然地推導出對偶問題。</li>
+    </ol>
+
+    <h3 id="step-1">步驟一：定義原始問題 (Primal Problem, P)</h3>
+    <p>我們從標準的最大化問題開始：</p>
+    <p>(P)</p>
+    $$ \begin{aligned} \text{Maximize} \quad & Z = c^T x \\ \text{s.t. (限制條件)} \quad & Ax \le b \\ & x \ge 0 \end{aligned} $$
+    <p>- $Z^*$ 是 (P) 的最佳解。</p>
+
+    <h3 id="step-2">步驟二：建構拉格朗日函數 (Lagrangian)</h3>
+    <p>我們引入一個「拉格朗日乘數」向量 $y$（一個 $m \times 1$ 的向量，其中 $m$ 是限制式的數量）。</p>
+    <p><strong>重要規則：</strong></p>
+    <ul><li>對於「小於等於」($\le$) 的限制 (例如 $Ax - b \le 0$)，我們要求其乘數 $y \ge 0$。</li></ul>
+    <p>我們將限制 $Ax \le b$ 改寫為 $b - Ax \ge 0$。 拉格朗日函數 $L(x, y)$ 的定義是「<strong>原始目標函數 + 乘數 $\times$ 限制</strong>」：</p>
+    $$ L(x, y) = c^T x + y^T (b - Ax) $$
+    $$ \text{其中 } y \ge 0 $$
+
+    <h3 id="step-3">步驟三：定義拉格朗日對偶函數 (Lagrangian Dual Function)</h3>
+    <p>現在，我們換個角度。固定 $y$（我們的「影子價格」），然後試圖在 $x \ge 0$ 的範圍內<strong>最大化</strong> $L(x, y)$。這個最大化的值被稱為<strong>拉格朗日對偶函數 $g(y)$</strong>。</p>
+    $$ g(y) = \sup_{x \ge 0} L(x, y) = \sup_{x \ge 0} \{ c^T x + y^T b - y^T A x \} $$
+    <p>為了方便分析，我們將與 $x$ 相關的項綁在一起：</p>
+    $$ g(y) = y^T b + \sup_{x \ge 0} \{ (c^T - y^T A) x \} = y^T b + \sup_{x \ge 0} \{ (c - A^T y)^T x \} $$
+
+    <h3 id="step-4">步驟四：分析 $g(y)$ 的值 (關鍵步驟)</h3>
+    <p>$g(y)$ 的值完全取決於括號中的項 $(c - A^T y)^T$。</p>
+    <p><strong>情況一：如果 $(c - A^T y)^T$ 中有任何一個元素 $j$ 是正的</strong></p>
+    <ul>
+      <li>(即 $(c - A^T y)_j > 0$)</li>
+      <li>因為我們是在 $x \ge 0$ 的範圍內取最大值 (supremum)，我們可以讓 $x_j$ 趨近於無限大 ($\infty$)，而其他 $x_k$ 保持為 0。</li>
+      <li>這將導致 $(c - A^T y)^T x$ 趨近於 $\infty$。</li>
+      <li>因此，<strong>$g(y) = \infty$</strong>。</li>
+    </ul>
+    <p><strong>情況二：如果 $(c - A^T y)^T$ 中所有元素都小於等於 0</strong></p>
+    <ul>
+      <li>(即 $c - A^T y \le 0$)</li>
+      <li>這可以寫成： <strong>$A^T y \ge c$</strong></li>
+      <li>在這種情況下，要最大化 $(c - A^T y)^T x$，由於 $x \ge 0$ 且 $(c - A^T y) \le 0$，這個乘積 $(...)^T x$ 永遠是負數或零。</li>
+      <li>因此，能得到的最大值 (supremum) 就是 **0** (當 $x = 0$ 時)。</li>
+      <li>因此，<strong>$g(y) = y^T b + 0 = b^T y$</strong>。</li>
+    </ul>
+    <p><strong>總結 $g(y)$：</strong></p>
+    $$ g(y) = \begin{cases} b^T y & \text{如果 } A^T y \ge c \\ \infty & \text{如果 } A^T y \not\ge c \end{cases} $$
+
+    <h3 id="step-5">步驟五：定義對偶問題 (Dual Problem, D)</h3>
+    <p>拉格朗日對偶理論告訴我們，「對偶函數 $g(y)$」是「原始問題最佳解 $Z^*$」的一個<strong>上界 (Upper Bound)</strong>。</p>
+    $$ g(y) \ge Z^* \quad (\text{這就是弱對偶性}) $$
+    <p>既然 $g(y)$ 總是一個上界，那麼我們自然會想找到那個「<strong>最好（即最小）的上界</strong>」。</p>
+    <p>這就定義了<strong>對偶問題 (D)</strong>：</p>
+    <p>(D)</p>
+    $$ \begin{aligned} \text{Minimize} \quad & g(y) \\ \text{s.t. (限制條件)} \quad & y \ge 0 \end{aligned} $$
+    <p><strong>將 $g(y)$ 代入：</strong></p>
+    $$ \text{Minimize} \quad \begin{cases} b^T y & \text{如果 } A^T y \ge c \\ \infty & \text{如果 } A^T y \not\ge c \end{cases} \quad \text{s.t.} \quad y \ge 0 $$
+    <p><strong>簡化：</strong></p>
+    <p>一個理性的最小化問題會自動避免讓目標函數變成 $\infty$。因此，我們只需要考慮 $g(y) = b^T y$ 的情況，但這必須在 $A^T y \ge c$ 的條件下才成立。</p>
+    <p>所以，(D) 就變成了：</p>
+    $$ \begin{aligned} \text{Minimize} \quad & Y = b^T y \\ \text{s.t. (限制條件)} \quad & A^T y \ge c \\ & y \ge 0 \end{aligned} $$
+    <h4>結論：推導完成</h4>
+    <p>我們從原始問題 (P) 出發，透過構造拉格朗日函數 $L(x,y)$，再推導其對偶函數 $g(y)$，最後藉由最小化 $g(y)$，我們<strong>嚴謹地推導</strong>出了對偶問題 (D) 的標準形式。</p>
+    <p>這個推導過程也漂亮地解釋了規則的來源：</p>
+    <ul>
+      <li><strong>原始的限制 $Ax \le b$</strong> $\to$ 變成了<strong>對偶的目標 $b^T y$</strong> (來自 $g(y)$ 的 $y^T b$ 項)。</li>
+      <li><strong>原始的目標 $c^T x$</strong> $\to$ 變成了<strong>對偶的限制 $A^T y \ge c$</strong> (來自 $g(y)$ 不為 $\infty$ 的條件)。</li>
+      <li><strong>原始的變數 $x \ge 0$</strong> $\to$ 確保了 $g(y)$ 分析中「情況二」($\sup = 0$) 的成立。</li>
+      <li><strong>原始的限制 $Ax \le b$</strong> $\to$ 決定了<strong>對偶的變數 $y \ge 0$</strong> (來自拉格朗日乘數的設定)。</li>
+    </ul>
+  </section>
+
+  <!--====================================
+      CONVEX OPTIMIZATION
+      ===================================-->
+  <section class="section" id="convex-optimization" aria-labelledby="convex-optimization-heading">
+    <h2 id="convex-optimization-heading">🧮 凸優化中的對偶理論</h2>
+    <p>雖然本篇主要以線性規劃為例，但對偶理論在<strong>凸優化 (Convex Optimization)</strong> 中扮演著更廣泛且關鍵的角色。</p>
+    <h3>一般形式</h3>
+    <p><strong>原始問題 (Primal Problem):</strong></p>
+    $$ \begin{aligned} \text{minimize} \quad & f(x) \\ \text{subject to} \quad & g_i(x) \le 0, \quad i = 1, 2, \ldots, m \\ & h_j(x) = 0, \quad j = 1, 2, \ldots, p \end{aligned} $$
+    <p><strong>拉格朗日函數 (Lagrangian):</strong></p>
+    $$ L(x, \lambda, \nu) = f(x) + \sum_{i=1}^{m} \lambda_i g_i(x) + \sum_{j=1}^{p} \nu_j h_j(x) $$
+    <p>其中 $\lambda_i \ge 0$ 是對應不等式約束的乘數，$\nu_j$ 是對應等式約束的乘數。</p>
+    <p><strong>對偶函數 (Dual Function):</strong></p>
+    $$ \theta(\lambda, \nu) = \inf_{x} L(x, \lambda, \nu) $$
+    <p><strong>對偶問題 (Dual Problem):</strong></p>
+    $$ \begin{aligned} \text{maximize} \quad & \theta(\lambda, \nu) \\ \text{subject to} \quad & \lambda \ge 0 \end{aligned} $$
+    <h3>KKT 條件 (Karush–Kuhn–Tucker Conditions)</h3>
+    <p>在滿足強對偶性時，最優解 $(x^*, \lambda^*, \nu^*)$ 會同時滿足 KKT 條件，這是非線性規劃最佳解的必要條件：</p>
+    <ol>
+      <li><strong>原始可行性 (Primal feasibility)</strong>: $g_i(x^*) \le 0$ 且 $h_j(x^*) = 0$。</li>
+      <li><strong>對偶可行性 (Dual feasibility)</strong>: $\lambda_i^* \ge 0$。</li>
+      <li><strong>互補鬆弛 (Complementary slackness)</strong>: $\lambda_i^* g_i(x^*) = 0$。</li>
+      <li><strong>梯度條件 (Stationarity)</strong>: $\nabla f(x^*) + \sum_{i=1}^{m} \lambda_i^* \nabla g_i(x^*) + \sum_{j=1}^{p} \nu_j^* \nabla h_j(x^*) = 0$。</li>
+    </ol>
+    <div class="summary-box">
+      <strong>🎯 重點摘要：</strong>
+      <ul>
+        <li><strong>核心功能</strong>：KKT 條件是判斷非線性規劃問題解是否為最優解的關鍵工具。</li>
+        <li><strong>梯度條件</strong>：意味著在最優點，目標函數的梯度可以表示為各個有效約束梯度（Active Constraints）的線性組合。</li>
+        <li><strong>最佳使用情境</strong>：在機器學習中，SVM 的推導過程就深度依賴 KKT 條件來找出支持向量 (Support Vectors)。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!--====================================
+      APPLICATIONS
+      ===================================-->
+  <section class="section" id="applications" aria-labelledby="applications-heading">
+    <h2 id="applications-heading">💼 實際應用案例</h2>
+    <table>
+      <thead><tr><th>領域</th><th>應用案例</th><th>如何利用對偶理論</th></tr></thead>
+      <tbody>
+        <tr><td><strong>機器學習</strong></td><td><strong>支援向量機 (SVM)</strong></td><td>透過求解對偶問題，引入核技巧 (Kernel Trick)，解決非線性分類問題，且計算複雜度與樣本數相關，而非特徵維度。</td></tr>
+        <tr><td><strong>經濟學</strong></td><td><strong>資源定價與分配</strong></td><td>對偶變數（影子價格）直接反映了資源的邊際價值，幫助制定最優的資源採購和分配策略。</td></tr>
+        <tr><td><strong>生產管理</strong></td><td><strong>產品組合優化</strong></td><td>企業可以利用對偶理論分析哪些產品的利潤貢獻最大，以及哪些資源是生產瓶頸。</td></tr>
+        <tr><td><strong>網路流量</strong></td><td><strong>最大流最小割問題</strong></td><td>網路中的最大流問題與其對偶問題——最小割問題的最優值相等，這是對偶理論的經典應用。</td></tr>
+        <tr><td><strong>金融</strong></td><td><strong>投資組合優化</strong></td><td>在給定風險水平下最大化預期回報，對偶變數可以解釋為風險的「價格」。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!--====================================
+      FAQ
+      ===================================-->
+  <section class="section" id="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">❓ 常見問答 (FAQ)</h2>
+    <div class="faq">
+      <p><strong>Q1: 為什麼對偶問題的變數（影子價格）可以是 0？</strong></p>
+      <p>A1: 當一個資源沒有被完全用完時（即原始問題的該項限制是鬆弛的），代表這個資源並不稀缺。因此，多給你一單位這種資源，並不會增加你的總利潤，其邊際價值（影子價格）自然就是 0。這正是互補鬆弛定理的體現。</p>
+      <p><strong>Q2: 求解對偶問題一定比原始問題容易嗎？</strong></p>
+      <p>A2: 不一定。這取決於問題的結構。如果原始問題的變數少、限制多，那麼對偶問題就會變成變數多、限制少。通常我們會選擇變數較少或結構更適合特定演算法的問題來求解。</p>
+      <p><strong>Q3: 強對偶性在什麼情況下不成立？</strong></p>
+      <p>A3: 在非凸優化問題中，強對偶性通常不成立，此時對偶問題的最優值（對偶間隙, Duality Gap）與原始問題的最優值之間存在差距。即使在凸優化中，也需要滿足某些約束規範（如 Slater 條件）才能保證強對偶性。</p>
+      <p><strong>Q4: 拉格朗日乘數法和對偶理論有什麼關係？</strong></p>
+      <p>A4: 拉格朗日乘數法是推導對偶理論的數學基礎。透過引入拉格朗日乘數將帶有約束的原始問題轉化為一個無約束的拉格朗日函數，然後從對偶的角度去優化這個函數，從而系統性地推導出對偶問題。</p>
+    </div>
+  </section>
+
+  <!--====================================
+      SUMMARY
+      ===================================-->
+  <section class="section" id="summary" aria-labelledby="summary-heading">
+    <h2 id="summary-heading">🎓 總結與最佳實踐</h2>
+    <ul>
+      <li><strong>從兩個角度思考</strong>：遇到優化問題時，不僅要思考如何直接求解（原始視角），也要思考其資源的價值評估（對偶視角）。</li>
+      <li><strong>利用影子價格做決策</strong>：在資源配置問題中，務必計算影子價格。它是衡量資源價值的黃金標準，能為投資、採購等決策提供量化依據。</li>
+      <li><strong>檢查 KKT 條件</strong>：對於非線性優化問題，KKT 條件是驗證解的最優性的重要工具，特別是在機器學習模型的推導中。</li>
+      <li><strong>選擇合適的問題求解</strong>：根據問題的變數與限制數量，以及演算法的特性，靈活選擇求解原始問題或對偶問題。</li>
+    </ul>
+  </section>
+</main>
+
+<!-- =============================================================================
+     FOOTER
+     ============================================================================= -->
+<footer class="hashtags" id="hashtags">
+  #優化理論 #線性規劃 #機器學習 #數學教學 #演算法 #最佳化 #程式設計 #資料科學 #技術分享 #學習筆記
+</footer>
+
+</body>
+</html>
