@@ -374,12 +374,10 @@ plt.ylabel("$y$", rotation=0)
 
 plt.subplot(132)
 theta_path_bgd = plot_gradient_descent(theta, eta=0.1)  # 適當的學習率
-plt.gca().axes.yaxis.set_ticklabels([])
-
+plt.yticks([])
 plt.subplot(133)
 plot_gradient_descent(theta, eta=0.5)  # 學習率太大
-plt.gca().axes.yaxis.set_ticklabels([])
-
+plt.yticks([])
 save_fig("gradient_descent_plot")
 plt.show()
 
