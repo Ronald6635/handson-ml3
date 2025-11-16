@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>支持向量機 (SVM) 完整教學：從線性分類到核技巧</title>
+  <meta name="description" content="本教學深入探討支持向量機 (SVM) 的核心概念，包括最大邊界分類、軟邊界、特徵縮放、核技巧 (多項式、高斯 RBF)，以及如何應用於迴歸任務。包含詳細的程式碼解析與視覺化圖表。"/>
+  <meta name="keywords" content="支持向量機, SVM, 機器學習, 線性分類, 核技巧, RBF, Python, Scikit-Learn, 數據科學"/>
+  
+  <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
+  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+  
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  
+  <!-- MathJax -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --heading-color: #265D94;
+      --link-color: #0056b3;
+      --border-color: #dddddd;
+      --code-bg-color: #f5f5f5;
+      --summary-bg-color: #eef3f8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #cccccc;
+        --heading-color: #87b5e1;
+        --link-color: #6caeef;
+        --border-color: #444444;
+        --code-bg-color: #2c2c2c;
+        --summary-bg-color: #252a30;
+      }
+    }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      line-height: 1.8;
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 900px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    h1, h2, h3, h4 {
+      color: var(--heading-color);
+      font-weight: 700;
+      margin-top: 1.5em;
+    }
+    h1 { font-size: 2.2em; text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+    h2 { font-size: 1.8em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    h3 { font-size: 1.4em; }
+    h4 { font-size: 1.2em; }
+    a { color: var(--link-color); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header, footer { text-align: center; margin-bottom: 2em; }
+    .meta { font-size: 0.9em; color: #666; }
+    .toc { background-color: var(--summary-bg-color); padding: 15px 25px; border-radius: 8px; margin-bottom: 2em; }
+    .toc h2 { margin-top: 0; }
+    blockquote {
+        border-left: 4px solid var(--border-color);
+        padding-left: 1em;
+        margin-left: 0;
+        color: #666;
+        background-color: var(--summary-bg-color);
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+    pre {
+        background-color: var(--code-bg-color);
+        padding: 15px;
+        border-radius: 5px;
+        overflow-x: auto;
+        border: 1px solid var(--border-color);
+    }
+    code {
+        font-family: 'Courier New', Courier, monospace;
+        background-color: var(--code-bg-color);
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
+    pre code {
+        padding: 0;
+        background-color: transparent;
+        border-radius: 0;
+    }
+    hr {
+        border: 0;
+        border-top: 1px solid var(--border-color);
+        margin: 2em 0;
+    }
+    ul {
+        padding-left: 20px;
+    }
+    li {
+        margin-bottom: 0.5em;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🐍 支持向量機 (SVM) 完整教學</h1>
+</header>
+
+<main>
+    <blockquote>
+        <p>💡 <strong>關鍵要點</strong></p>
+        <ul>
+            <li><strong>核心思想</strong>: SVM 的目標是找到一個能將不同類別的數據點分隔開的最優超平面（decision boundary），並使得這個超平面到最近的數據點（支持向量）的距離（margin）最大化。</li>
+            <li><strong>硬邊界 vs. 軟邊界</strong>: 硬邊界 (Hard Margin) 要求所有數據點都必須被完美分類；軟邊界 (Soft Margin) 則允許一些數據點被錯誤分類或落在邊界內，以換取更好的泛化能力，由超參數 <code>C</code> 控制。</li>
+            <li><strong>特徵縮放的重要性</strong>: SVM 對特徵的尺度非常敏感。在訓練前，必須對數據進行標準化 (Standardization)，否則尺度較大的特徵會主導模型，導致次優的決策邊界。</li>
+            <li><strong>核技巧 (Kernel Trick)</strong>: 對於非線性數據，SVM 使用核技巧（如多項式核、高斯 RBF 核）將數據隱式地映射到更高維度的空間，從而在這個高維空間中找到一個線性的分隔超平面，而無需實際計算高維特徵，極大地提高了計算效率。</li>
+            <li><strong>應用於迴歸</strong>: SVM 不僅能用於分類，也能用於迴歸 (SVR)。其目標是讓盡可能多的數據點落在一個由超參數 <code>epsilon</code> (ε) 控制的「街道」內。</li>
+        </ul>
+    </blockquote>
+
+    <hr>
+
+    <div class="toc">
+        <h2>📄 目錄</h2>
+        <ul>
+            <li><a href="#introduction">🎯 前言：為何選擇支持向量機？</a></li>
+            <li><a href="#linear-svm">Linear SVM 分類</a>
+                <ul>
+                    <li><a href="#large-margin">大間隔分類 (Large Margin Classification)</a></li>
+                    <li><a href="#feature-scaling">特徵縮放的重要性</a></li>
+                    <li><a href="#soft-margin">軟間隔分類 (Soft Margin Classification)</a></li>
+                </ul>
+            </li>
+            <li><a href="#nonlinear-svm">🔄 非線性 SVM 分類</a>
+                <ul>
+                    <li><a href="#polynomial-kernel">多項式核 (Polynomial Kernel)</a></li>
+                    <li><a href="#similarity-features">相似性特徵</a></li>
+                    <li><a href="#gaussian-rbf-kernel">高斯 RBF 核 (Gaussian RBF Kernel)</a></li>
+                </ul>
+            </li>
+            <li><a href="#svm-regression">🚀 SVM 迴歸</a></li>
+            <li><a href="#under-the-hood">💡 深入探討：SVM 的數學原理</a></li>
+            <li><a href="#faq">❓ 常見問題 (FAQ)</a></li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <a id="introduction"></a>
+    <h2>🎯 前言：為何選擇支持向量機？</h2>
+    <p>支持向量機 (Support Vector Machine, SVM) 是一種功能強大且用途廣泛的機器學習模型，能夠執行線性或非線性的分類、迴歸，甚至是異常點偵測任務。它在中小規模且複雜的數據集上表現尤其出色。</p>
+    <p><strong>實際應用場景</strong>:</p>
+    <ul>
+        <li><strong>圖像分類</strong>: SVM 曾是圖像識別領域的領先技術，例如手寫數字辨識、人臉偵測。</li>
+        <li><strong>生物資訊學</strong>: 用於基因分類、蛋白質分類等。</li>
+        <li><strong>文本分類</strong>: 如垃圾郵件過濾、情感分析。</li>
+        <li><strong>金融預測</strong>: 預測股價走勢或信用風險評估。</li>
+    </ul>
+    <p>本教學將帶您從 SVM 的基本概念——最大化分類邊界開始，逐步深入到處理非線性數據的核技巧，最後探討其在迴歸問題上的應用。</p>
+
+    <hr>
+
+    <a id="linear-svm"></a>
+    <h2>線性 SVM 分類</h2>
+
+    <a id="large-margin"></a>
+    <h3>🐍 大間隔分類 (Large Margin Classification)</h3>
+    <p>SVM 的核心思想是找到一個決策邊界，這個邊界不僅能分開兩個類別，而且能讓兩個類別之間「街道」的寬度最大化。這條「街道」的邊緣由最靠近決策邊界的數據點決定，這些點被稱為「支持向量」(Support Vectors)。</p>
+    <p>下圖展示了這個概念：左圖顯示了多個可能的決策邊界，但它們的分類間隔 (margin) 並非最佳。右圖則顯示了 SVM 找到的最佳解——一條具有最大間隔的決策邊界。</p>
+    <pre><code class="language-python"># 載入鳶尾花數據集並選取兩個特徵與兩個類別
+import numpy as np
+from sklearn import datasets
+from sklearn.svm import SVC
+
+iris = datasets.load_iris(as_frame=True)
+X = iris.data[["petal length (cm)", "petal width (cm)"]].values
+y = iris.target
+
+setosa_or_versicolor = (y == 0) | (y == 1)
+X = X[setosa_or_versicolor]
+y = y[setosa_or_versicolor]
+
+# 訓練一個硬邊界 SVM 模型
+# C 設為一個極大值，模擬硬邊界分類
+svm_clf = SVC(kernel="linear", C=1e9)
+svm_clf.fit(X, y)
+</code></pre>
+    <h4>✅ 程式碼逐行解析</h4>
+    <ol>
+        <li><strong><code>import</code></strong>: 導入必要的函式庫，包括 <code>numpy</code>、<code>datasets</code> 和 <code>SVC</code>。</li>
+        <li><strong><code>load_iris</code></strong>: 載入 Scikit-Learn 內建的鳶尾花數據集。</li>
+        <li><strong><code>X = iris.data[...]</code></strong>: 從數據集中選取「花瓣長度」和「花瓣寬度」作為我們的特徵。</li>
+        <li><strong><code>setosa_or_versicolor = ...</code></strong>: 創建一個布林遮罩，只選擇 'setosa' (y=0) 和 'versicolor' (y=1) 這兩個類別。</li>
+        <li><strong><code>X = X[...]</code>, <code>y = y[...]</code></strong>: 應用遮罩，篩選出我們需要的數據。</li>
+        <li><strong><code>svm_clf = SVC(...)</code></strong>: 創建一個 SVM 分類器實例。
+            <ul>
+                <li><code>kernel="linear"</code>: 指定使用線性核，因為我們正在進行線性分類。</li>
+                <li><code>C=1e9</code>: <code>C</code> 是正規化參數。這裡將它設為一個非常大的數，是為了模擬「硬邊界」分類，即不允許任何分類錯誤。</li>
+            </ul>
+        </li>
+        <li><strong><code>svm_clf.fit(X, y)</code></strong>: 使用準備好的數據訓練 SVM 模型。</li>
+    </ol>
+
+    <hr>
+
+    <a id="feature-scaling"></a>
+    <h3>🐍 特徵縮放的重要性</h3>
+    <p>SVM 對特徵的尺度（scale）非常敏感。如果不同特徵的數值範圍差異很大，SVM 的決策邊界會被數值範圍較大的特徵所主導，導致模型性能下降。</p>
+    <p>下圖展示了特徵縮放的重要性：</p>
+    <ul>
+        <li><strong>左圖 (未縮放)</strong>: <code>x1</code> 特徵的範圍遠大於 <code>x0</code>，導致決策邊界幾乎是水平的，忽略了 <code>x0</code> 的影響。</li>
+        <li><strong>右圖 (已縮放)</strong>: 使用 <code>StandardScaler</code> 進行特徵縮放後，兩個特徵的尺度變得相似，SVM 能夠找到一個更平衡、更優的決策邊界。</li>
+    </ul>
+    <pre><code class="language-python">from sklearn.preprocessing import StandardScaler
+
+# 未縮放的數據
+Xs = np.array([[1, 50], [5, 20], [3, 80], [5, 60]]).astype(np.float64)
+ys = np.array([0, 0, 1, 1])
+svm_clf_unscaled = SVC(kernel="linear", C=100).fit(Xs, ys)
+
+# 進行特徵縮放
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(Xs)
+svm_clf_scaled = SVC(kernel="linear", C=100).fit(X_scaled, ys)
+</code></pre>
+    <h4>✅ 程式碼逐行解析</h4>
+    <ol>
+        <li><strong><code>Xs</code>, <code>ys</code></strong>: 創建一個簡單的數據集，其中特徵 <code>x1</code> 的數值範圍 (20-80) 遠大於 <code>x0</code> (1-5)。</li>
+        <li><strong><code>svm_clf_unscaled.fit(Xs, ys)</code></strong>: 在未縮放的數據上訓練一個 SVM 模型。</li>
+        <li><strong><code>scaler = StandardScaler()</code></strong>: 創建一個 <code>StandardScaler</code> 物件，它會將特徵標準化，使其平均值為 0，標準差為 1。</li>
+        <li><strong><code>X_scaled = scaler.fit_transform(Xs)</code></strong>: 對數據 <code>Xs</code> 進行擬合和轉換，得到縮放後的數據 <code>X_scaled</code>。</li>
+        <li><strong><code>svm_clf_scaled.fit(X_scaled, ys)</code></strong>: 在縮放後的數據上訓練一個新的 SVM 模型。</li>
+    </ol>
+    <blockquote><p><strong>💡 最佳實踐</strong>: 在使用 SVM 之前，<strong>務必</strong>對數據進行特徵縮放。<code>StandardScaler</code> 是最常用的方法之一。將縮放器和分類器打包在一個 <code>Pipeline</code> 中是個好習慣。</p></blockquote>
+
+    <hr>
+
+    <a id="soft-margin"></a>
+    <h3>🐍 軟間隔分類 (Soft Margin Classification)</h3>
+    <p>在現實世界的數據中，數據點很少是完美線性可分的，而且常含有噪點。如果堅持使用硬邊界分類，模型可能會因為一兩個異常點而產生很差的決策邊界，或者根本找不到解。</p>
+    <p><strong>軟間隔分類</strong>允許模型在一定程度上「犯錯」。它在「保持街道寬度」和「限制間隔違例 (margin violations)」之間尋求一個平衡。這個平衡由超參數 <code>C</code> 控制：</p>
+    <ul>
+        <li><strong>較小的 <code>C</code></strong>: 產生較寬的街道，但允許較多的間隔違例。這對數據的噪點有較高的容忍度，正規化程度較高，有助於避免過擬合。</li>
+        <li><strong>較大的 <code>C</code></strong>: 產生較窄的街道，盡力減少間隔違例。模型會更努力地去擬合每一個數據點，正規化程度較低，可能會導致過擬合。</li>
+    </ul>
+    <p>下圖展示了不同 <code>C</code> 值對決策邊界的影響。左圖 <code>C=1</code> 的模型有更寬的間隔，而右圖 <code>C=100</code> 的模型間隔較窄，更緊密地擬合了數據。</p>
+    <pre><code class="language-python">from sklearn.pipeline import make_pipeline
+from sklearn.svm import LinearSVC
+
+# 建立一個分類 Iris virginica 的二元分類問題
+iris = load_iris(as_frame=True)
+X = iris.data[["petal length (cm)", "petal width (cm)"]].values
+y = (iris.target == 2)  # True for Iris virginica, False for others
+
+# 建立一個包含特徵縮放和 LinearSVC 的 pipeline
+# C=1, 正規化程度較高
+svm_clf1 = make_pipeline(StandardScaler(),
+                         LinearSVC(C=1, dual=True, random_state=42))
+svm_clf1.fit(X, y)
+
+# C=100, 正規化程度較低
+svm_clf2 = make_pipeline(StandardScaler(),
+                         LinearSVC(C=100, dual=True, random_state=42))
+svm_clf2.fit(X, y)
+</code></pre>
+    <h4>✅ 程式碼逐行解析</h4>
+    <ol>
+        <li><strong><code>y = (iris.target == 2)</code></strong>: 創建一個二元目標變數，判斷鳶尾花是否為 'virginica'。</li>
+        <li><strong><code>make_pipeline(...)</code></strong>: 創建一個 Scikit-Learn <code>Pipeline</code>，它會將多個處理步驟串聯起來。這可以確保在訓練和預測時，數據都經過相同的轉換流程。</li>
+        <li><strong><code>StandardScaler()</code></strong>: Pipeline 的第一步，對數據進行標準化。</li>
+        <li><strong><code>LinearSVC(...)</code></strong>: Pipeline 的第二步，訓練一個線性 SVM 分類器。
+            <ul>
+                <li><code>C=1</code> 和 <code>C=100</code>: 分別設定了不同的正規化強度。</li>
+                <li><code>dual=True</code>: 處理 <code>n_samples > n_features</code> 的情況，是 <code>LinearSVC</code> 的一個技術性參數。</li>
+            </ul>
+        </li>
+        <li><strong><code>fit(X, y)</code></strong>: 訓練整個 pipeline。數據會先經過 <code>StandardScaler</code> 處理，然後再傳遞給 <code>LinearSVC</code> 進行訓練。</li>
+    </ol>
+
+    <hr>
+
+    <a id="nonlinear-svm"></a>
+    <h2>🔄 非線性 SVM 分類</h2>
+    <p>現實中的數據集大多不是線性可分的。處理這種問題有兩種主要方法：</p>
+    <ol>
+        <li><strong>添加多項式特徵</strong>: 手動為數據添加新的特徵（例如，將 <code>x1</code> 轉換為 <code>x1</code>, <code>x1^2</code>），然後在新的特徵空間中使用線性 SVM。</li>
+        <li><strong>使用核技巧</strong>: 這是 SVM 更為強大和高效的方法。</li>
+    </ol>
+
+    <a id="polynomial-kernel"></a>
+    <h3>🐍 多項式核 (Polynomial Kernel)</h3>
+    <p>手動添加多項式特徵在低維度時是可行的，但當特徵維度和多項式次數增加時，會導致特徵數量爆炸性增長，使得模型訓練變得非常緩慢。</p>
+    <p><strong>核技巧 (Kernel Trick)</strong> 是一個絕妙的數學技巧，它可以在<strong>不實際創建</strong>高維特徵的情況下，得到與在高維特徵空間中訓練線性 SVM 完全相同的結果。</p>
+    <p><code>SVC</code> 類別內建了多種核函數，包括多項式核。</p>
+    <pre><code class="language-python">from sklearn.datasets import make_moons
+
+X, y = make_moons(n_samples=100, noise=0.15, random_state=42)
+
+# 方法一：手動添加多項式特徵 + 線性 SVM
+from sklearn.preprocessing import PolynomialFeatures
+polynomial_svm_clf = make_pipeline(
+    PolynomialFeatures(degree=3),
+    StandardScaler(),
+    LinearSVC(C=10, max_iter=10_000, dual=True, random_state=42)
+)
+polynomial_svm_clf.fit(X, y)
+
+# 方法二：使用多項式核的 SVC
+poly_kernel_svm_clf = make_pipeline(
+    StandardScaler(),
+    SVC(kernel="poly", degree=3, coef0=1, C=5)
+)
+poly_kernel_svm_clf.fit(X, y)
+</code></pre>
+    <h4>✅ 程式碼逐行解析</h4>
+    <ol>
+        <li><strong><code>make_moons</code></strong>: 生成一個非線性的「月亮」形狀數據集，常用於測試非線性分類算法。</li>
+        <li><strong><code>PolynomialFeatures(degree=3)</code></strong>: 這是一個特徵轉換器，它會生成所有小於等於 3 次的多項式組合特徵。</li>
+        <li><strong><code>SVC(kernel="poly", ...)</code></strong>: 創建一個使用多項式核的 SVM 分類器。
+            <ul>
+                <li><code>kernel="poly"</code>: 指定使用多項式核。</li>
+                <li><code>degree=3</code>: 指定多項式的次數。</li>
+                <li><code>coef0=1</code>: 控制模型受高次項與低次項影響的程度。</li>
+                <li><code>C=5</code>: 正規化參數。</li>
+            </ul>
+        </li>
+    </ol>
+    <blockquote><p><strong>🎯 重點摘要</strong>: 使用 <code>SVC(kernel="poly")</code> 通常比手動組合 <code>PolynomialFeatures</code> 和 <code>LinearSVC</code> 更高效，特別是在高次數時。你需要透過交叉驗證來調整 <code>degree</code>, <code>coef0</code>, 和 <code>C</code> 等超參數。</p></blockquote>
+
+    <hr>
+
+    <a id="similarity-features"></a>
+    <h3>🐍 相似性特徵</h3>
+    <p>另一種處理非線性問題的思路是，根據數據點與特定「地標」(landmark) 的相似度來添加新特徵。一個常用的相似度函數是<strong>高斯徑向基函數 (Gaussian Radial Basis Function, RBF)</strong>:</p>
+    <p>$$ \phi_{\gamma}(\mathbf{x}, \boldsymbol{\ell}) = \exp(-\gamma \|\mathbf{x} - \boldsymbol{\ell}\|^2) $$</p>
+    <p>這個函數的值域在 0 (距離地標很遠) 到 1 (與地標重合) 之間。通過計算每個數據點到多個地標的相似度，我們可以將數據轉換到一個新的特徵空間，在這個空間中數據可能就變得線性可分了。</p>
+
+    <a id="gaussian-rbf-kernel"></a>
+    <h3>🐍 高斯 RBF 核 (Gaussian RBF Kernel)</h3>
+    <p>與多項式特徵一樣，手動選擇地標並計算相似性特徵在實務上是困難且低效的。幸運的是，<strong>RBF 核</strong>同樣可以透過核技巧來實現，而無需實際計算任何相似性特徵。</p>
+    <p>RBF 核是 SVM 中最常用、也是預設的核函數。它非常強大，能夠處理各種複雜的非線性數據。</p>
+    <pre><code class="language-python"># 使用高斯 RBF 核的 SVC
+rbf_kernel_svm_clf = make_pipeline(
+    StandardScaler(),
+    SVC(kernel="rbf", gamma=5, C=0.001)
+)
+rbf_kernel_svm_clf.fit(X, y)
+</code></pre>
+    <h4>✅ 程式碼逐行解析</h4>
+    <ol>
+        <li><strong><code>SVC(kernel="rbf", ...)</code></strong>: 創建一個使用 RBF 核的 SVM 分類器。
+            <ul>
+                <li><code>kernel="rbf"</code>: 指定使用高斯 RBF 核。</li>
+                <li><code>gamma</code>: 控制 RBF 函數「鐘形曲線」的寬度。可以看作是一個正規化參數。
+                    <ul>
+                        <li><strong>較小的 <code>gamma</code></strong>: 產生較平滑、寬泛的決策邊界（高正規化，可能導致欠擬合）。</li>
+                        <li><strong>較大的 <code>gamma</code></strong>: 產生更複雜、更不規則的決策邊界，緊密貼合訓練數據（低正規化，可能導致過擬合）。</li>
+                    </ul>
+                </li>
+                <li><code>C</code>: 與線性 SVM 中的 <code>C</code> 意義相同，控制間隔違例的懲罰。</li>
+            </ul>
+        </li>
+    </ol>
+    <blockquote><p><strong>💡 最佳實踐</strong>: 當你開始處理一個新的分類問題時，使用 <code>SVC(kernel="rbf")</code> 通常是一個很好的起點。你需要同時對 <code>gamma</code> 和 <code>C</code> 進行超參數調優，以找到最佳的模型。</p></blockquote>
+
+    <hr>
+
+    <a id="svm-regression"></a>
+    <h2>🚀 SVM 迴歸</h2>
+    <p>SVM 也可以用於迴歸任務 (SVR)。其目標與分類相反：分類是讓街道盡可能寬，而迴歸是讓盡可能多的數據點<strong>落在街道內</strong>。</p>
+    <ul>
+        <li><strong>街道寬度</strong>: 由超參數 <code>epsilon</code> (ε) 控制。落在街道內的數據點不會對模型產生任何影響，因此 SVR 被稱為是「ε-不敏感 (ε-insensitive)」的。</li>
+        <li><strong>目標</strong>: 在限制間隔違例（落在街道外的點）的同時，讓盡可能多的點擬合在街道內。</li>
+    </ul>
+    <p>SVR 同樣支持核技巧，因此可以執行線性和非線性迴歸。</p>
+    <pre><code class="language-python">from sklearn.svm import LinearSVR, SVR
+
+# 線性 SVR
+np.random.seed(42)
+X = 2 * np.random.rand(50, 1)
+y = 4 + 3 * X[:, 0] + np.random.randn(50)
+
+svm_reg = make_pipeline(StandardScaler(),
+                        LinearSVR(epsilon=0.5, dual=True, random_state=42))
+svm_reg.fit(X, y)
+
+# 非線性 SVR (使用多項式核)
+np.random.seed(42)
+X = 2 * np.random.rand(50, 1) - 1
+y = 0.2 + 0.1 * X[:, 0] + 0.5 * X[:, 0] ** 2 + np.random.randn(50) / 10
+
+svm_poly_reg = make_pipeline(StandardScaler(),
+                             SVR(kernel="poly", degree=2, C=0.01, epsilon=0.1))
+svm_poly_reg.fit(X, y)
+</code></pre>
+    <h4>✅ 程式碼逐行解析</h4>
+    <ol>
+        <li><strong><code>LinearSVR</code></strong>: 用於線性迴歸的 SVM 模型。
+            <ul>
+                <li><code>epsilon=0.5</code>: 設定了街道寬度的一半。預測誤差小於 0.5 的點不會被懲罰。</li>
+            </ul>
+        </li>
+        <li><strong><code>SVR</code></strong>: 通用的 SVM 迴歸模型，支持核技巧。
+            <ul>
+                <li><code>kernel="poly"</code>: 使用多項式核來擬合非線性數據。</li>
+                <li><code>degree=2</code>: 多項式次數。</li>
+                <li><code>C</code> 和 <code>epsilon</code>: 分別是正規化參數和街道寬度參數。</li>
+            </ul>
+        </li>
+    </ol>
+    <blockquote><p><strong>🎯 重點摘要</strong>: SVR 的超參數 <code>epsilon</code> 控制了模型的「不敏感區域」。增加 <code>epsilon</code> 會使模型對更多數據點不敏感，從而產生更平滑、正規化程度更高的模型。</p></blockquote>
+
+    <hr>
+
+    <a id="under-the-hood"></a>
+    <h2>💡 深入探討：SVM 的數學原理</h2>
+    <ul>
+        <li><strong>決策函數</strong>: 線性 SVM 的預測基於決策函數 $s(\mathbf{x}) = \mathbf{w}^\top \mathbf{x} + b$。預測結果為正類的條件是 $s(\mathbf{x}) \ge 0$。</li>
+        <li><strong>最大化間隔</strong>: 最大化間隔等價於最小化權重向量的 L2 範數 $\|\mathbf{w}\|$。這就是為什麼 SVM 的目標函數是最小化 $\frac{1}{2} \|\mathbf{w}\|^2$。較小的權重向量會導致較寬的間隔。</li>
+        <li><strong>Hinge 損失</strong>: 對於軟間隔分類，SVM 使用 Hinge 損失函數來懲罰間隔違例。其形式為 $\max(0, 1 - t \cdot s(\mathbf{x}))$，其中 $t$ 是目標類別（-1 或 1）。如果一個點被正確分類且在間隔之外，其損失為 0；否則，損失會隨著它偏離正確位置的距離線性增加。</li>
+    </ul>
+
+    <hr>
+
+    <a id="faq"></a>
+    <h2>❓ 常見問題 (FAQ)</h2>
+    <p><strong>Q1: <code>LinearSVC</code>, <code>SVC(kernel="linear")</code>, 和 <code>SGDClassifier(loss="hinge")</code> 有什麼區別？</strong></p>
+    <p>A1: 這三者都可以用來訓練線性 SVM。</p>
+    <ul>
+        <li><code>LinearSVC</code>: 基於 <code>liblinear</code> 函式庫，專為線性 SVM 優化，速度非常快。它不直接支持核技巧。在樣本數遠大於特徵數時，建議設定 <code>dual=False</code>。</li>
+        <li><code>SVC(kernel="linear")</code>: 基於 <code>libsvm</code> 函式庫，支持核技巧。當你使用線性核時，它的速度通常比 <code>LinearSVC</code> 慢。</li>
+        <li><code>SGDClassifier(loss="hinge")</code>: 使用隨機梯度下降 (SGD) 來優化 Hinge 損失，這也等價於訓練一個線性 SVM。它可以處理非常大的數據集（支持線上學習），但對超參數較為敏感，且需要手動調整學習率。</li>
+    </ul>
+    <p><strong>總結</strong>: 對於純線性問題，優先選擇 <code>LinearSVC</code>。如果數據集非常大，無法一次性載入內存，則使用 <code>SGDClassifier</code>。如果需要比較線性核與其他核的效果，則使用 <code>SVC</code>。</p>
+    <p><strong>Q2: 如何為 RBF 核選擇 <code>C</code> 和 <code>gamma</code>？</strong></p>
+    <p>A2: <code>C</code> 和 <code>gamma</code> 是 SVM 中最重要的兩個超參數，它們共同決定了模型的複雜度和泛化能力。最佳的選擇是使用網格搜索 (<code>GridSearchCV</code>) 或隨機搜索 (<code>RandomizedSearchCV</code>) 結合交叉驗證來系統性地尋找最佳組合。一般來說：</p>
+    <ul>
+        <li>從一個較大的範圍開始搜索，例如 <code>C</code> 在 <code>[0.1, 1, 10, 100]</code>，<code>gamma</code> 在 <code>[0.001, 0.01, 0.1, 1]</code>。</li>
+        <li>根據搜索結果，在最佳參數周圍進行更精細的搜索。</li>
+        <li><code>gamma</code> 的一個經驗法則是 <code>1 / (n_features * X.var())</code>，可以作為一個初始的參考值。</li>
+    </ul>
+    <p><strong>Q3: SVM 為什麼對大數據集訓練很慢？</strong></p>
+    <p>A3: 傳統的 SVM 算法（如 <code>SVC</code> 中使用的 <code>libsvm</code>）的計算複雜度大約在 $O(n_{samples}^2 \cdot n_{features})$ 到 $O(n_{samples}^3 \cdot n_{features})$ 之間。當樣本數量 <code>n_samples</code> 很大時，計算成本會急劇增加。這就是為什麼對於大型數據集，推薦使用 <code>LinearSVC</code>（如果問題是線性的）或 <code>SGDClassifier</code>。</p>
+    <p><strong>Q4: SVM 如何處理多類別分類？</strong></p>
+    <p>A4: SVM 本質上是一個二元分類器。Scikit-Learn 中的 SVM 類別會自動使用以下策略之一來處理多類別問題：</p>
+    <ul>
+        <li><strong>一對多 (One-vs-Rest, OvR)</strong>: 為 K 個類別訓練 K 個分類器。第 i 個分類器負責將類別 i 與所有其他類別分開。預測時，選擇置信度最高的那個分類器對應的類別。<code>LinearSVC</code> 使用此策略。</li>
+        <li><strong>一對一 (One-vs-One, OvO)</strong>: 為 K 個類別中的每一對組合訓練一個分類器，總共需要訓練 $K(K-1)/2$ 個分類器。預測時，讓所有分類器進行投票，得票最多的類別即為最終結果。<code>SVC</code> 預設使用此策略，因為它在處理小數據集時更高效。</li>
+    </ul>
+</main>
+
+<footer>
+    <p>&copy; 2024 HowToolHelp.com. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
