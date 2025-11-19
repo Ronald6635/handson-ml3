@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Derivation of the SVM Decision Function</title>
+    <meta name="description" content="A step-by-step derivation of the Support Vector Machine (SVM) decision function, explaining the role of support vectors and the kernel trick.">
+    <meta name="keywords" content="SVM, Support Vector Machine, Decision Function, Kernel Trick, Machine Learning, Support Vectors">
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --link-color: #007acc;
+            --pre-bg-color: #f4f4f4;
+            --code-text-color: #333;
+            --border-color: #dddddd;
+            --header-bg-color: #f8f8f8;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1e1e1e;
+                --text-color: #d4d4d4;
+                --link-color: #60a5fa;
+                --pre-bg-color: #2a2a2a;
+                --code-text-color: #d4d4d4;
+                --border-color: #444444;
+                --header-bg-color: #2a2a2a;
+            }
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+        h1, h2, h3 {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        h1 { font-size: 2em; }
+        h2 { font-size: 1.5em; }
+        h3 { font-size: 1.2em; }
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        pre {
+            background-color: var(--pre-bg-color);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            color: var(--code-text-color);
+        }
+        .summary-box {
+            background-color: var(--header-bg-color);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .hashtags {
+            margin-top: 20px;
+            color: var(--link-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Derivation of the SVM Decision Function</h1>
+            <p class="meta">The derivation of the SVM decision function is a direct consequence of the optimization problem that defines the support vector classifier. Here is a step-by-step explanation of how we arrive at the final form.</p>
+        </header>
+        <main>
+            <section id="start" class="section">
+                <h2 id="start-heading">The Starting Point: The Primal Decision Function</h2>
+                <p>The goal of a linear classifier is to find a hyperplane that separates the data. The equation of this hyperplane is defined by a weight vector $w$ and a bias term $b$. For any new point $x$, we classify it based on which side of the hyperplane it falls on. This gives us our initial, primal decision function:</p>
+                $$
+                f(x) = \operatorname{sign}(w^T x + b)
+                $$
+                <p>The challenge is that we don't know $w$ directly. The SVM optimization process solves for the Lagrange multipliers ($\alpha_i$), not $w$. So, we need to express $w$ in terms of the variables we *do* solve for.</p>
+            </section>
+            <section id="step-1" class="section">
+                <h3 id="step-1-heading">Step 1: Expressing the Weight Vector $w$</h3>
+                <p>During the derivation of the dual problem, we took the partial derivative of the Lagrangian function $L(w, b, \alpha)$ with respect to $w$ and set it to zero to find the minimum. This gave us a crucial relationship for the optimal weight vector $w$:</p>
+                $$
+                \frac{\partial \mathcal{L}}{\partial w} = w - \sum_{i=1}^{m} \alpha_i y_i x_i = 0
+                $$
+                <p>Solving for $w$, we get:</p>
+                $$
+                \mathbf{w = \sum_{i=1}^{m} \alpha_i y_i x_i}
+                $$
+                <p>This equation is fundamental. It states that the optimal weight vector $w$ (which defines the separating hyperplane) is simply a <strong>linear combination of the training data points $x_i$</strong>. The $\alpha_i$ values act as the weights for this combination.</p>
+            </section>
+            <section id="step-2" class="section">
+                <h3 id="step-2-heading">Step 2: Substituting $w$ into the Decision Function</h3>
+                <p>Now we can substitute this expression for $w$ back into our original decision function:</p>
+                $$
+                f(x) = \operatorname{sign}\left( \left( \sum_{i=1}^{m} \alpha_i y_i x_i \right)^T x + b \right)
+                $$
+                <p>By rearranging the terms (specifically, moving the transpose and the input vector $x$ inside the summation), we get:</p>
+                $$
+                f(x) = \operatorname{sign}\left( \sum_{i=1}^{m} \alpha_i y_i (x_i^T x) + b \right)
+                $$
+                <p>This form is already powerful because it shows that the prediction depends on the dot product between the training points $x_i$ and the new point $x$.</p>
+            </section>
+            <section id="step-3" class="section">
+                <h3 id="step-3-heading">Step 3: The Role of Support Vectors (Why only some $\alpha_i$ matter)</h3>
+                <p>This is the most critical step. The Karush-Kuhn-Tucker (KKT) conditions of the SVM optimization problem include a "complementary slackness" condition:</p>
+                $$
+                \alpha_i \left[ y_i (w^T x_i + b) - 1 \right] = 0
+                $$
+                <p>This equation tells us that for any training point $x_i$, at least one of the two factors must be zero:</p>
+                <ol>
+                    <li>$\alpha_i = 0$, which means the point does not contribute to defining the hyperplane.</li>
+                    <li>$y_i (w^T x_i + b) - 1 = 0$, which means the point lies exactly on the margin.</li>
+                </ol>
+                <p>This has a profound implication: <strong>If a training point $x_i$ is correctly classified and lies outside the margin, its corresponding $\alpha_i$ must be zero.</strong></p>
+                <p>Therefore, the only points that can have a non-zero $\alpha_i$ are the ones that lie exactly on the margin or are misclassified (in the soft-margin case). These points are the <strong>support vectors</strong>.</p>
+                <p>Since any term in the summation where $\alpha_i = 0$ vanishes, we can simplify the sum to only include the support vectors:</p>
+                $$
+                f(x) = \operatorname{sign}\left( \sum_{i \in \text{Support Vectors}} \alpha_i y_i (x_i^T x) + b \right)
+                $$
+                <p>This is often written more compactly as summing over indices where $\alpha_i > 0$.</p>
+            </section>
+            <section id="step-4" class="section">
+                <h3 id="step-4-heading">Step 4: Introducing the Kernel Trick</h3>
+                <p>The final step is to generalize the function for non-linear classification. The "kernel trick" is the observation that the decision function only depends on the dot product $x_i^T x$. We can replace this dot product with a more general <strong>kernel function</strong> $k(x_i, x)$, which computes the similarity between $x_i$ and $x$ in a higher-dimensional feature space without ever explicitly calculating the transformation.</p>
+                <p>By replacing the dot product with the kernel function, we arrive at the final form of the SVM decision function:</p>
+                $$
+                f(x) = \operatorname{sign}\left( \sum_{i:\alpha_i>0} \alpha_i y_i k(x_i, x) + b \right)
+                $$
+                <p>This derivation shows how the elegant final decision rule emerges directly from the mathematical foundations of the SVM optimization problem, revealing its dependency on only the most critical points in the dataset—the support vectors.</p>
+            </section>
+        </main>
+        <footer class="hashtags">
+            #SVM #SupportVectorMachine #MachineLearning #DecisionFunction #KernelTrick #DataScience
+        </footer>
+    </div>
+</body>
+</html>
