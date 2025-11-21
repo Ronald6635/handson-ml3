@@ -21,6 +21,7 @@ SVM（Support Vector Machine）以「最大化間隔」為核心，能在中小�
 - [🏷️ 推薦標籤](#hashtags)
 
 <h2 id="key-takeaways">🎯 關鍵重點 (Key Takeaways)</h2>
+
 - 特徵縮放是 SVM 成敗關鍵，務必以 `StandardScaler` 納入 `Pipeline`，避免資料洩漏。
 - 調整 `C` 影響軟邊界寬度，`gamma` 決定 RBF 核的感受野；兩者需搭配交叉驗證尋找平衡點。
 - Kernel Trick 讓線性模型具備非線性能力，優先考慮 `rbf`，再視需求測試 `poly` 或 `sigmoid`。
@@ -329,6 +330,7 @@ print("測試 RMSE (單位:10萬美金):", root_mean_squared_error(y_test, y_pre
 - **最佳使用情境**：需要更平滑預測且樣本仍可抽樣的房價或能源需求。
 
 <h2 id="faq">❓ 常見問答 (FAQ)</h2>
+
 1. **何時選擇 `LinearSVC`、`SVC` 或 `SGDClassifier`？**  
    - 大量特徵/樣本：`LinearSVC` 或 `SGDClassifier`。  
    - 需要 kernel：`SVC`。  
@@ -343,6 +345,7 @@ print("測試 RMSE (單位:10萬美金):", root_mean_squared_error(y_test, y_pre
    以商業可接受誤差為基準，例如價格可容忍 ±5 萬，就設定 `epsilon=0.5` (單位 10 萬)。
 
 <h2 id="best-practices">💼 總結與最佳實踐</h2>
+
 - **流程化**：所有 SVM 範例均包於 `Pipeline`，避免資料洩漏並便於部署。
 - **縮放優先**：無論線性或核 SVM，都先做標準化；對稀疏向量可改用 `MaxAbsScaler`。
 - **交叉驗證**：小型資料建議 `StratifiedKFold`，大資料則使用 `ShuffleSplit` 加速。
@@ -350,4 +353,5 @@ print("測試 RMSE (單位:10萬美金):", root_mean_squared_error(y_test, y_pre
 - **效能取捨**：當資料量 > 5 萬筆時，優先評估線性方法或樹模型，以避免核 SVM 訓練時間過長。
 
 <h2 id="hashtags">🏷️ 推薦標籤 (Suggested Hashtags)</h2>
+
 #Python #SVM #支持向量機 #機器學習 #ScikitLearn #資料科學 #程式設計 #技術教學 #ThreadsTech #開發者社群

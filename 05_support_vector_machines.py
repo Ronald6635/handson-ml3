@@ -20,6 +20,31 @@ from pathlib import Path
 from packaging import version
 import sklearn
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
+
+CJK_FONT_CANDIDATES = [
+    "Microsoft JhengHei",
+    "Microsoft YaHei",
+    "SimHei",
+    "Arial Unicode MS",
+    "Heiti TC",
+]
+
+available_fonts = []
+for font_name in CJK_FONT_CANDIDATES:
+    try:
+        font_manager.findfont(font_name, fallback_to_default=False)
+    except ValueError:
+        continue
+    available_fonts.append(font_name)
+
+if not available_fonts:
+    available_fonts.append("DejaVu Sans")  # guaranteed by Matplotlib
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = available_fonts
+plt.rcParams["axes.unicode_minus"] = False
+
 from sklearn.datasets import load_iris, make_moons, load_wine, fetch_california_housing
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
@@ -58,8 +83,36 @@ plt.rc("font", size=13)
 plt.rc("axes", labelsize=13, titlesize=13)
 plt.rc("xtick", labelsize=10)
 plt.rc("ytick", labelsize=10)
-plt.rc("font", family="Microsoft JhengHei")
-plt.rc('axes', unicode_minus=False)
+
+# =============================================================================
+# PLOT CONFIGURATION
+# =============================================================================
+
+import matplotlib.pyplot as plt
+from matplotlib import font_manager
+
+CJK_FONT_CANDIDATES = [
+    "Microsoft JhengHei",
+    "Microsoft YaHei",
+    "SimHei",
+    "Arial Unicode MS",
+    "Heiti TC",
+]
+
+available_fonts = []
+for font_name in CJK_FONT_CANDIDATES:
+    try:
+        font_manager.findfont(font_name, fallback_to_default=False)
+    except ValueError:
+        continue
+    available_fonts.append(font_name)
+
+if not available_fonts:
+    available_fonts.append("DejaVu Sans")  # guaranteed by Matplotlib
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = available_fonts
+plt.rcParams["axes.unicode_minus"] = False 
 
 print("環境設置完成。")
 print(f"Python 版本: {sys.version}")
