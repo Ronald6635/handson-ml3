@@ -84,6 +84,10 @@ urlextract~=1.8.0
 tqdm~=4.66.1
 ipywidgets~=8.1.1
 
+# Optional: ipykernel is only needed if you want to create new Jupyter
+#           kernels (e.g., for a virtual environment)
+ipykernel>=6.28.0
+
 # Optional: pydot is only used in chapter 10 for tf.keras.utils.plot_model()
 pydot~=1.4.2
 
