@@ -1,0 +1,1702 @@
+<!--
+NumPy 工具教學 HTML 文件
+
+此文件是教學的 HTML 版本，針對網頁瀏覽進行優化，包含數學方程式渲染。
+
+關鍵功能：
+- 概念詳細解釋與範例
+- 使用 MathJax 進行數學推導
+- 響應式設計支援深色模式
+- 清晰的組織區塊便於導航
+
+依賴：
+- Google Fonts (Noto Sans TC)
+- MathJax 用於 LaTeX 渲染
+- ES6 Polyfill 用於舊版瀏覽器相容性
+
+模板上下文：
+- 這是靜態 HTML 文件，無伺服器端模板變數
+
+瀏覽器支援：
+- 現代瀏覽器 (Chrome, Firefox, Safari, Edge)
+
+最後更新：2024
+作者：HowToolHelp.com powered by GitHub Copilot
+-->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🐍 NumPy 完整教學指南：陣列建立、操作與線性代數實戰技巧 | Python 科學計算完全指南</title>
+  <meta name="description" content="學習 NumPy 的完整指南，從基本陣列操作到進階線性代數功能。包含實用範例、逐行解析和最佳實踐。適合 Python 程式設計師和資料科學學習者。"/>
+  <meta name="keywords" content="NumPy, Python, 陣列, 線性代數, 科學計算, 教學"/>
+
+  <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
+  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+
+  <!-- MathJax -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --heading-color: #265D94;
+      --link-color: #0056b3;
+      --border-color: #dddddd;
+      --code-bg-color: #f5f5f5;
+      --summary-bg-color: #eef3f8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #cccccc;
+        --heading-color: #87b5e1;
+        --link-color: #6caeef;
+        --border-color: #444444;
+        --code-bg-color: #2c2c2c;
+        --summary-bg-color: #252a30;
+      }
+    }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      line-height: 1.8;
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 900px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    h1, h2, h3, h4 {
+      color: var(--heading-color);
+      font-weight: 700;
+      margin-top: 1.5em;
+    }
+    h1 { font-size: 2.2em; text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+    h2 { font-size: 1.8em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    h3 { font-size: 1.4em; }
+    h4 { font-size: 1.2em; }
+    a { color: var(--link-color); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header, footer { text-align: center; margin-bottom: 2em; }
+    .meta { font-size: 0.9em; color: #666; }
+    .toc { background-color: var(--summary-bg-color); padding: 15px 25px; border-radius: 8px; margin-bottom: 2em; }
+    .toc h2 { margin-top: 0; }
+    .toc ul { padding-left: 20px; }
+    .toc ul ul { padding-left: 20px; }
+    .section { margin-bottom: 2em; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+    th { background-color: var(--summary-bg-color); }
+    .summary-box { background-color: var(--summary-bg-color); border-left: 5px solid var(--heading-color); padding: 15px 20px; margin: 1.5em 0; border-radius: 5px; }
+    .faq p { margin: 0.5em 0; }
+    .hashtags { background-color: var(--summary-bg-color); padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; word-spacing: 10px; }
+    mjx-container { text-align: center !important; margin: 1em 0; }
+    code { background-color: var(--code-bg-color); padding: 2px 4px; border-radius: 3px; font-family: 'Courier New', monospace; }
+    pre { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; overflow-x: auto; margin: 1em 0; }
+    .key-takeaways { background-color: var(--summary-bg-color); padding: 20px; border-radius: 8px; margin: 2em 0; }
+    .key-takeaways ul { margin: 0; padding-left: 20px; }
+    .code-breakdown { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; margin: 1em 0; border-left: 4px solid var(--heading-color); }
+    .code-breakdown h4 { margin-top: 0; color: var(--heading-color); }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- =============================================================================
+       HEADER AND TABLE OF CONTENTS
+       ============================================================================= -->
+  <header>
+    <h1>🐍 NumPy 完整教學指南：陣列建立、操作與線性代數實戰技巧</h1>
+    <p class="meta">NumPy 是 Python 科學計算領域的核心函式庫，專為高效能 N 維陣列運算設計。其底層以 C 語言實作，提供極快的數值處理速度，並支援線性代數、傅立葉變換、隨機數生成等進階功能。NumPy 不僅是資料科學、機器學習、人工智慧等領域的基礎工具，也是許多 Python 標準函式庫和第三方套件的效能關鍵。透過 Python 封裝，使用者能輕鬆進行大規模數據分析與科學運算，提升開發效率與程式效能。</p>
+  </header>
+
+  <!--====================================
+      TABLE OF CONTENTS
+      ===================================-->
+  <nav class="toc" aria-label="本文目錄">
+    <h2>📝 本文目錄</h2>
+    <ul>
+      <li><a href="#建立陣列">建立陣列</a></li>
+      <li><a href="#陣列資料">陣列資料</a></li>
+      <li><a href="#重塑陣列">重塑陣列</a></li>
+      <li><a href="#算術運算">算術運算</a></li>
+      <li><a href="#廣播">廣播</a></li>
+      <li><a href="#條件運算子">條件運算子</a></li>
+      <li><a href="#數學和統計函數">數學和統計函數</a></li>
+      <li><a href="#陣列索引">陣列索引</a></li>
+      <li><a href="#疊加陣列">疊加陣列</a></li>
+      <li><a href="#分割陣列">分割陣列</a></li>
+      <li><a href="#轉置陣列">轉置陣列</a></li>
+      <li><a href="#線性代數">線性代數</a></li>
+      <li><a href="#向量化">向量化</a></li>
+      <li><a href="#儲存和載入">儲存和載入</a></li>
+      <li><a href="#常見問答">常見問答</a></li>
+      <li><a href="#最佳實踐">最佳實踐</a></li>
+      <li><a href="#推薦標籤">推薦標籤</a></li>
+    </ul>
+  </nav>
+
+  <!-- =============================================================================
+       MAIN CONTENT AREA
+       ============================================================================= -->
+  <main>
+    <section class="key-takeaways">
+      <h2>🎯 關鍵重點</h2>
+      <ul>
+        <li>NumPy 以高效能的 N 維陣列為核心，提供廣泛的數學和科學計算功能</li>
+        <li>掌握陣列建立、索引、運算和重塑是使用 NumPy 的基礎</li>
+        <li>廣播機制允許不同形狀陣列間的靈活運算</li>
+        <li>向量化操作比迴圈更高效，能充分利用 NumPy 的優化</li>
+        <li>線性代數模組提供矩陣運算、特徵值等進階功能</li>
+      </ul>
+    </section>
+
+    <section id="建立陣列" class="section">
+      <h2>建立陣列</h2>
+      <p>💡 <strong>實際應用情境：</strong> 在資料科學和機器學習中，陣列是處理數值資料的基本單位，從簡單的向量到複雜的張量，都依賴 NumPy 的陣列建立功能。</p>
+
+      <h3>基本概念</h3>
+      <p>NumPy 中的每個維度稱為軸（axis）。軸的數量稱為秩（rank），軸長度的清單稱為形狀（shape），總元素數稱為大小（size）。</p>
+
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>import numpy as np
+
+# 建立一個包含 6 個 0 的陣列
+a = np.zeros(6)
+print("a =", a)
+
+# 建立 3x5 矩陣
+b = np.zeros((3, 5))
+print("b =", b)
+print("b.shape =", b.shape)
+print("b.ndim =", b.ndim)
+print("b.size =", b.size)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>import numpy as np</code>：匯入 NumPy 模組並簡稱為 np，這是標準慣例。</li>
+          <li><code>a = np.zeros(6)</code>：使用 zeros 函數建立一個包含 6 個 0 的一維陣列。</li>
+          <li><code>print("a =", a)</code>：輸出陣列 a 的內容。</li>
+          <li><code>b = np.zeros((3, 5))</code>：建立一個形狀為 (3, 5) 的二維陣列（3 行 5 列），所有元素為 0。</li>
+          <li><code>print("b =", b)</code>：輸出陣列 b 的內容。</li>
+          <li><code>print("b.shape =", b.shape)</code>：輸出陣列 b 的形狀，即 (3, 5)。</li>
+          <li><code>print("b.ndim =", b.ndim)</code>：輸出陣列 b 的維度數，即 2。</li>
+          <li><code>print("b.size =", b.size)</code>：輸出陣列 b 的總元素數，即 15。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：zeros 函數用於建立指定形狀的全零陣列，是初始化陣列的常用方法。</li>
+          <li><strong>潛在問題</strong>：忘記指定形狀的括號會導致錯誤，如誤用 np.zeros(3,4) 而非正確的 np.zeros((3,4))。</li>
+          <li><strong>最佳使用情境</strong>：需要初始化陣列但尚未有具體數值時，或在演算法中需要重置陣列為零。</li>
+        </ul>
+      </div>
+
+      <h3>其他建立方法</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code># 全 1 陣列
+ones = np.ones((3, 8))
+print("ones =", ones)
+
+# 指定值的陣列
+full = np.full((3, 3), np.pi)
+print("full =", full)
+
+# 未初始化的陣列
+empty = np.empty((2, 3))
+print("empty =", empty)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>ones = np.ones((3, 8))</code>：建立一個形狀為 (3, 8) 的全 1 陣列。</li>
+          <li><code>print("ones =", ones)</code>：輸出全 1 陣列。</li>
+          <li><code>full = np.full((3, 3), np.pi)</code>：建立一個形狀為 (3, 3) 的陣列，所有元素為 π（圓周率）。</li>
+          <li><code>print("full =", full)</code>：輸出指定值陣列。</li>
+          <li><code>empty = np.empty((2, 3))</code>：建立一個形狀為 (2, 3) 的未初始化陣列，其內容不可預測。</li>
+          <li><code>print("empty =", empty)</code>：輸出未初始化陣列。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：ones、full 和 empty 分別用於建立全 1、指定值和未初始化陣列。</li>
+          <li><strong>潛在問題</strong>：empty 陣列的內容不可預測，可能包含垃圾值，只在需要立即覆寫時使用。</li>
+          <li><strong>最佳使用情境</strong>：ones 用於計數初始化，full 用於常數陣列，empty 用於效能關鍵的初始化。</li>
+        </ul>
+      </div>
+
+      <h3>數列產生器</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code># arange 函數
+range_array = np.arange(1, 5)
+float_range = np.arange(1.0, 5.0)
+step_range = np.arange(1, 5, 0.5)
+
+# linspace 函數
+linspace_array = np.linspace(0, 5/3, 6)</code></pre>
+      </div>
+
+      <h3>隨機陣列</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code># 均勻分佈隨機數
+uniform_rand = np.random.rand(3, 4)
+
+# 常態分佈隨機數
+normal_rand = np.random.randn(3, 4)</code></pre>
+      </div>
+
+      <h3>使用函數建立陣列</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>def my_function(z, y, x):
+    return x + 10 * y + 100 * z
+
+func_array = np.fromfunction(my_function, (3, 2, 10))</code></pre>
+      </div>
+    </section>
+
+    <section id="陣列資料" class="section">
+      <h2>陣列資料</h2>
+      <p>💡 <strong>實際應用情境：</strong> 了解陣列的資料類型和記憶體配置對於優化效能和確保計算精確度至關重要。</p>
+
+      <h3>資料類型</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>c = np.arange(1, 5)
+print("c.dtype =", c.dtype, "c =", c)
+
+c_float = np.arange(1.0, 5.0)
+print("c_float.dtype =", c_float.dtype, "c_float =", c_float)
+
+c_complex = np.arange(1, 5, dtype=np.complex64)
+print("c_complex.dtype =", c_complex.dtype, "c_complex =", c_complex)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>c = np.arange(1, 5)</code>：建立從 1 到 4 的整數陣列，預設為 int32 或 int64。</li>
+          <li><code>print("c.dtype =", c.dtype, "c =", c)</code>：輸出陣列的資料類型和內容。</li>
+          <li><code>c_float = np.arange(1.0, 5.0)</code>：建立浮點數陣列，自動推斷為 float64。</li>
+          <li><code>print("c_float.dtype =", c_float.dtype, "c_float =", c_float)</code>：輸出浮點數陣列的類型和內容。</li>
+          <li><code>c_complex = np.arange(1, 5, dtype=np.complex64)</code>：明確指定複數類型建立陣列。</li>
+          <li><code>print("c_complex.dtype =", c_complex.dtype, "c_complex =", c_complex)</code>：輸出複數陣列的類型和內容。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：NumPy 陣列有統一資料類型，可顯式指定 dtype。</li>
+          <li><strong>潛在問題</strong>：不同類型混合運算會自動提升，可能導致記憶體使用增加。</li>
+          <li><strong>最佳使用情境</strong>：根據資料範圍選擇適當類型，如 uint8 用於影像，float32 用於一般計算。</li>
+        </ul>
+      </div>
+
+      <h3>記憶體資訊</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>e = np.arange(1, 5, dtype=np.complex64)
+print("e.itemsize =", e.itemsize)
+
+f = np.array([[1, 2], [1000, 2000]], dtype=np.int32)
+print("f.data (first 20 bytes) =", f.data[:20])</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>e = np.arange(1, 5, dtype=np.complex64)</code>：建立複數陣列。</li>
+          <li><code>print("e.itemsize =", e.itemsize)</code>：輸出每個元素的位元組大小（複數 64 為 8 位元組）。</li>
+          <li><code>f = np.array([[1, 2], [1000, 2000]], dtype=np.int32)</code>：建立 int32 二維陣列。</li>
+          <li><code>f.data (first 20 bytes) =", f.data[:20])</code>：輸出陣列資料緩衝區的前 20 位元組。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：itemsize 顯示元素大小，data 存取原始位元組緩衝區。</li>
+          <li><strong>潛在問題</strong>：直接存取 data 緩衝區可能導致資料損壞。</li>
+          <li><strong>最佳使用情境</strong>：除錯記憶體使用或與低階程式設計介面互動。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="重塑陣列" class="section">
+      <h2>重塑陣列</h2>
+      <p>💡 <strong>實際應用情境：</strong> 在深度學習和影像處理中，經常需要改變張量的形狀來適應不同的網路架構或處理需求。</p>
+
+      <h3>改變形狀</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>g = np.arange(24)
+print("g =", g)
+print("g.shape =", g.shape)
+
+g.shape = (6, 4)
+print("after reshape g =", g)
+print("g.shape =", g.shape)
+
+g.shape = (2, 3, 4)
+print("3D g =", g)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>g = np.arange(24)</code>：建立包含 0 到 23 的陣列。</li>
+          <li><code>print("g =", g)</code>：輸出原始一維陣列。</li>
+          <li><code>print("g.shape =", g.shape)</code>：輸出原始形狀 (24,)</li>
+          <li><code>g.shape = (6, 4)</code>：將形狀修改為 (6, 4)，元素數必須相同。</li>
+          <li><code>print("after reshape g =", g)</code>：輸出重塑後的陣列。</li>
+          <li><code>print("g.shape =", g.shape)</code>：輸出新形狀。</li>
+          <li><code>g.shape = (2, 3, 4)</code>：進一步重塑為三維。</li>
+          <li><code>print("3D g =", g)</code>：輸出三維陣列。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：直接修改 shape 屬性進行就地重塑，元素數必須保持不變。</li>
+          <li><strong>潛在問題</strong>：形狀乘積不等於元素數會引發錯誤。</li>
+          <li><strong>最佳使用情境</strong>：需要改變陣列維度結構但保持資料不變的情況。</li>
+        </ul>
+      </div>
+
+      <h3>reshape 方法</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>g2 = g.reshape(4, 6)
+print("g2 =", g2)
+
+g2[1, 2] = 999
+print("g after g2 modification =", g)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>g2 = g.reshape(4, 6)</code>：建立 g 的重塑視圖，形狀為 (4, 6)。</li>
+          <li><code>print("g2 =", g2)</code>：輸出重塑後的陣列。</li>
+          <li><code>g2[1, 2] = 999</code>：修改 g2 的元素。</li>
+          <li><code>print("g after g2 modification =", g)</code>：顯示原始陣列 g 也被修改，因為共享資料。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：reshape 返回新視圖，與原陣列共享資料。</li>
+          <li><strong>潛在問題</strong>：修改任一陣列都會影響另一個，造成意外副作用。</li>
+          <li><strong>最佳使用情境</strong>：需要不同形狀視圖但不想複製資料時。</li>
+        </ul>
+      </div>
+
+      <h3>展平陣列</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>flat = g.ravel()
+print("flat =", flat)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>flat = g.ravel()</code>：將多維陣列展平為一維，共享資料。</li>
+          <li><code>print("flat =", flat)</code>：輸出展平後的陣列。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：ravel 返回一維視圖，適用於需要線性存取的情況。</li>
+          <li><strong>潛在問題</strong>：同樣共享資料，修改會影響原陣列。</li>
+          <li><strong>最佳使用情境</strong>：需要將多維資料視為序列處理時。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="算術運算" class="section">
+      <h2>算術運算</h2>
+      <p>💡 <strong>實際應用情境：</strong> 向量化和矩陣運算是機器學習演算法的核心，從簡單的資料預處理到複雜的神經網路前向傳播都依賴這些操作。</p>
+
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>a = np.array([14, 23, 32, 41])
+b = np.array([5, 4, 3, 2])
+print("a + b =", a + b)
+print("a - b =", a - b)
+print("a * b =", a * b)
+print("a / b =", a / b)
+print("a // b =", a // b)
+print("a % b =", a % b)
+print("a ** b =", a ** b)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>a = np.array([14, 23, 32, 41])</code>：建立第一個陣列。</li>
+          <li><code>b = np.array([5, 4, 3, 2])</code>：建立第二個陣列。</li>
+          <li><code>print("a + b =", a + b)</code>：元素級相加。</li>
+          <li><code>print("a - b =", a - b)</code>：元素級相減。</li>
+          <li><code>print("a * b =", a * b)</code>：元素級相乘（非矩陣乘法）。</li>
+          <li><code>print("a / b =", a / b)</code>：元素級相除。</li>
+          <li><code>print("a // b =", a // b)</code>：元素級整數除法。</li>
+          <li><code>print("a % b =", a % b)</code>：元素級取餘數。</li>
+          <li><code>print("a ** b =", a ** b)</code>：元素級冪運算。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：所有算術運算子都進行元素級操作。</li>
+          <li><strong>潛在問題</strong>：容易與矩陣乘法混淆，NumPy 的 * 是元素積而非點積。</li>
+          <li><strong>最佳使用情境</strong>：需要對應元素間運算的數值計算，如調整亮度、縮放座標。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="廣播" class="section">
+      <h2>廣播</h2>
+      <p>💡 <strong>實際應用情境：</strong> 廣播機制讓不同形狀的陣列能夠進行運算，大大簡化了資料處理的程式碼，特別是在批次處理和特徵縮放中。</p>
+
+      <h3>廣播規則</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>h = np.arange(5).reshape(1, 1, 5)
+print("h.shape =", h.shape)
+
+result = h + [10, 20, 30, 40, 50]
+print("broadcast result =", result)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>h = np.arange(5).reshape(1, 1, 5)</code>：建立形狀為 (1, 1, 5) 的陣列。</li>
+          <li><code>print("h.shape =", h.shape)</code>：輸出 h 的形狀。</li>
+          <li><code>result = h + [10, 20, 30, 40, 50]</code>：與一維陣列相加，觸發廣播。</li>
+          <li><code>print("broadcast result =", result)</code>：輸出廣播結果。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：自動擴展較小陣列以匹配較大陣列的形狀。</li>
+          <li><strong>潛在問題</strong>：形狀不相容會引發錯誤，需理解規則避免。</li>
+          <li><strong>最佳使用情境</strong>：批次運算，如將向量加到每個矩陣行。</li>
+        </ul>
+      </div>
+
+      <h3>更多廣播範例</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>k = np.arange(6).reshape(2, 3)
+print("k =", k)
+
+result2 = k + [[100], [200]]
+print("k + [[100], [200]] =", result2)
+
+result3 = k + [100, 200, 300]
+print("k + [100, 200, 300] =", result3)
+
+result4 = k + 1000
+print("k + 1000 =", result4)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>k = np.arange(6).reshape(2, 3)</code>：建立 2x3 陣列。</li>
+          <li><code>print("k =", k)</code>：輸出 k。</li>
+          <li><code>result2 = k + [[100], [200]]</code>：每行加不同值。</li>
+          <li><code>print("k + [[100], [200]] =", result2)</code>：輸出結果。</li>
+          <li><code>result3 = k + [100, 200, 300]</code>：每列加不同值。</li>
+          <li><code>print("k + [100, 200, 300] =", result3)</code>：輸出結果。</li>
+          <li><code>result4 = k + 1000</code>：所有元素加同一值。</li>
+          <li><code>print("k + 1000 =", result4)</code>：輸出結果。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：廣播適用於多種形狀組合，自動處理維度擴展。</li>
+          <li><strong>潛在問題</strong>：複雜廣播可能難以理解，建議用簡單規則。</li>
+          <li><strong>最佳使用情境</strong>：特徵標準化、批次偏移等需要一致運算的情況。</li>
+        </ul>
+      </div>
+
+      <h3>型別提升</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>k1 = np.arange(0, 5, dtype=np.uint8)
+print("k1.dtype =", k1.dtype, "k1 =", k1)
+
+k2 = k1 + np.array([5, 6, 7, 8, 9], dtype=np.int8)
+print("k2.dtype =", k2.dtype, "k2 =", k2)
+
+k3 = k1 + 1.5
+print("k3.dtype =", k3.dtype, "k3 =", k3)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>k1 = np.arange(0, 5, dtype=np.uint8)</code>：建立 uint8 陣列。</li>
+          <li><code>print("k1.dtype =", k1.dtype, "k1 =", k1)</code>：輸出類型和值。</li>
+          <li><code>k2 = k1 + np.array([5, 6, 7, 8, 9], dtype=np.int8)</code>：與 int8 陣列相加，類型提升。</li>
+          <li><code>print("k2.dtype =", k2.dtype, "k2 =", k2)</code>：輸出提升後的類型。</li>
+          <li><code>k3 = k1 + 1.5</code>：與浮點數相加，進一步提升。</li>
+          <li><code>print("k3.dtype =", k3.dtype, "k3 =", k3)</code>：輸出最終類型。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：自動類型提升確保運算正確，但可能增加記憶體使用。</li>
+          <li><strong>潛在問題</strong>：意外提升導致效能下降或精確度問題。</li>
+          <li><strong>最佳使用情境</strong>：混合類型運算時，NumPy 會自動選擇合適類型。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="條件運算子" class="section">
+      <h2>條件運算子</h2>
+      <p>💡 <strong>實際應用情境：</strong> 條件運算是資料過濾和布林索引的基礎，在資料分析中用於選擇滿足條件的值。</p>
+
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>m = np.array([20, -5, 30, 40])
+mask = m &lt; [15, 16, 35, 36]
+print("m =", m)
+print("m &lt; [15, 16, 35, 36] =", mask)
+
+mask2 = m &lt; 25
+print("m &lt; 25 =", mask2)
+
+filtered = m[m &lt; 25]
+print("m[m &lt; 25] =", filtered)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>m = np.array([20, -5, 30, 40])</code>：建立測試陣列。</li>
+          <li><code>mask = m &lt; [15, 16, 35, 36]</code>：元素級比較，返回布林陣列。</li>
+          <li><code>print("m =", m)</code>：輸出原始陣列。</li>
+          <li><code>print("m &lt; [15, 16, 35, 36] =", mask)</code>：輸出比較結果。</li>
+          <li><code>mask2 = m &lt; 25</code>：與純量比較，觸發廣播。</li>
+          <li><code>print("m &lt; 25 =", mask2)</code>：輸出布林遮罩。</li>
+          <li><code>filtered = m[m &lt; 25]</code>：使用布林索引過濾元素。</li>
+          <li><code>print("m[m &lt; 25] =", filtered)</code>：輸出過濾結果。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：條件運算返回布林陣列，可用於索引和過濾。</li>
+          <li><strong>潛在問題</strong>：布林索引返回一維陣列，失去原形狀。</li>
+          <li><strong>最佳使用情境</strong>：資料清理、條件選擇、統計過濾。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="數學和統計函數" class="section">
+      <h2>數學和統計函數</h2>
+      <p>💡 <strong>實際應用情境：</strong> 這些函數是資料分析和統計建模的基礎，從簡單的描述性統計到複雜的數學變換都依賴這些高效能的向量化操作。</p>
+
+      <h3>陣列方法</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>a = np.array([[-2.5, 3.1, 7], [10, 11, 12]])
+print("a =", a)
+print("mean =", a.mean())
+print("max =", a.max())
+print("sum =", a.sum())
+print("std =", a.std())
+print("var =", a.var())</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>a = np.array([[-2.5, 3.1, 7], [10, 11, 12]])</code>：建立二維陣列。</li>
+          <li><code>print("a =", a)</code>：輸出陣列。</li>
+          <li><code>print("mean =", a.mean())</code>：計算所有元素的平均值。</li>
+          <li><code>print("max =", a.max())</code>：找到最大值。</li>
+          <li><code>print("sum =", a.sum())</code>：計算總和。</li>
+          <li><code>print("std =", a.std())</code>：計算標準差。</li>
+          <li><code>print("var =", a.var())</code>：計算變異數。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：陣列方法提供常見統計運算，預設處理所有元素。</li>
+          <li><strong>潛在問題</strong>：不指定 axis 會展平陣列進行運算。</li>
+          <li><strong>最佳使用情境</strong>：整體統計分析，如資料集的平均值。</li>
+        </ul>
+      </div>
+
+      <h3>指定軸運算</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>c = np.arange(24).reshape(2, 3, 4)
+print("c.shape =", c.shape)
+print("sum axis 0 =", c.sum(axis=0))
+print("sum axis 1 =", c.sum(axis=1))
+print("sum axis (0,2) =", c.sum(axis=(0, 2)))</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>c = np.arange(24).reshape(2, 3, 4)</code>：建立 2x3x4 三維陣列。</li>
+          <li><code>print("c.shape =", c.shape)</code>：輸出形狀。</li>
+          <li><code>print("sum axis 0 =", c.sum(axis=0))</code>：沿第 0 軸求和。</li>
+          <li><code>print("sum axis 1 =", c.sum(axis=1))</code>：沿第 1 軸求和。</li>
+          <li><code>print("sum axis (0,2) =", c.sum(axis=(0, 2)))</code>：沿多個軸求和。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：axis 參數控制運算維度，提供靈活的統計計算。</li>
+          <li><strong>潛在問題</strong>：軸索引從 0 開始，負數表示從後往前。</li>
+          <li><strong>最佳使用情境</strong>：多維資料分析，如計算每行/列的統計值。</li>
+        </ul>
+      </div>
+
+      <h3>通用函數</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>a = np.array([[-2.5, 3.1, 7], [10, 11, 12]])
+print("Original array:")
+print(a)
+print("np.square(a) =", np.square(a))
+print("np.abs(a) =", np.abs(a))
+print("np.exp(a) =", np.exp(a))
+print("np.log(a) =", np.log(a))
+print("np.cos(a) =", np.cos(a))</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>a = np.array([[-2.5, 3.1, 7], [10, 11, 12]])</code>：建立測試陣列。</li>
+          <li><code>print("Original array:")</code>：標記原始陣列。</li>
+          <li><code>print(a)</code>：輸出陣列。</li>
+          <li><code>print("np.square(a) =", np.square(a))</code>：計算平方。</li>
+          <li><code>print("np.abs(a) =", np.abs(a))</code>：計算絕對值。</li>
+          <li><code>print("np.exp(a) =", np.exp(a))</code>：計算指數。</li>
+          <li><code>print("np.log(a) =", np.log(a))</code>：計算對數（負數有警告）。</li>
+          <li><code>print("np.cos(a) =", np.cos(a))</code>：計算餘弦。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：ufunc 提供向量化數學函數，效能優於迴圈。</li>
+          <li><strong>潛在問題</strong>：某些函數如 log 在無效輸入時返回 nan。</li>
+          <li><strong>最佳使用情境</strong>：數值計算、訊號處理、科學模擬。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="陣列索引" class="section">
+      <h2>陣列索引</h2>
+      <p>💡 <strong>實際應用情境：</strong> 靈活的索引機制是 NumPy 的強大功能，能夠以各種方式存取和修改陣列元素，從簡單的切片到複雜的布林索引和花式索引。</p>
+
+      <h3>基本索引</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>a = np.array([1, 5, 3, 19, 13, 7, 3])
+print("a =", a)
+print("a[3] =", a[3])
+print("a[2:5] =", a[2:5])
+print("a[2:-1] =", a[2:-1])
+print("a[:2] =", a[:2])
+print("a[2::2] =", a[2::2])
+print("a[::-1] =", a[::-1])</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>a = np.array([1, 5, 3, 19, 13, 7, 3])</code>：建立一維陣列。</li>
+          <li><code>print("a =", a)</code>：輸出完整陣列。</li>
+          <li><code>print("a[3] =", a[3])</code>：存取第 4 個元素（索引從 0 開始）。</li>
+          <li><code>print("a[2:5] =", a[2:5])</code>：切片索引 2 到 4。</li>
+          <li><code>print("a[2:-1] =", a[2:-1])</code>：從索引 2 到倒數第 2 個。</li>
+          <li><code>print("a[:2] =", a[:2])</code>：前 2 個元素。</li>
+          <li><code>print("a[2::2] =", a[2::2])</code>：從索引 2 開始步長 2。</li>
+          <li><code>print("a[::-1] =", a[::-1])</code>：反轉陣列。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：支援標準 Python 索引語法，包括負索引和切片。</li>
+          <li><strong>潛在問題</strong>：切片賦值會廣播單一值到整個切片。</li>
+          <li><strong>最佳使用情境</strong>：資料存取、修改和子集選擇。</li>
+        </ul>
+      </div>
+
+      <h3>修改元素</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>a[3] = 999
+print("a 修改後 =", a)
+
+a[2:5] = [997, 998, 999]
+print("a 切片賦值後 =", a)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>a[3] = 999</code>：修改單一元素。</li>
+          <li><code>print("a 修改後 =", a)</code>：輸出修改後陣列。</li>
+          <li><code>a[2:5] = [997, 998, 999]</code>：切片賦值。</li>
+          <li><code>print("a 切片賦值後 =", a)</code>：輸出切片賦值後陣列。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：支援就地修改和切片賦值。</li>
+          <li><strong>潛在問題</strong>：賦值會改變原始陣列。</li>
+          <li><strong>最佳使用情境</strong>：資料清理和預處理。</li>
+        </ul>
+      </div>
+
+      <h3>多維索引</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>b = np.arange(48).reshape(4, 12)
+print("b =", b)
+print("b[1, 2] =", b[1, 2])
+print("b[1, :] =", b[1, :])
+print("b[:, 1] =", b[:, 1])
+
+print("b[(0, 2), 2:5] =", b[(0, 2), 2:5])
+print("b[:, (-1, 2, -1)] =", b[:, (-1, 2, -1)])
+print("b[(-1, 2, -1, 2), (5, 9, 1, 9)] =", b[(-1, 2, -1, 2), (5, 9, 1, 9)])</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>b = np.arange(48).reshape(4, 12)</code>：建立 4x12 陣列。</li>
+          <li><code>print("b =", b)</code>：輸出陣列。</li>
+          <li><code>print("b[1, 2] =", b[1, 2])</code>：存取第 2 行第 3 列元素。</li>
+          <li><code>print("b[1, :] =", b[1, :])</code>：第 2 行所有列。</li>
+          <li><code>print("b[:, 1] =", b[:, 1])</code>：所有行第 2 列。</li>
+          <li><code>print("b[(0, 2), 2:5] =", b[(0, 2), 2:5])</code>：選擇第 1 和 3 行，第 3 到 5 列。</li>
+          <li><code>print("b[:, (-1, 2, -1)] =", b[:, (-1, 2, -1)])</code>：所有行，第 -1、2、-1 列。</li>
+          <li><code>print("b[(-1, 2, -1, 2), (5, 9, 1, 9)] =", b[(-1, 2, -1, 2), (5, 9, 1, 9)])</code>：指定座標的元素。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：多維索引使用逗號分隔的索引或切片。</li>
+          <li><strong>潛在問題</strong>：切片返回不同維度的視圖。</li>
+          <li><strong>最佳使用情境</strong>：矩陣和張量操作，如影像處理。</li>
+        </ul>
+      </div>
+
+      <h3>省略號和布林索引</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>c = b.reshape(4, 2, 6)
+print("c[2, 1, 4] =", c[2, 1, 4])
+print("c[2, :, 3] =", c[2, :, 3])
+print("c[2, 1] =", c[2, 1])
+print("c[2, ...] =", c[2, ...])
+print("c[2, 1, ...] =", c[2, 1, ...])
+print("c[2, ..., 3] =", c[2, ..., 3])
+print("c[..., 3] =", c[..., 3])
+
+b = np.arange(48).reshape(4, 12)
+rows_on = np.array([True, False, True, False])
+print("b[rows_on, :] =", b[rows_on, :])
+
+cols_on = np.array([False, True, False] * 4)
+print("b[:, cols_on] =", b[:, cols_on])
+
+print("b[np.ix_(rows_on, cols_on)] =", b[np.ix_(rows_on, cols_on)])
+
+print("b[b % 3 == 1] =", b[b % 3 == 1])</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>c = b.reshape(4, 2, 6)</code>：重塑為三維陣列。</li>
+          <li><code>print("c[2, 1, 4] =", c[2, 1, 4])</code>：三維索引。</li>
+          <li><code>print("c[2, :, 3] =", c[2, :, 3])</code>：省略號表示所有中間維度。</li>
+          <li><code>print("c[2, 1] =", c[2, 1])</code>：省略最後維度。</li>
+          <li><code>print("c[2, ...] =", c[2, ...])</code>：省略號替換多個冒號。</li>
+          <li><code>print("c[2, 1, ...] =", c[2, 1, ...])</code>：省略號在結尾。</li>
+          <li><code>print("c[2, ..., 3] =", c[2, ..., 3])</code>：省略號在中間。</li>
+          <li><code>print("c[..., 3] =", c[..., 3])</code>：省略號在開頭。</li>
+          <li><code>rows_on = np.array([True, False, True, False])</code>：建立行遮罩。</li>
+          <li><code>print("b[rows_on, :] =", b[rows_on, :])</code>：選擇特定行。</li>
+          <li><code>cols_on = np.array([False, True, False] * 4)</code>：建立列遮罩。</li>
+          <li><code>print("b[:, cols_on] =", b[:, cols_on])</code>：選擇特定列。</li>
+          <li><code>print("b[np.ix_(rows_on, cols_on)] =", b[np.ix_(rows_on, cols_on)])</code>：使用 ix_ 建立網格。</li>
+          <li><code>print("b[b % 3 == 1] =", b[b % 3 == 1])</code>：選擇除以 3 餘 1 的元素。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：省略號簡化多維索引，布林索引根據條件選擇。</li>
+          <li><strong>潛在問題</strong>：遮罩形狀必須與對應維度匹配。</li>
+          <li><strong>最佳使用情境</strong>：複雜資料選擇和條件過濾。</li>
+        </ul>
+      </div>
+
+      <h3>疊代</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>c = np.arange(24).reshape(2, 3, 4)
+print("c =", c)
+
+for m in c:
+    print("Item:")
+    print(m)
+
+for i in range(len(c)):
+    print("Item:")
+    print(c[i])
+
+for i in c.flat:
+    print("Item:", i)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>c = np.arange(24).reshape(2, 3, 4)</code>：建立三維陣列。</li>
+          <li><code>print("c =", c)</code>：輸出完整陣列。</li>
+          <li><code>for m in c:</code>：沿第一軸疊代。</li>
+          <li><code>print("Item:")</code>：標記輸出。</li>
+          <li><code>print(m)</code>：輸出每個二維切片。</li>
+          <li><code>for i in range(len(c)):</code>：使用索引疊代。</li>
+          <li><code>print("Item:")</code>：標記輸出。</li>
+          <li><code>print(c[i])</code>：輸出對應切片。</li>
+          <li><code>for i in c.flat:</code>：扁平化疊代所有元素。</li>
+          <li><code>print("Item:", i)</code>：輸出每個元素。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：支援多維陣列疊代，flat 提供一維視圖。</li>
+          <li><strong>潛在問題</strong>：疊代返回視圖而非複本。</li>
+          <li><strong>最佳使用情境</strong>：批次處理和元素級操作。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="疊加陣列" class="section">
+      <h2>疊加陣列</h2>
+      <p>💡 <strong>實際應用情境：</strong> 陣列疊加在資料合併、批次處理和建立複雜資料結構時非常有用，能夠沿著不同軸向組合多個陣列。</p>
+
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>q1 = np.full((3, 4), 1.0)
+print("q1 =", q1)
+
+q2 = np.full((4, 4), 2.0)
+print("q2 =", q2)
+
+q3 = np.full((3, 4), 3.0)
+print("q3 =", q3)
+
+q4 = np.vstack((q1, q2, q3))
+print("q4 =", q4)
+print("q4.shape =", q4.shape)
+
+q5 = np.hstack((q1, q3))
+print("q5 =", q5)
+print("q5.shape =", q5.shape)
+
+q7 = np.concatenate((q1, q2, q3), axis=0)
+print("q7 =", q7)
+print("q7.shape =", q7.shape)
+
+q8 = np.stack((q1, q3))
+print("q8 =", q8)
+print("q8.shape =", q8.shape)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>q1 = np.full((3,4), 1.0)</code>：建立 3x4 的全 1 陣列。</li>
+          <li><code>print("q1 =", q1)</code>：輸出陣列。</li>
+          <li><code>q2 = np.full((4,4), 2.0)</code>：建立 4x4 的全 2 陣列。</li>
+          <li><code>print("q2 =", q2)</code>：輸出陣列。</li>
+          <li><code>q3 = np.full((3,4), 3.0)</code>：建立 3x4 的全 3 陣列。</li>
+          <li><code>print("q3 =", q3)</code>：輸出陣列。</li>
+          <li><code>q4 = np.vstack((q1, q2, q3))</code>：垂直疊加，形狀必須在非堆疊軸匹配。</li>
+          <li><code>print("q4 =", q4)</code>：輸出疊加結果。</li>
+          <li><code>print("q4.shape =", q4.shape)</code>：輸出疊加後形狀。</li>
+          <li><code>q5 = np.hstack((q1, q3))</code>：水平疊加。</li>
+          <li><code>print("q5 =", q5)</code>：輸出水平疊加結果。</li>
+          <li><code>print("q5.shape =", q5.shape)</code>：輸出水平疊加形狀。</li>
+          <li><code>q7 = np.concatenate((q1, q2, q3), axis=0)</code>：沿軸 0 串接，等同 vstack。</li>
+          <li><code>print("q7 =", q7)</code>：輸出串接結果。</li>
+          <li><code>print("q7.shape =", q7.shape)</code>：輸出串接形狀。</li>
+          <li><code>q8 = np.stack((q1, q3))</code>：沿新軸疊加，形狀必須完全相同。</li>
+          <li><code>print("q8 =", q8)</code>：輸出堆疊結果。</li>
+          <li><code>print("q8.shape =", q8.shape)</code>：輸出堆疊形狀。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：vstack 垂直、hstack 水平、concatenate 指定軸、stack 新軸。</li>
+          <li><strong>潛在問題</strong>：形狀不匹配會引發錯誤。</li>
+          <li><strong>最佳使用情境</strong>：資料合併，如合併批次或特徵。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="分割陣列" class="section">
+      <h2>分割陣列</h2>
+      <p>💡 <strong>實際應用情境：</strong> 陣列分割常用於資料分割、交叉驗證和批次處理，能夠將大陣列分割成多個小陣列以進行並行處理或獨立分析。</p>
+
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>r = np.arange(24).reshape(6, 4)
+print("r =", r)
+
+r1, r2, r3 = np.vsplit(r, 3)
+print("r1 =", r1)
+print("r2 =", r2)
+print("r3 =", r3)
+
+r4, r5 = np.hsplit(r, 2)
+print("r4 =", r4)
+print("r5 =", r5)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>r = np.arange(24).reshape(6,4)</code>：建立 6x4 陣列。</li>
+          <li><code>print("r =", r)</code>：輸出原始陣列。</li>
+          <li><code>r1, r2, r3 = np.vsplit(r, 3)</code>：垂直分割成 3 等份。</li>
+          <li><code>print("r1 =", r1)</code>：輸出第一份。</li>
+          <li><code>print("r2 =", r2)</code>：輸出第二份。</li>
+          <li><code>print("r3 =", r3)</code>：輸出第三份。</li>
+          <li><code>r4, r5 = np.hsplit(r, 2)</code>：水平分割成 2 等份。</li>
+          <li><code>print("r4 =", r4)</code>：輸出左半。</li>
+          <li><code>print("r5 =", r5)</code>：輸出右半。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：vsplit 垂直分割，hsplit 水平分割。</li>
+          <li><strong>潛在問題</strong>：分割數必須能整除對應維度。</li>
+          <li><strong>最佳使用情境</strong>：資料分批，如交叉驗證或記憶體管理。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="轉置陣列" class="section">
+      <h2>轉置陣列</h2>
+      <p>💡 <strong>實際應用情境：</strong> 轉置在線性代數中至關重要，如矩陣運算和座標變換。</p>
+
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>t = np.arange(24).reshape(4, 2, 3)
+print("t.shape =", t.shape)
+
+t1 = t.transpose((1, 2, 0))
+print("t1.shape =", t1.shape)
+
+t2 = t.transpose()
+print("t2.shape =", t2.shape)
+
+t3 = t.swapaxes(0, 1)
+print("t3.shape =", t3.shape)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>t = np.arange(24).reshape(4,2,3)</code>：建立 4x2x3 三維陣列。</li>
+          <li><code>print("t.shape =", t.shape)</code>：輸出原始形狀。</li>
+          <li><code>t1 = t.transpose((1,2,0))</code>：重新排列軸順序。</li>
+          <li><code>print("t1.shape =", t1.shape)</code>：輸出轉置後形狀。</li>
+          <li><code>t2 = t.transpose()</code>：預設反轉軸順序。</li>
+          <li><code>print("t2.shape =", t2.shape)</code>：輸出預設轉置形狀。</li>
+          <li><code>t3 = t.swapaxes(0,1)</code>：交換指定兩軸。</li>
+          <li><code>print("t3.shape =", t3.shape)</code>：輸出軸交換後形狀。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：transpose 重新排列軸，swapaxes 交換兩軸。</li>
+          <li><strong>潛在問題</strong>：軸索引超出範圍會錯誤。</li>
+          <li><strong>最佳使用情境</strong>：矩陣運算、資料重塑。</li>
+        </ul>
+      </div>
+
+    <section id="線性代數" class="section">
+      <h2>線性代數</h2>
+      <p>💡 <strong>實際應用情境：</strong> 線性代數運算是機器學習和資料科學的核心，從主成分分析到神經網路優化都依賴這些高效能的矩陣運算。</p>
+
+      <h3>矩陣運算</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>m1 = np.arange(10).reshape(2,5)
+print("m1 =", m1)
+print("m1.T =", m1.T)
+
+n1 = np.arange(10).reshape(2, 5)
+n2 = np.arange(15).reshape(5,3)
+print("n1.dot(n2) =", n1.dot(n2))</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>m1 = np.arange(10).reshape(2,5)</code>：建立 2x5 矩陣。</li>
+          <li><code>print("m1 =", m1)</code>：輸出矩陣。</li>
+          <li><code>print("m1.T =", m1.T)</code>：輸出轉置矩陣。</li>
+          <li><code>n1 = np.arange(10).reshape(2, 5)</code>：建立第一個矩陣。</li>
+          <li><code>n2 = np.arange(15).reshape(5,3)</code>：建立第二個矩陣。</li>
+          <li><code>print("n1.dot(n2) =", n1.dot(n2))</code>：計算矩陣乘法。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：T 屬性轉置，dot 方法矩陣乘法。</li>
+          <li><strong>潛在問題</strong>：維度不匹配會錯誤，* 是元素積而非矩陣積。</li>
+          <li><strong>最佳使用情境</strong>：線性變換、神經網路層。</li>
+        </ul>
+      </div>
+
+      <h3>矩陣求逆和分解</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>import numpy.linalg as linalg
+
+m3 = np.array([[1,2,3],[5,7,11],[21,29,31]])
+print("m3 =", m3)
+print("linalg.inv(m3) =", linalg.inv(m3))
+print("linalg.det(m3) =", linalg.det(m3))
+
+eigenvalues, eigenvectors = linalg.eig(m3)
+print("eigenvalues =", eigenvalues)
+print("eigenvectors =", eigenvectors)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>import numpy.linalg as linalg</code>：匯入線性代數模組。</li>
+          <li><code>m3 = np.array([[1,2,3],[5,7,11],[21,29,31]])</code>：建立 3x3 矩陣。</li>
+          <li><code>print("m3 =", m3)</code>：輸出矩陣。</li>
+          <li><code>print("linalg.inv(m3) =", linalg.inv(m3))</code>：計算逆矩陣。</li>
+          <li><code>print("linalg.det(m3) =", linalg.det(m3))</code>：計算行列式。</li>
+          <li><code>eigenvalues, eigenvectors = linalg.eig(m3)</code>：計算特徵值和特徵向量。</li>
+          <li><code>print("eigenvalues =", eigenvalues)</code>：輸出特徵值。</li>
+          <li><code>print("eigenvectors =", eigenvectors)</code>：輸出特徵向量。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：inv 求逆，det 行列式，eig 特徵分解。</li>
+          <li><strong>潛在問題</strong>：奇異矩陣無逆矩陣。</li>
+          <li><strong>最佳使用情境</strong>：解方程組、主成分分析。</li>
+        </ul>
+      </div>
+
+      <h3>奇異值分解</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>m4 = np.array([[1,0,0,0,2], [0,0,3,0,0], [0,0,0,0,0], [0,2,0,0,0]])
+U, S_diag, V = linalg.svd(m4)
+print("U =", U)
+print("S_diag =", S_diag)
+print("V =", V)</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>m4 = np.array([[1,0,0,0,2], [0,0,3,0,0], [0,0,0,0,0], [0,2,0,0,0]])</code>：建立稀疏矩陣。</li>
+          <li><code>U, S_diag, V = linalg.svd(m4)</code>：進行 SVD 分解。</li>
+          <li><code>print("U =", U)</code>：輸出 U 矩陣。</li>
+          <li><code>print("S_diag =", S_diag)</code>：輸出奇異值對角線。</li>
+          <li><code>print("V =", V)</code>：輸出 V 矩陣。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：SVD 分解矩陣為 U Σ V^T。</li>
+          <li><strong>潛在問題</strong>：計算成本高於其他分解。</li>
+          <li><strong>最佳使用情境</strong>：資料壓縮、降維。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="向量化" class="section">
+      <h2>向量化</h2>
+      <p>💡 <strong>實際應用情境：</strong> 向量化是 NumPy 效能優化的關鍵，避免 Python 迴圈的低效率。</p>
+      
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>import math
+
+# 低效方式
+data_slow = np.empty((768, 1024))
+for y in range(768):
+    for x in range(1024):
+        data_slow[y, x] = math.sin(x * y / 40.5)
+
+# 高效方式
+x_coords = np.arange(0, 1024)
+y_coords = np.arange(0, 768)
+X, Y = np.meshgrid(x_coords, y_coords)
+data_fast = np.sin(X * Y / 40.5)
+
+print("Shapes match:", data_slow.shape == data_fast.shape)
+print("Results match:", np.allclose(data_slow, data_fast))</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>import math</code>：匯入數學模組。</li>
+          <li><code>data_slow = np.empty((768, 1024))</code>：建立空陣列。</li>
+          <li>迴圈賦值：使用巢狀迴圈計算每個元素（低效）。</li>
+          <li><code>x_coords = np.arange(0, 1024)</code>：建立 x 座標陣列。</li>
+          <li><code>y_coords = np.arange(0, 768)</code>：建立 y 座標陣列。</li>
+          <li><code>X, Y = np.meshgrid(x_coords, y_coords)</code>：建立座標網格。</li>
+          <li><code>data_fast = np.sin(X * Y / 40.5)</code>：向量化計算。</li>
+          <li><code>print("Shapes match:", data_slow.shape == data_fast.shape)</code>：比較形狀。</li>
+          <li><code>print("Results match:", np.allclose(data_slow, data_fast))</code>：比較結果。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：meshgrid 建立座標網格，向量化運算避免迴圈。</li>
+          <li><strong>潛在問題</strong>：記憶體使用量大於迴圈方式。</li>
+          <li><strong>最佳使用情境</strong>：數值計算、影像處理。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="儲存和載入" class="section">
+      <h2>儲存和載入</h2>
+      <p>💡 <strong>實際應用情境：</strong> 資料持久化對於機器學習工作流程至關重要，能夠儲存訓練資料、中間結果和模型參數以便後續使用。</p>
+
+      <h3>二進位格式</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>a = np.random.rand(2,3)
+print("a =", a)
+np.save("my_array", a)
+
+a_loaded = np.load("my_array.npy")
+print("a_loaded =", a_loaded)
+print("Arrays equal:", np.array_equal(a, a_loaded))</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>a = np.random.rand(2,3)</code>：建立隨機陣列。</li>
+          <li><code>print("a =", a)</code>：輸出原始陣列。</li>
+          <li><code>np.save("my_array", a)</code>：儲存為 .npy 檔案。</li>
+          <li><code>a_loaded = np.load("my_array.npy")</code>：載入檔案。</li>
+          <li><code>print("a_loaded =", a_loaded)</code>：輸出載入陣列。</li>
+          <li><code>print("Arrays equal:", np.array_equal(a, a_loaded))</code>：檢查是否相同。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：save/load 以二進位格式儲存單一陣列。</li>
+          <li><strong>潛在問題</strong>：檔案覆蓋無警告。</li>
+          <li><strong>最佳使用情境</strong>：單一陣列持久化。</li>
+        </ul>
+      </div>
+
+      <h3>文字格式</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>np.savetxt("my_array.csv", a, delimiter=",")
+with open("my_array.csv", "rt") as f:
+    print("CSV content:")
+    print(f.read())
+
+a_loaded_txt = np.loadtxt("my_array.csv", delimiter=",")
+print("Loaded from CSV:", a_loaded_txt)
+print("CSV arrays equal:", np.allclose(a, a_loaded_txt))</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>np.savetxt("my_array.csv", a, delimiter=",")</code>：以逗號分隔符儲存陣列為 CSV 格式。</li>
+          <li><code>with open("my_array.csv", "rt") as f:</code>：以文字模式開啟 CSV 檔案。</li>
+          <li><code>print("CSV content:")</code>：印出標題。</li>
+          <li><code>print(f.read())</code>：讀取並印出檔案內容。</li>
+          <li><code>a_loaded_txt = np.loadtxt("my_array.csv", delimiter=",")</code>：從 CSV 載入陣列，使用逗號分隔符。</li>
+          <li><code>print("Loaded from CSV:", a_loaded_txt)</code>：輸出載入的陣列。</li>
+          <li><code>print("CSV arrays equal:", np.allclose(a, a_loaded_txt))</code>：檢查載入陣列是否與原始陣列相等。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：savetxt/loadtxt 以文字格式儲存，可讀但較慢。</li>
+          <li><strong>潛在問題</strong>：精確度可能損失。</li>
+          <li><strong>最佳使用情境</strong>：與其他工具交換資料。</li>
+        </ul>
+      </div>
+
+      <h3>壓縮格式</h3>
+      <div class="code-breakdown">
+        <h4>程式碼範例</h4>
+        <pre><code>b = np.arange(24, dtype=np.uint8).reshape(2, 3, 4)
+np.savez("my_arrays", my_a=a, my_b=b)
+
+my_arrays = np.load("my_arrays.npz")
+print("Keys:", list(my_arrays.keys()))
+print("my_a =", my_arrays["my_a"])</code></pre>
+      </div>
+
+      <div class="code-explanation">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>b = np.arange(24, dtype=np.uint8).reshape(2, 3, 4)</code>：建立另一個陣列。</li>
+          <li><code>np.savez("my_arrays", my_a=a, my_b=b)</code>：儲存多個陣列到壓縮檔案。</li>
+          <li><code>my_arrays = np.load("my_arrays.npz")</code>：載入壓縮檔案。</li>
+          <li><code>print("Keys:", list(my_arrays.keys()))</code>：輸出鍵名。</li>
+          <li><code>print("my_a =", my_arrays["my_a"])</code>：存取特定陣列。</li>
+        </ol>
+      </div>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要：</h4>
+        <ul>
+          <li><strong>核心功能</strong>：savez 儲存多個陣列到單一壓縮檔案。</li>
+          <li><strong>潛在問題</strong>：鍵名管理複雜。</li>
+          <li><strong>最佳使用情境</strong>：儲存相關陣列集合。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="常見問答" class="section">
+      <h2>常見問答</h2>
+      <div class="faq">
+        <h3>Q: NumPy 陣列和 Python 列表有什麼區別？</h3>
+        <p>A: NumPy 陣列更高效，支援向量化運算和廣播，所有元素必須同類型。</p>
+
+        <h3>Q: 如何選擇適當的資料類型？</h3>
+        <p>A: 根據資料範圍選擇，如影像用 uint8，科學計算用 float64。</p>
+
+        <h3>Q: 廣播規則是什麼？</h3>
+        <p>A: 較小陣列自動擴展以匹配較大陣列形狀，從後往前比較維度。</p>
+
+        <h3>Q: 為什麼要避免 Python 迴圈？</h3>
+        <p>A: 迴圈在 Python 中低效，NumPy 向量化運算利用 C 語言優化。</p>
+
+        <h3>Q: 如何處理記憶體不足？</h3>
+        <p>A: 使用適當資料類型，考慮記憶體映射或分批處理。</p>
+      </div>
+    </section>
+
+    <section id="最佳實踐" class="section">
+      <h2>最佳實踐</h2>
+      <div class="summary-box">
+        <h3>效能優化</h3>
+        <ul>
+          <li>優先使用向量化操作而非迴圈</li>
+          <li>選擇適當的資料類型以節省記憶體</li>
+          <li>使用 in-place 操作減少記憶體分配</li>
+          <li>利用 NumPy 的 C 核心優化</li>
+        </ul>
+
+        <h3>程式碼品質</h3>
+        <ul>
+          <li>使用有意義的變數名稱</li>
+          <li>添加註釋說明複雜運算</li>
+          <li>驗證陣列形狀和資料類型</li>
+          <li>處理邊界情況和錯誤</li>
+        </ul>
+
+        <h3>記憶體管理</h3>
+        <ul>
+          <li>避免不必要的陣列複製</li>
+          <li>使用視圖（view）而非複製</li>
+          <li>及時釋放大型陣列</li>
+          <li>考慮記憶體映射檔案處理大資料</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="推薦標籤" class="section">
+      <h2>推薦標籤</h2>
+      <p>在 Threads 上分享此教學時，建議使用以下標籤以增加曝光度和相關性：</p>
+    </section>
+  </main>
+
+  <!-- =============================================================================
+       FOOTER
+       ============================================================================= -->
+  <footer class="hashtags" id="hashtags">
+    #Python #程式設計 #教學 #NumPy #陣列 #線性代數 #科學計算 #編程 #學習筆記 #程式開發者 #軟體工程 #資料科學 #機器學習 #數值計算 #向量化 #廣播 #矩陣運算 #特徵值 #SVD #資料分析 #效能優化
+  </footer>
+</body>
+</html>
+  
+  <!-- MathJax -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --heading-color: #265D94;
+      --link-color: #0056b3;
+      --border-color: #dddddd;
+      --code-bg-color: #f5f5f5;
+      --summary-bg-color: #eef3f8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #cccccc;
+        --heading-color: #87b5e1;
+        --link-color: #6caeef;
+        --border-color: #444444;
+        --code-bg-color: #2c2c2c;
+        --summary-bg-color: #252a30;
+      }
+    }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      line-height: 1.8;
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 900px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    h1, h2, h3, h4 {
+      color: var(--heading-color);
+      font-weight: 700;
+      margin-top: 1.5em;
+    }
+    h1 { font-size: 2.2em; text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+    h2 { font-size: 1.8em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    h3 { font-size: 1.4em; }
+    h4 { font-size: 1.2em; }
+    a { color: var(--link-color); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header, footer { text-align: center; margin-bottom: 2em; }
+    .meta { font-size: 0.9em; color: #666; }
+    .toc { background-color: var(--summary-bg-color); padding: 15px 25px; border-radius: 8px; margin-bottom: 2em; }
+    .toc h2 { margin-top: 0; }
+    .toc ul { padding-left: 20px; }
+    .toc ul ul { padding-left: 20px; }
+    .section { margin-bottom: 2em; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+    th { background-color: var(--summary-bg-color); }
+    .summary-box { background-color: var(--summary-bg-color); border-left: 5px solid var(--heading-color); padding: 15px 20px; margin: 1.5em 0; border-radius: 5px; }
+    .faq p { margin: 0.5em 0; }
+    .hashtags { background-color: var(--summary-bg-color); padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; word-spacing: 10px; }
+    mjx-container { text-align: center !important; margin: 1em 0; }
+    pre { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; overflow-x: auto; }
+    code { background-color: var(--code-bg-color); padding: 2px 4px; border-radius: 3px; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- =============================================================================
+       HEADER AND TABLE OF CONTENTS
+       ============================================================================= -->
+  <header>
+    <h1>🐍 NumPy 工具箱：Python 數值運算全攻略</h1>
+    <p class="meta">NumPy 是 Python 最重要的科學運算套件之一，廣泛應用於資料分析、機器學習、工程計算等領域。本文將以台灣開發者視角，深入解析 NumPy 的核心功能，並以實際範例逐行解析，協助你在 Threads 平台上快速掌握 Python 數值運算的最佳實踐。</p>
+  </header>
+
+  <!--====================================
+      TABLE OF CONTENTS
+      ===================================-->
+  <nav class="toc" aria-label="本文目錄">
+    <h2>📝 本文目錄</h2>
+    <ul>
+      <li><a href="#key-takeaways">關鍵重點 (Key Takeaways)</a></li>
+      <li><a href="#array-basics">NumPy 基礎：陣列建立與屬性</a></li>
+      <li><a href="#array-indexing">陣列索引與切片</a></li>
+      <li><a href="#array-operations">陣列運算與廣播</a></li>
+      <li><a href="#advanced-techniques">進階技巧：隨機、統計與重塑</a></li>
+      <li><a href="#summary">總結與最佳實踐</a></li>
+      <li><a href="#faq">常見問答 (FAQ)</a></li>
+      <li><a href="#hashtags">推薦標籤 (Hashtags)</a></li>
+    </ul>
+  </nav>
+
+  <!-- =============================================================================
+       MAIN CONTENT AREA
+       ============================================================================= -->
+  <main>
+    <section class="section" id="key-takeaways" aria-labelledby="key-takeaways-heading">
+      <h2 id="key-takeaways-heading">🎯 關鍵重點 (Key Takeaways)</h2>
+      <ul>
+        <li>NumPy 提供高效的多維陣列運算能力</li>
+        <li>支援廣播、向量化運算，效能遠勝原生 Python list</li>
+        <li>內建隨機、統計、重塑等進階功能，適合資料科學與機器學習</li>
+      </ul>
+    </section>
+
+    <section class="section" id="array-basics" aria-labelledby="array-basics-heading">
+      <h2 id="array-basics-heading">NumPy 基礎：陣列建立與屬性</h2>
+      <p>💡 <strong>實際應用情境：</strong> 資料前處理、特徵工程、科學計算</p>
+
+      <h3>範例 1：建立一維與二維陣列</h3>
+      <pre><code>import numpy as np  # 匯入 NumPy 套件
+
+arr1 = np.array([1, 2, 3, 4, 5])  # 建立一維陣列
+arr2 = np.array([[1, 2, 3], [4, 5, 6]])  # 建立二維陣列
+
+print(arr1)
+print(arr2)</code></pre>
+      <p><strong>✅ 程式碼逐行解析：</strong></p>
+      <ol>
+        <li><code>import numpy as np</code>：以 np 作為 NumPy 的別名，方便後續呼叫。</li>
+        <li><code>arr1 = np.array([1, 2, 3, 4, 5])</code>：建立一維陣列。</li>
+        <li><code>arr2 = np.array([[1, 2, 3], [4, 5, 6]])</code>：建立二維陣列。</li>
+        <li><code>print(arr1)</code>、<code>print(arr2)</code>：輸出陣列內容。</li>
+      </ol>
+      <div class="summary-box">
+        <p><strong>🎯 重點摘要:</strong></p>
+        <ul>
+          <li><strong>核心功能</strong>: 快速建立多維陣列</li>
+          <li><strong>潛在問題</strong>: 輸入資料型態需一致</li>
+          <li><strong>最佳使用情境</strong>: 資料前處理、科學計算</li>
+        </ul>
+      </div>
+
+      <h3>範例 2：陣列屬性</h3>
+      <pre><code>print(arr2.shape)  # 查看陣列形狀
+print(arr2.dtype)  # 查看資料型態</code></pre>
+      <p><strong>✅ 程式碼逐行解析：</strong></p>
+      <ol>
+        <li><code>arr2.shape</code>：回傳 (2, 3)，表示二維陣列有 2 列 3 行。</li>
+        <li><code>arr2.dtype</code>：回傳元素的資料型態（如 int64）。</li>
+      </ol>
+      <div class="summary-box">
+        <p><strong>🎯 重點摘要:</strong></p>
+        <ul>
+          <li><strong>核心功能</strong>: 取得陣列結構與型態</li>
+          <li><strong>潛在問題</strong>: 型態不符可能導致運算錯誤</li>
+          <li><strong>最佳使用情境</strong>: 資料檢查、型態轉換</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="array-indexing" aria-labelledby="array-indexing-heading">
+      <h2 id="array-indexing-heading">陣列索引與切片</h2>
+      <p>💡 <strong>實際應用情境：</strong> 資料選取、特徵抽取</p>
+
+      <h3>範例 3：基本索引與切片</h3>
+      <pre><code>print(arr1[2])  # 取出第 3 個元素
+print(arr2[1, 2])  # 取出第 2 列第 3 行
+print(arr1[1:4])  # 取出第 2~4 個元素</code></pre>
+      <p><strong>✅ 程式碼逐行解析：</strong></p>
+      <ol>
+        <li><code>arr1[2]</code>：回傳 3。</li>
+        <li><code>arr2[1, 2]</code>：回傳 6。</li>
+        <li><code>arr1[1:4]</code>：回傳 [2, 3, 4]。</li>
+      </ol>
+      <div class="summary-box">
+        <p><strong>🎯 重點摘要:</strong></p>
+        <ul>
+          <li><strong>核心功能</strong>: 快速選取、切片資料</li>
+          <li><strong>潛在問題</strong>: 索引超出範圍會報錯</li>
+          <li><strong>最佳使用情境</strong>: 特徵抽取、資料分割</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="array-operations" aria-labelledby="array-operations-heading">
+      <h2 id="array-operations-heading">陣列運算與廣播</h2>
+      <p>💡 <strong>實際應用情境：</strong> 數值計算、資料標準化</p>
+
+      <h3>範例 4：向量化運算</h3>
+      <pre><code>arr3 = arr1 * 2  # 所有元素乘以 2
+arr4 = arr1 + np.array([10, 20, 30, 40, 50])  # 元素相加
+print(arr3)
+print(arr4)</code></pre>
+      <p><strong>✅ 程式碼逐行解析：</strong></p>
+      <ol>
+        <li><code>arr1 * 2</code>：所有元素都乘以 2，回傳 [2, 4, 6, 8, 10]。</li>
+        <li><code>arr1 + ...</code>：對應元素相加，回傳 [11, 22, 33, 44, 55]。</li>
+      </ol>
+      <div class="summary-box">
+        <p><strong>🎯 重點摘要:</strong></p>
+        <ul>
+          <li><strong>核心功能</strong>: 支援向量化與廣播運算</li>
+          <li><strong>潛在問題</strong>: 陣列形狀需相容</li>
+          <li><strong>最佳使用情境</strong>: 數值計算、資料標準化</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="advanced-techniques" aria-labelledby="advanced-techniques-heading">
+      <h2 id="advanced-techniques-heading">進階技巧：隨機、統計與重塑</h2>
+      <p>💡 <strong>實際應用情境：</strong> 資料模擬、統計分析、模型訓練</p>
+
+      <h3>範例 5：隨機數生成</h3>
+      <pre><code>rand_arr = np.random.rand(2, 3)  # 產生 2x3 隨機陣列
+print(rand_arr)</code></pre>
+      <p><strong>✅ 程式碼逐行解析：</strong></p>
+      <ol>
+        <li><code>np.random.rand(2, 3)</code>：產生 2x3 的 0~1 之間隨機浮點數陣列。</li>
+        <li><code>print(rand_arr)</code>：輸出隨機陣列。</li>
+      </ol>
+      <div class="summary-box">
+        <p><strong>🎯 重點摘要:</strong></p>
+        <ul>
+          <li><strong>核心功能</strong>: 產生隨機資料</li>
+          <li><strong>潛在問題</strong>: 隨機性導致結果不同</li>
+          <li><strong>最佳使用情境</strong>: 資料模擬、隨機抽樣</li>
+        </ul>
+      </div>
+
+      <h3>範例 6：統計運算</h3>
+      <pre><code>print(np.mean(arr1))  # 平均值
+print(np.std(arr1))   # 標準差</code></pre>
+      <p><strong>✅ 程式碼逐行解析：</strong></p>
+      <ol>
+        <li><code>np.mean(arr1)</code>：計算 arr1 的平均值。</li>
+        <li><code>np.std(arr1)</code>：計算 arr1 的標準差。</li>
+      </ol>
+      <div class="summary-box">
+        <p><strong>🎯 重點摘要:</strong></p>
+        <ul>
+          <li><strong>核心功能</strong>: 快速統計分析</li>
+          <li><strong>潛在問題</strong>: 資料型態需正確</li>
+          <li><strong>最佳使用情境</strong>: 資料分析、特徵工程</li>
+        </ul>
+      </div>
+
+      <h3>範例 7：陣列重塑</h3>
+      <pre><code>reshaped = arr2.reshape(3, 2)  # 重新調整形狀
+print(reshaped)</code></pre>
+      <p><strong>✅ 程式碼逐行解析：</strong></p>
+      <ol>
+        <li><code>arr2.reshape(3, 2)</code>：將原本 2x3 陣列重塑為 3x2。</li>
+        <li><code>print(reshaped)</code>：輸出重塑後的陣列。</li>
+      </ol>
+      <div class="summary-box">
+        <p><strong>🎯 重點摘要:</strong></p>
+        <ul>
+          <li><strong>核心功能</strong>: 靈活調整資料結構</li>
+          <li><strong>潛在問題</strong>: 元素數量需一致</li>
+          <li><strong>最佳使用情境</strong>: 資料前處理、模型輸入</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="summary" aria-labelledby="summary-heading">
+      <h2 id="summary-heading">💡 總結與最佳實踐</h2>
+      <p>NumPy 是 Python 資料科學不可或缺的工具，建議善用其高效運算、廣播機制與進階功能，並注意資料型態與陣列形狀的相容性，確保程式穩定運作。</p>
+    </section>
+
+    <section class="section" id="faq" aria-labelledby="faq-heading">
+      <h2 id="faq-heading">❓ 常見問答 (FAQ)</h2>
+      <div class="faq">
+        <p><strong>Q1: NumPy 與原生 list 有何差異？</strong><br>A1: NumPy 陣列支援向量化運算與多維結構，效能遠勝原生 list，適合大量數值計算。</p>
+        <p><strong>Q2: 如何避免陣列型態錯誤？</strong><br>A2: 建議建立陣列時明確指定 dtype，並善用 .astype() 轉換型態。</p>
+        <p><strong>Q3: 陣列重塑時遇到錯誤怎麼辦？</strong><br>A3: 請確認元素總數一致，否則 reshape 會報錯。</p>
+      </div>
+    </section>
+
+    <section class="section" id="hashtags" aria-labelledby="hashtags-heading">
+      <h2 id="hashtags-heading">🏷️ 推薦標籤 (Hashtags)</h2>
+      <p>#Python #程式設計 #教學 #編程 #開發 #技術分享 #學習筆記 #ThreadsTech #開發者社群</p>
+    </section>
+  </main>
+
+  <!-- =============================================================================
+       FOOTER
+       ============================================================================= -->
+  <footer class="hashtags" id="hashtags">
+    #Python #程式設計 #教學 #編程 #開發 #技術分享 #學習筆記 #ThreadsTech #開發者社群
+  </footer>
+</body>
+</html>
