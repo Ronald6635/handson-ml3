@@ -29,6 +29,7 @@ SVM（Support Vector Machine）以「最大化間隔」為核心，能在中小�
 - 大型資料或高維特徵下，`LinearSVC` 與 `SGDClassifier` 較能保持速度；核 SVM 則適合資料量較小但邏輯複雜的專案。
 
 <h2 id="setup">🚀 環境與資料基礎設置</h2>
+
 💡 **實際應用情境：** 在導入 SVM 至既有專案前，需確認 Python、Scikit-Learn 版本並建立圖像輸出目錄，確保開發與報表生產流程一致。
 
 ```python
@@ -63,6 +64,7 @@ plt.rc("ytick", labelsize=10)
 - **最佳使用情境**：專案初始化、CI 腳本或技術分享前置作業。
 
 <h2 id="linear-svm">🧭 線性 SVM 分類策略</h2>
+
 💡 **實際應用情境：** 以花瓣尺寸判斷 Iris 品種，或用信用卡交易金額/時段區分正常與異常。
 
 ### 範例 1：`LinearSVC` + `Pipeline` 建立穩健基準線
@@ -124,6 +126,7 @@ for C in C_grid:
 - **最佳使用情境**：需要在靈敏與穩健之間快速試錯的金融風險模型。
 
 <h2 id="kernel">🔄 核技巧與非線性分類</h2>
+
 💡 **實際應用情境：** 製造瑕疵圖像或 IoT 感測資料多呈環狀、曲線型可分，此時需要 Kernel Trick。
 
 ### 範例 3：多項式特徵 + 線性分類器
@@ -172,6 +175,7 @@ poly_kernel_clf.fit(X_moons, y_moons)
 - **最佳使用情境**：邏輯複雜、樣本 < 1 萬筆的舊系統升級案。
 
 <h2 id="rbf">📡 RBF 超參數調優實戰</h2>
+
 💡 **實際應用情境：** 在布建詐欺偵測服務時，RBF 核常能兼顧準確率與彈性。
 
 ### 範例 5：探索 `gamma` 與 `C`
@@ -197,6 +201,7 @@ for gamma, C in rbf_candidates:
 - **最佳使用情境**：專案前期需要直覺理解 `gamma` 的工程團隊。
 
 <h2 id="regression">💡 SVM 迴歸應用</h2>
+
 💡 **實際應用情境：** 半導體晶圓厚度、能源即時報價等連續數值，容忍小幅誤差但需偵測異常尖峰。
 
 ### 範例 6：`LinearSVR` 的 ε-不敏感區
@@ -251,6 +256,7 @@ poly_svr.fit(X_curve, y_curve)
 - **最佳使用情境**：頻寬需求、用電負載等存在平滑趨勢的序列。
 
 <h2 id="wine">🧪 多分類與調參技巧：Wine 案例</h2>
+
 💡 **實際應用情境：** 食品化驗或化工原料分類，需要在 3 類以上中分辨供應來源。
 
 ### 範例 8：Randomized Search + `LinearSVC`
@@ -289,6 +295,7 @@ print("測試準確率:", rnd_search.score(X_test, y_test))
 - **最佳使用情境**：化工、食品或製藥領域的品管分類。
 
 <h2 id="housing">🏙️ California Housing 迴歸挑戰</h2>
+
 💡 **實際應用情境：** 預估台灣類似房價資料時，可參考加州公開數據建模策略。
 
 ### 範例 9：RBF SVR + 隨機搜尋
