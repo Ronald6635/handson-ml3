@@ -52,61 +52,65 @@ print("=== 範例 1：建立陣列 ===")
 # 匯入 NumPy
 import numpy as np
 
-# 建立全零陣列
-print("np.zeros(5) =", np.zeros(5))
+# 建立一個包含 6 個 0 的陣列
+a = np.zeros(6)
+print("a =", a)
 
-# 建立 3x4 全零矩陣
-print("np.zeros((3,4)) =")
-a = np.zeros((3,4))
-print(a)
+# 建立 3x5 矩陣
+b = np.zeros((3, 5))
+print("b =", b)
+print("b.shape =", b.shape)
+print("b.ndim =", b.ndim)
+print("b.size =", b.size)
 
-# 檢查陣列屬性
-print("a.shape =", a.shape)
-print("a.ndim =", a.ndim)
-print("a.size =", a.size)
+# 全 1 陣列
+ones = np.ones((3, 8))
+print("ones =", ones)
 
-# 建立三維陣列
-print("np.zeros((2,3,4)) =")
-print(np.zeros((2,3,4)))
+# 指定值的陣列
+full = np.full((3, 3), np.pi)
+print("full =", full)
 
-# 檢查陣列類型
-print("type(np.zeros((3,4))) =", type(np.zeros((3,4))))
+# 未初始化的陣列
+empty = np.empty((2, 3))
+print("empty =", empty)
 
-# 全一陣列
-print("np.ones((3,4)) =")
-print(np.ones((3,4)))
+# 1. 使用 arange (指定範圍與步長)
+# 整數：[1, 2, 3, 4, 5]
+arange_int = np.arange(1, 6)
+print("arange_int =", arange_int)
 
-# 指定值陣列
-print("np.full((3,4), np.pi) =")
-print(np.full((3,4), np.pi))
+# 浮點數：[1., 2., 3., 4., 5.]
+arange_float = np.arange(1.0, 6.0)
+print("arange_float =", arange_float)
 
-# 未初始化陣列
-print("np.empty((2,3)) =")
-print(np.empty((2,3)))
+# 指定步長 0.5：[1. , 1.5, 2. , 2.5, 3. , 3.5, 4. , 4.5, 5. , 5.5]
+arange_step = np.arange(1, 6, 0.5)
+print("arange_step =", arange_step)
 
-# 從列表建立陣列
-print("np.array([[1,2,3,4], [10, 20, 30, 40]]) =")
-print(np.array([[1,2,3,4], [10, 20, 30, 40]]))
+# 2. 比較 arange 和 linspace 的差異（使用相同範圍）
+# 試圖用 arange 切分出 6 個點 (步長 = 總長度 / 5)
+# 注意：由於浮點數誤差，arange 有時可能無法準確包含或排除終點
+arange_like_linspace = np.arange(0, 10/3, (10/3)/5)
+print("arange_like_linspace =", arange_like_linspace)
 
-# arange 函數
-print("np.arange(1, 5) =", np.arange(1, 5))
-print("np.arange(1.0, 5.0) =", np.arange(1.0, 5.0))
-print("np.arange(1, 5, 0.5) =", np.arange(1, 5, 0.5))
+# 3. 使用 linspace (指定範圍與點數)
+# 建立 6 個點，自動計算步長，且精確包含終點
+linspace = np.linspace(0, 10/3, 6)
+print("linspace =", linspace)
 
-# arange 浮點數問題
-print("np.arange(0, 5/3, 1/3) =", np.arange(0, 5/3, 1/3))
-print("np.arange(0, 5/3, 0.333333333) =", np.arange(0, 5/3, 0.333333333))
-print("np.arange(0, 5/3, 0.333333334) =", np.arange(0, 5/3, 0.333333334))
+# 4. 從 Python 列表 (List) 轉換
+array_from_list = np.array([[1, 2, 3, 4], [6, 7, 8, 9]])
+print("array_from_list =\n", array_from_list)
+print("array_from_list.shape =", array_from_list.shape)
 
-# linspace 函數
-print("np.linspace(0, 5/3, 6) =", np.linspace(0, 5/3, 6))
+# 均勻分佈隨機數
+rand = np.random.rand(3, 5)
+print("rand =", rand)
 
-# 隨機陣列
-print("np.random.rand(3,4) =")
-print(np.random.rand(3,4))
-
-print("np.random.randn(3,4) =")
-print(np.random.randn(3,4))
+# 常態分佈隨機數
+randn = np.random.randn(3, 5)
+print("randn =", randn)
 
 # 繪製隨機分佈直方圖
 plt.hist(np.random.rand(100000), density=True, bins=100, histtype="step", color="blue", label="rand")
