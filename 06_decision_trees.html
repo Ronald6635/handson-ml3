@@ -1,0 +1,508 @@
+<!--
+Decision Trees HTML Documentation
+
+This document is the HTML version of the tutorial, optimized for web viewing with mathematical equation rendering.
+
+Key features:
+- Detailed explanation of concepts with examples.
+- Mathematical derivations using MathJax.
+- Responsive design with dark mode support.
+- Clear, organized sections for easy navigation.
+
+Dependencies:
+- Google Fonts (Noto Sans TC)
+- MathJax for LaTeX rendering.
+- ES6 Polyfill for older browser compatibility.
+
+Browser Support:
+- Modern browsers (Chrome, Firefox, Safari, Edge).
+
+Last Updated: November 25, 2025
+Author: HowToolHelp.com powered by GitHub Copilot
+-->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>決策樹在機器學習中的應用：完整 Python 教學</title>
+  <meta name="description" content="學習如何使用 Scikit-Learn 建構決策樹模型，包括訓練、可視化、預測和正則化技巧。包含實用範例和逐步解析，適合初學者到進階開發者。"/>
+  <meta name="keywords" content="Python, 機器學習, 決策樹, Scikit-Learn, 教學, 程式設計, 資料科學"/>
+  
+  <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
+  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+  
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  
+  <!-- MathJax -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --heading-color: #265D94;
+      --link-color: #0056b3;
+      --border-color: #dddddd;
+      --code-bg-color: #f5f5f5;
+      --summary-bg-color: #eef3f8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #cccccc;
+        --heading-color: #87b5e1;
+        --link-color: #6caeef;
+        --border-color: #444444;
+        --code-bg-color: #2c2c2c;
+        --summary-bg-color: #252a30;
+      }
+    }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      line-height: 1.8;
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 900px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    h1, h2, h3, h4 {
+      color: var(--heading-color);
+      font-weight: 700;
+      margin-top: 1.5em;
+    }
+    h1 { font-size: 2.2em; text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+    h2 { font-size: 1.8em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    h3 { font-size: 1.4em; }
+    h4 { font-size: 1.2em; }
+    a { color: var(--link-color); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header, footer { text-align: center; margin-bottom: 2em; }
+    .meta { font-size: 0.9em; color: #666; }
+    .toc { background-color: var(--summary-bg-color); padding: 15px 25px; border-radius: 8px; margin-bottom: 2em; }
+    .toc h2 { margin-top: 0; }
+    .toc ul { padding-left: 20px; }
+    .toc ul ul { padding-left: 20px; }
+    .section { margin-bottom: 2em; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+    th { background-color: var(--summary-bg-color); }
+    .summary-box { background-color: var(--summary-bg-color); border-left: 5px solid var(--heading-color); padding: 15px 20px; margin: 1.5em 0; border-radius: 5px; }
+    .faq p { margin: 0.5em 0; }
+    .hashtags { background-color: var(--summary-bg-color); padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; word-spacing: 10px; }
+    mjx-container { text-align: center !important; margin: 1em 0; }
+    code { background-color: var(--code-bg-color); padding: 2px 4px; border-radius: 3px; }
+    pre { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; overflow-x: auto; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>🐍 決策樹在機器學習中的應用：完整 Python 教學</h1>
+    <p class="meta">學習決策樹（Decision Trees）是機器學習中的基礎演算法之一。本教學將帶您從基礎概念開始，逐步深入到實際應用，使用 Scikit-Learn 建構決策樹模型，並探討其在分類和回歸問題中的應用。</p>
+  </header>
+
+  <nav class="toc" aria-label="本文目錄">
+    <h2>📝 本文目錄</h2>
+    <ul>
+      <li><a href="#設定與環境準備">設定與環境準備</a></li>
+      <li><a href="#訓練與視覺化決策樹">訓練與視覺化決策樹</a></li>
+      <li><a href="#進行預測">進行預測</a></li>
+      <li><a href="#估計類別機率">估計類別機率</a></li>
+      <li><a href="#正則化超參數">正則化超參數</a></li>
+      <li><a href="#回歸問題">回歸問題</a></li>
+      <li><a href="#決策樹的敏感性">決策樹的敏感性</a></li>
+      <li><a href="#決策樹的高變異性">決策樹的高變異性</a></li>
+      <li><a href="#額外內容存取樹狀結構">額外內容：存取樹狀結構</a></li>
+      <li><a href="#練習解答">練習解答</a></li>
+      <li><a href="#總結與最佳實踐">總結與最佳實踐</a></li>
+      <li><a href="#常見問答">常見問答</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="section" id="設定與環境準備">
+      <h2>設定與環境準備</h2>
+      <p>在開始之前，我們需要確保 Python 環境正確設定，並匯入必要的程式庫。</p>
+      <h3>範例 1: 環境檢查與設定</h3>
+      <pre><code>import sys
+
+assert sys.version_info &gt;= (3, 7)
+
+from packaging import version
+import sklearn
+
+assert version.parse(sklearn.__version__) &gt;= version.parse("1.0.1")
+
+import matplotlib.pyplot as plt
+
+plt.rc('font', size=14)
+plt.rc('axes', labelsize=14, titlesize=14)
+plt.rc('legend', fontsize=14)
+plt.rc('xtick', labelsize=10)
+plt.rc('ytick', labelsize=10)
+
+from pathlib import Path
+
+IMAGES_PATH = Path() / "images" / "decision_trees"
+IMAGES_PATH.mkdir(parents=True, exist_ok=True)
+
+def save_fig(fig_id, tight_layout=True, fig_extension="png", resolution=300):
+    path = IMAGES_PATH / f"{fig_id}.{fig_extension}"
+    if tight_layout:
+        plt.tight_layout()
+    plt.savefig(path, format=fig_extension, dpi=resolution)</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>import sys</code>: 匯入 sys 模組，用於檢查 Python 版本</li>
+        <li><code>assert sys.version_info &gt;= (3, 7)</code>: 確保 Python 版本至少為 3.7</li>
+        <li><code>from packaging import version</code>: 匯入版本比較工具</li>
+        <li><code>assert version.parse(sklearn.__version__) &gt;= version.parse("1.0.1")</code>: 檢查 Scikit-Learn 版本</li>
+        <li><code>plt.rc(...)</code>: 設定 Matplotlib 的預設字體和大小</li>
+        <li><code>IMAGES_PATH.mkdir(...)</code>: 建立圖片儲存目錄</li>
+        <li><code>def save_fig(...)</code>: 定義儲存圖片的輔助函數</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 環境設定和圖片儲存工具</li>
+          <li><strong>潛在問題</strong>: 版本檢查失敗會引發 AssertionError</li>
+          <li><strong>最佳使用情境</strong>: 在機器學習專案開始時進行環境驗證</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="訓練與視覺化決策樹">
+      <h2>訓練與視覺化決策樹</h2>
+      <p>讓我們使用鳶尾花（Iris）資料集來訓練第一個決策樹模型。</p>
+      <h3>範例 2: 載入資料並訓練決策樹</h3>
+      <pre><code>from sklearn.datasets import load_iris
+from sklearn.tree import DecisionTreeClassifier
+
+iris = load_iris(as_frame=True)
+X_iris = iris.data[["petal length (cm)", "petal width (cm)"]].values
+y_iris = iris.target
+
+tree_clf = DecisionTreeClassifier(max_depth=2, random_state=42)
+tree_clf.fit(X_iris, y_iris)</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>from sklearn.datasets import load_iris</code>: 匯入鳶尾花資料集</li>
+        <li><code>iris = load_iris(as_frame=True)</code>: 載入資料並轉為 DataFrame 格式</li>
+        <li><code>X_iris = iris.data[["petal length (cm)", "petal width (cm)"]].values</code>: 選取花瓣長度和寬度作為特徵</li>
+        <li><code>y_iris = iris.target</code>: 取得目標標籤</li>
+        <li><code>tree_clf = DecisionTreeClassifier(max_depth=2, random_state=42)</code>: 建立決策樹分類器，限制深度為 2</li>
+        <li><code>tree_clf.fit(X_iris, y_iris)</code>: 在訓練資料上擬合模型</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 使用鳶尾花資料集訓練決策樹</li>
+          <li><strong>潛在問題</strong>: 資料預處理和特徵選擇很重要</li>
+          <li><strong>最佳使用情境</strong>: 分類問題的基礎模型訓練</li>
+        </ul>
+      </div>
+      <h3>範例 3: 匯出決策樹圖形</h3>
+      <pre><code>from sklearn.tree import export_graphviz
+
+export_graphviz(
+        tree_clf,
+        out_file=str(IMAGES_PATH / "iris_tree.dot"),
+        feature_names=["petal length (cm)", "petal width (cm)"],
+        class_names=iris.target_names,
+        rounded=True,
+        filled=True
+    )</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>from sklearn.tree import export_graphviz</code>: 匯入圖形匯出函數</li>
+        <li><code>export_graphviz(...)</code>: 將決策樹匯出為 GraphViz dot 檔案</li>
+        <li><code>out_file=...</code>: 指定輸出檔案路徑</li>
+        <li><code>feature_names=...</code>: 設定特徵名稱</li>
+        <li><code>class_names=...</code>: 設定類別名稱</li>
+        <li><code>rounded=True, filled=True</code>: 設定視覺化樣式</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 將決策樹視覺化為圖形檔案</li>
+          <li><strong>潛在問題</strong>: 需要安裝 GraphViz 軟體才能轉換為圖片</li>
+          <li><strong>最佳使用情境</strong>: 模型解釋和教學用途</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="進行預測">
+      <h2>進行預測</h2>
+      <p>訓練好模型後，我們可以使用它進行預測。</p>
+      <h3>範例 4: 預測新資料</h3>
+      <pre><code>predictions = tree_clf.predict([[5, 1.5]])
+print("預測結果:", predictions)</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>tree_clf.predict([[5, 1.5]])</code>: 使用模型預測新樣本</li>
+        <li><code>print(...)</code>: 輸出預測結果</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 使用決策樹進行單一樣本預測</li>
+          <li><strong>潛在問題</strong>: 輸入資料格式必須與訓練時一致</li>
+          <li><strong>最佳使用情境</strong>: 即時預測應用</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="估計類別機率">
+      <h2>估計類別機率</h2>
+      <p>決策樹不僅能進行預測，還能估計每個類別的機率。</p>
+      <h3>範例 5: 估計類別機率</h3>
+      <pre><code>probabilities = tree_clf.predict_proba([[5, 1.5]]).round(3)
+print("類別機率:", probabilities)</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>tree_clf.predict_proba(...)</code>: 計算每個類別的預測機率</li>
+        <li><code>.round(3)</code>: 將機率四捨五入到小數點後三位</li>
+        <li><code>print(...)</code>: 輸出機率分佈</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 獲取決策樹的機率預測</li>
+          <li><strong>潛在問題</strong>: 機率估計依賴於樹的結構</li>
+          <li><strong>最佳使用情境</strong>: 需要不確定性估計的應用</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="正則化超參數">
+      <h2>正則化超參數</h2>
+      <p>為了避免過擬合，我們需要調整決策樹的正則化參數。</p>
+      <h3>範例 6: 比較不同正則化設定的效果</h3>
+      <pre><code>from sklearn.datasets import make_moons
+
+X_moons, y_moons = make_moons(n_samples=150, noise=0.2, random_state=42)
+
+tree_clf1 = DecisionTreeClassifier(random_state=42)
+tree_clf2 = DecisionTreeClassifier(min_samples_leaf=5, random_state=42)
+tree_clf1.fit(X_moons, y_moons)
+tree_clf2.fit(X_moons, y_moons)</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>from sklearn.datasets import make_moons</code>: 匯入月亮形資料集生成器</li>
+        <li><code>X_moons, y_moons = make_moons(...)</code>: 生成非線性可分的資料</li>
+        <li><code>tree_clf1 = DecisionTreeClassifier(random_state=42)</code>: 無限制的決策樹</li>
+        <li><code>tree_clf2 = DecisionTreeClassifier(min_samples_leaf=5, ...)</code>: 限制最小葉節點數量的決策樹</li>
+        <li><code>tree_clf1.fit(...)</code>: 訓練無限制模型</li>
+        <li><code>tree_clf2.fit(...)</code>: 訓練正則化模型</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 比較過擬合和正則化模型的差異</li>
+          <li><strong>潛在問題</strong>: 無限制模型容易過擬合複雜資料</li>
+          <li><strong>最佳使用情境</strong>: 調整模型複雜度以平衡偏差和變異</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="回歸問題">
+      <h2>回歸問題</h2>
+      <p>決策樹不僅可用於分類，也可用於回歸問題。</p>
+      <h3>範例 7: 決策樹回歸</h3>
+      <pre><code>from sklearn.tree import DecisionTreeRegressor
+
+np.random.seed(42)
+X_quad = np.random.rand(200, 1) - 0.5
+y_quad = X_quad ** 2 + 0.025 * np.random.randn(200, 1)
+
+tree_reg = DecisionTreeRegressor(max_depth=2, random_state=42)
+tree_reg.fit(X_quad, y_quad)</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>from sklearn.tree import DecisionTreeRegressor</code>: 匯入決策樹回歸器</li>
+        <li><code>np.random.seed(42)</code>: 設定隨機種子確保重現性</li>
+        <li><code>X_quad = np.random.rand(200, 1) - 0.5</code>: 生成輸入特徵</li>
+        <li><code>y_quad = X_quad ** 2 + 0.025 * np.random.randn(...)</code>: 生成二次函數目標值加雜訊</li>
+        <li><code>tree_reg = DecisionTreeRegressor(max_depth=2, random_state=42)</code>: 建立回歸樹</li>
+        <li><code>tree_reg.fit(...)</code>: 訓練回歸模型</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 使用決策樹進行回歸預測</li>
+          <li><strong>潛在問題</strong>: 回歸樹對離群值敏感</li>
+          <li><strong>最佳使用情境</strong>: 非線性回歸問題</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="決策樹的敏感性">
+      <h2>決策樹的敏感性</h2>
+      <p>決策樹對資料的軸向方向很敏感。</p>
+      <h3>範例 8: 展示軸向敏感性</h3>
+      <pre><code>np.random.seed(6)
+X_square = np.random.rand(100, 2) - 0.5
+y_square = (X_square[:, 0] &gt; 0).astype(np.int64)
+
+angle = np.pi / 4
+rotation_matrix = np.array([[np.cos(angle), -np.sin(angle)],
+                            [np.sin(angle), np.cos(angle)]])
+X_rotated_square = X_square.dot(rotation_matrix)
+
+tree_clf_square = DecisionTreeClassifier(random_state=42)
+tree_clf_square.fit(X_square, y_square)
+tree_clf_rotated_square = DecisionTreeClassifier(random_state=42)
+tree_clf_rotated_square.fit(X_rotated_square, y_square)</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>X_square = np.random.rand(100, 2) - 0.5</code>: 生成方形分佈的資料</li>
+        <li><code>y_square = (X_square[:, 0] &gt; 0).astype(np.int64)</code>: 基於 x 軸建立二元標籤</li>
+        <li><code>rotation_matrix = ...</code>: 定義旋轉矩陣</li>
+        <li><code>X_rotated_square = X_square.dot(rotation_matrix)</code>: 旋轉資料</li>
+        <li><code>tree_clf_square.fit(...)</code>: 在原始資料上訓練</li>
+        <li><code>tree_clf_rotated_square.fit(...)</code>: 在旋轉資料上訓練</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 展示決策樹對軸向的敏感性</li>
+          <li><strong>潛在問題</strong>: 資料旋轉會導致完全不同的決策邊界</li>
+          <li><strong>最佳使用情境</strong>: 理解模型對特徵尺度化的需求</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="決策樹的高變異性">
+      <h2>決策樹的高變異性</h2>
+      <p>決策樹具有高變異性，即使在相同資料上也可能產生不同模型。</p>
+      <h3>範例 9: 展示高變異性</h3>
+      <pre><code>tree_clf_tweaked = DecisionTreeClassifier(max_depth=2, random_state=40)
+tree_clf_tweaked.fit(X_iris, y_iris)</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>tree_clf_tweaked = DecisionTreeClassifier(max_depth=2, random_state=40)</code>: 使用不同隨機種子</li>
+        <li><code>tree_clf_tweaked.fit(X_iris, y_iris)</code>: 在相同資料上訓練</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 展示決策樹的隨機性</li>
+          <li><strong>潛在問題</strong>: CART 演算法的隨機性導致模型變異</li>
+          <li><strong>最佳使用情境</strong>: 理解為何需要集成方法如隨機森林</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="額外內容存取樹狀結構">
+      <h2>額外內容：存取樹狀結構</h2>
+      <p>可以直接存取決策樹的內部結構。</p>
+      <h3>範例 10: 存取樹狀結構</h3>
+      <pre><code>tree = tree_clf.tree_
+print("節點數量:", tree.node_count)
+print("最大深度:", tree.max_depth)
+print("葉節點數量:", tree.n_leaves)</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>tree = tree_clf.tree_</code>: 取得樹的內部結構</li>
+        <li><code>tree.node_count</code>: 總節點數</li>
+        <li><code>tree.max_depth</code>: 最大深度</li>
+        <li><code>tree.n_leaves</code>: 葉節點數</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 檢查決策樹的結構屬性</li>
+          <li><strong>潛在問題</strong>: 直接存取內部結構需要了解實作細節</li>
+          <li><strong>最佳使用情境</strong>: 模型分析和除錯</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="練習解答">
+      <h2>練習解答</h2>
+      <p>包含章節末的練習題解答。</p>
+      <h3>練習 7: 訓練和微調決策樹</h3>
+      <pre><code>from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import accuracy_score
+
+X_moons, y_moons = make_moons(n_samples=10000, noise=0.4, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_moons, y_moons,
+                                                    test_size=0.2,
+                                                    random_state=42)
+
+params = {
+    'max_leaf_nodes': list(range(2, 100)),
+    'max_depth': list(range(1, 7)),
+    'min_samples_split': [2, 3, 4]
+}
+grid_search_cv = GridSearchCV(DecisionTreeClassifier(random_state=42),
+                              params,
+                              cv=3)
+
+grid_search_cv.fit(X_train, y_train)
+
+y_pred = grid_search_cv.predict(X_test)
+print("測試準確率:", accuracy_score(y_test, y_pred))</code></pre>
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>make_moons(n_samples=10000, noise=0.4, random_state=42)</code>: 生成較大的月亮形資料集</li>
+        <li><code>train_test_split(...)</code>: 分割訓練和測試資料</li>
+        <li><code>GridSearchCV(...)</code>: 設定網格搜尋參數</li>
+        <li><code>grid_search_cv.fit(...)</code>: 執行網格搜尋</li>
+        <li><code>accuracy_score(...)</code>: 計算測試準確率</li>
+      </ol>
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 使用網格搜尋微調決策樹參數</li>
+          <li><strong>潛在問題</strong>: 網格搜尋計算成本高</li>
+          <li><strong>最佳使用情境</strong>: 模型超參數優化</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="總結與最佳實踐">
+      <h2>💡 總結與最佳實踐</h2>
+      <p>決策樹是機器學習中的重要工具，具有直觀、可解釋的優點。本教學涵蓋了從基礎訓練到進階應用的完整流程。</p>
+      <p><strong>最佳實踐：</strong></p>
+      <ul>
+        <li>使用交叉驗證選擇超參數</li>
+        <li>考慮使用 PCA 處理軸向敏感性</li>
+        <li>對於高變異性問題，考慮使用隨機森林</li>
+        <li>正確處理分類和回歸問題的不同需求</li>
+      </ul>
+    </section>
+
+    <section class="section" id="常見問答">
+      <h2>❓ 常見問答 (FAQ)</h2>
+      <div class="faq">
+        <p><strong>Q: 決策樹是否需要特徵標準化？</strong></p>
+        <p>A: 不需要，決策樹對特徵尺度不敏感。</p>
+        <p><strong>Q: 如何避免決策樹過擬合？</strong></p>
+        <p>A: 限制樹深度、葉節點數量，或使用最小樣本分割數。</p>
+        <p><strong>Q: 決策樹適合什麼類型的資料？</strong></p>
+        <p>A: 適合處理分類和回歸問題，尤其在需要模型解釋時。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="hashtags">
+    推薦標籤：#Python #機器學習 #決策樹 #ScikitLearn #程式教學 #資料科學 #人工智慧 #演算法
+  </footer>
+</body>
+</html>
