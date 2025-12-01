@@ -18,7 +18,6 @@
 - [決策樹的敏感性](#決策樹的敏感性)
 - [決策樹的高變異性](#決策樹的高變異性)
 - [額外內容：存取樹狀結構](#額外內容存取樹狀結構)
-- [練習解答](#練習解答)
 - [總結與最佳實踐](#總結與最佳實踐)
 - [常見問答](#常見問答)
 
@@ -112,7 +111,7 @@ tree_clf.fit(X_iris, y_iris)
 1. `from sklearn.datasets import load_iris`: 匯入鳶尾花資料集
 2. `iris = load_iris(as_frame=True)`: 載入資料並轉為 DataFrame 格式
 3. `X_iris = iris.data[["petal length (cm)", "petal width (cm)"]].values`: 選取花瓣長度和寬度作為特徵
-4. `y_iris = iris.target`: 取得目標標籤
+4. `y_iris = iris.target`: 取得目標標籤; 分別為三種鳶尾花類別: 0 (Setosa), 1 (Versicolor), 2 (Virginica)
 5. `tree_clf = DecisionTreeClassifier(max_depth=2, random_state=42)`: 建立決策樹分類器，限制深度為 2
 6. `tree_clf.fit(X_iris, y_iris)`: 在訓練資料上擬合模型
 
@@ -126,6 +125,7 @@ tree_clf.fit(X_iris, y_iris)
 
 ```python
 from sklearn.tree import export_graphviz
+from graphviz import Source
 
 # 匯出決策樹為 dot 格式
 export_graphviz(
@@ -136,6 +136,8 @@ export_graphviz(
         rounded=True,
         filled=True
     )
+# 顯示決策樹圖形
+Source.from_file(str(IMAGES_PATH / "iris_tree.dot"))
 ```
 
 **✅ 程式碼逐行解析：**
@@ -146,16 +148,19 @@ export_graphviz(
 4. `feature_names=...`: 設定特徵名稱
 5. `class_names=...`: 設定類別名稱
 6. `rounded=True, filled=True`: 設定視覺化樣式
+7. `Source.from_file(...)`: 從 dot 檔案讀取並顯示決策樹圖形
 
 **🎯 重點摘要:**
 
 - **核心功能**: 將決策樹視覺化為圖形檔案
-- **潛在問題**: 需要安裝 GraphViz 軟體才能轉換為圖片
+- **潛在問題**: 需要透過 GraphViz 才能轉換為圖片
 - **最佳使用情境**: 模型解釋和教學用途
 
 ## <a id="進行預測"></a>進行預測
 
 訓練好模型後，我們可以使用它進行預測。
+
+假設我們有一個新樣本，其花瓣長度為 5 公分，寬度為 1.5 公分。
 
 ### 範例 4: 預測新資料
 
@@ -202,9 +207,13 @@ print("類別機率:", probabilities.round(3))
 
 ## <a id="正則化超參數"></a>正則化超參數
 
-為了避免過擬合，我們需要調整決策樹的正則化參數。
+為了避免過擬合 (Overfitting)，我們需要調整決策樹的正則化參數。
 
 ### 範例 6: 比較不同正則化設定的效果
+
+在此例，我們將使用月亮形資料集來比較無限制和有限制的決策樹模型。
+
+藉由`min_samples_leaf` 參數，我們可以限制每個葉節點 (leaf node) 的最小樣本數量。
 
 ```python
 from sklearn.datasets import make_moons
@@ -324,18 +333,27 @@ tree_clf_tweaked.fit(X_iris, y_iris)
 
 **✅ 程式碼逐行解析：**
 
-1. `tree_clf_tweaked = DecisionTreeClassifier(max_depth=2, random_state=40)`: 使用不同隨機種子
+1. `tree_clf_tweaked = DecisionTreeClassifier(max_depth=2, random_state=40)`: 使用不同隨機種子`random_state=40`建立決策樹
 2. `tree_clf_tweaked.fit(X_iris, y_iris)`: 在相同資料上訓練
 
 **🎯 重點摘要:**
 
 - **核心功能**: 展示決策樹的隨機性
 - **潛在問題**: CART 演算法的隨機性導致模型變異
-- **最佳使用情境**: 理解為何需要集成方法如隨機森林
+- **最佳使用情境**: 理解為何需要集成方法如隨機森林 (Random Forest) 來降低變異性
 
 ## <a id="額外內容存取樹狀結構"></a>額外內容：存取樹狀結構
 
-可以直接存取決策樹的內部結構。
+決策樹不僅提供預測功能，還允許直接存取其內部結構，這對於模型解釋、除錯和進階分析非常有用。Scikit-Learn 的決策樹物件包含一個 `tree_` 屬性，這是一個低階物件，儲存了樹的完整結構，包括節點資訊、分割條件和葉節點的統計資料。
+
+透過存取樹狀結構，您可以：
+
+- 檢查每個節點的分割特徵和閾值
+- 獲取葉節點的類別分佈或回歸值
+- 計算樹的複雜度指標
+- 實作自訂的樹遍歷演算法
+
+這對於理解模型決策過程、進行特徵重要性分析，或開發自訂的可視化工具特別有幫助。請注意，直接操作內部結構需要對 CART 演算法有一定了解，並且在不同版本的 Scikit-Learn 中可能有所差異。
 
 ### 範例 10: 存取樹狀結構
 
@@ -359,13 +377,43 @@ print("葉節點數量:", tree.n_leaves)
 - **潛在問題**: 直接存取內部結構需要了解實作細節
 - **最佳使用情境**: 模型分析和除錯
 
+### 範例 11: 深入探索樹節點
+
+```python
+# 存取節點資訊
+print("節點 0 的分割特徵索引:", tree.feature[0])
+print("節點 0 的分割閾值:", tree.threshold[0])
+print("節點 0 的雜質:", tree.impurity[0])
+
+# 對於葉節點，檢查樣本數量和值
+leaf_mask = tree.children_left == tree.children_right  # 葉節點的左右子節點相同
+print("葉節點樣本數量:", tree.n_node_samples[leaf_mask])
+if hasattr(tree, 'value'):  # 分類樹
+    print("葉節點類別分佈:", tree.value[leaf_mask])
+```
+
+**✅ 程式碼逐行解析:**
+
+1. `tree.feature[0]`: 根節點的分割特徵索引
+2. `tree.threshold[0]`: 根節點的分割閾值
+3. `tree.impurity[0]`: 根節點的雜質度量 (如 Gini 或熵)
+4. `leaf_mask = ...`: 識別葉節點
+5. `tree.n_node_samples[leaf_mask]`: 葉節點的樣本數量
+6. `tree.value[leaf_mask]`: 葉節點的類別計數 (分類) 或平均值 (回歸)
+
+**🎯 重點摘要:**
+
+- **核心功能**: 深入檢查樹的每個節點
+- **潛在問題**: 索引操作需要小心，避免超出範圍
+- **最佳使用情境**: 自訂模型解釋和特徵分析
+
 ## <a id="總結與最佳實踐"></a>💡 總結與最佳實踐
 
 決策樹是機器學習中的重要工具，具有直觀、可解釋的優點。本教學涵蓋了從基礎訓練到進階應用的完整流程。
 
 **最佳實踐：**
 
-- 使用交叉驗證選擇超參數
+- 使用交叉驗證 (Cross-Validation) 選擇超參數
 - 考慮使用 PCA 處理軸向敏感性
 - 對於高變異性問題，考慮使用隨機森林
 - 正確處理分類和回歸問題的不同需求
@@ -387,5 +435,3 @@ A: 適合處理分類和回歸問題，尤其在需要模型解釋時。
 ## 🏷️ 推薦標籤
 
 推薦標籤：#Python #機器學習 #決策樹 #ScikitLearn #程式教學 #資料科學 #人工智慧 #演算法
- 
- 
