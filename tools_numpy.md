@@ -1408,23 +1408,23 @@ NumPy 的二進位格式（.npy）能完整保存陣列的形狀、資料類型�
 ```python
 a = np.random.rand(3,3)*2-1
 print("a =", a)
-np.save("my_array", a)
+np.save("saved_array", a)
 
-a_loaded = np.load("my_array.npy")
-print("a_loaded =", a_loaded)
-print("Arrays equal:", np.array_equal(a, a_loaded))
+loaded_array = np.load("saved_array.npy")
+print("loaded_array =", loaded_array)
+print("Arrays equal:", np.array_equal(a, loaded_array))
 ```
 
 **✅ 程式碼逐行解析：**
 
 1. `a = np.random.rand(3,3)*2-1`：建立隨機陣列，範圍在 -1 到 1 之間。
 2. `print("a =", a)`：輸出原始陣列。
-3. `np.save("my_array", a)`：將陣列 `a` 儲存為二進位格式的 `.npy` 檔案。
+3. `np.save("saved_array", a)`：將陣列 `a` 儲存為二進位格式的 `.npy` 檔案。
     - 此方法會自動在檔名後加上 `.npy` 副檔名，能完整保存陣列的形狀、資料類型和內容
     - 注意：若檔案已存在，將直接覆蓋且不會警告。
-4. `a_loaded = np.load("my_array.npy")`：載入檔案。
-5. `print("a_loaded =", a_loaded)`：輸出載入陣列。
-6. `print("Arrays equal:", np.array_equal(a, a_loaded))`：檢查是否相同。
+4. `loaded_array = np.load("saved_array.npy")`：載入檔案。
+5. `print("loaded_array =", loaded_array)`：輸出載入陣列。
+6. `print("Arrays equal:", np.array_equal(a, loaded_array))`：檢查是否相同。
 
 **🎯 重點摘要：**
 
@@ -1440,17 +1440,20 @@ NumPy 支援將陣列儲存為純文字格式（如 CSV、TXT），方便與 Exc
 - `np.loadtxt`：從文字檔載入陣列（可指定分隔符、資料類型）。
 
 常見應用：
+
 - 匯出分析結果給非 Python 用戶
 - 與資料庫、試算表或其他程式語言互通
 - 檢查資料內容或進行手動編輯
 
 注意事項：
+
 - 儲存時可用 `fmt` 參數控制數值格式（如 `fmt="%.6f"` 保留 6 位小數）。
 - 載入時若資料有標題列，可用 `skiprows` 跳過。
 - 文字格式不會保存陣列形狀資訊，僅儲存元素本身，載入時需自行重塑形狀（如 `.reshape()`）。
 - 若資料包含非數值型態（如字串），需額外指定 `dtype=str`。
 
 範例：
+
 - 儲存為 CSV：`np.savetxt("data.csv", arr, delimiter=",")`
 - 載入 CSV：`arr = np.loadtxt("data.csv", delimiter=",")`
 - 儲存為 TXT：`np.savetxt("data.txt", arr, fmt="%.6f")`
@@ -1458,25 +1461,25 @@ NumPy 支援將陣列儲存為純文字格式（如 CSV、TXT），方便與 Exc
 - 若需儲存多維陣列，建議先展平或重塑為 2D，再儲存。
 
 ```python
-np.savetxt("my_array.csv", a, delimiter=",")
-with open("my_array.csv", "rt") as f:
+np.savetxt("saved_array.csv", a, delimiter=",")
+with open("saved_array.csv", "rt") as f:
     print("CSV content:")
     print(f.read())
 
-a_loaded_txt = np.loadtxt("my_array.csv", delimiter=",")
-print("Loaded from CSV:", a_loaded_txt)
-print("CSV arrays equal:", np.allclose(a, a_loaded_txt))
+loaded_array_txt = np.loadtxt("saved_array.csv", delimiter=",")
+print("Loaded from CSV:", loaded_array_txt)
+print("CSV arrays equal:", np.allclose(a, loaded_array_txt))
 ```
 
 **✅ 程式碼逐行解析：**
 
-1. `np.savetxt("my_array.csv", a, delimiter=",")`：以逗號分隔符儲存陣列為 CSV 格式。
-2. `with open("my_array.csv", "rt") as f:`：以文字模式開啟 CSV 檔案。
+1. `np.savetxt("saved_array.csv", a, delimiter=",")`：以逗號分隔符儲存陣列為 CSV 格式。
+2. `with open("saved_array.csv", "rt") as f:`：以文字模式開啟 CSV 檔案。
 3. `print("CSV content:")`：印出標題。
 4. `print(f.read())`：讀取並印出檔案內容。
-5. `a_loaded_txt = np.loadtxt("my_array.csv", delimiter=",")`：從 CSV 載入陣列，使用逗號分隔符。
-6. `print("Loaded from CSV:", a_loaded_txt)`：輸出載入的陣列。
-7. `print("CSV arrays equal:", np.allclose(a, a_loaded_txt))`：檢查載入陣列是否與原始陣列相等。
+5. `loaded_array_txt = np.loadtxt("saved_array.csv", delimiter=",")`：從 CSV 載入陣列，使用逗號分隔符。
+6. `print("Loaded from CSV:", loaded_array_txt)`：輸出載入的陣列。
+7. `print("CSV arrays equal:", np.allclose(a, loaded_array_txt))`：檢查載入陣列是否與原始陣列相等。
 
 **🎯 重點摘要：**
 
@@ -1497,20 +1500,20 @@ NumPy 的壓縮格式（`.npz`）允許一次儲存多個陣列於單一檔案�
 
 ```python
 b = np.arange(60, dtype=np.uint8).reshape(3, 4, 5)
-np.savez("my_arrays", my_a=a, my_b=b)
+np.savez("saved_arrays", array_a=a, array_b=b)
 
-my_arrays = np.load("my_arrays.npz")
-print("Keys:", list(my_arrays.keys()))
-print("my_a =", my_arrays["my_a"])
+saved_arrays = np.load("saved_arrays.npz")
+print("Keys:", list(saved_arrays.keys()))
+print("array_a =", saved_arrays["array_a"])
 ```
 
 **✅ 程式碼逐行解析：**
 
 1. `b = np.arange(60, dtype=np.uint8).reshape(3, 4, 5)`：建立另一個陣列。
-2. `np.savez("my_arrays", my_a=a, my_b=b)`：儲存多個陣列到壓縮檔案。
-3. `my_arrays = np.load("my_arrays.npz")`：載入壓縮檔案。
-4. `print("Keys:", list(my_arrays.keys()))`：輸出鍵名。
-5. `print("my_a =", my_arrays["my_a"])`：存取特定陣列。
+2. `np.savez("saved_arrays", array_a=a, array_b=b)`：儲存多個陣列到壓縮檔案。
+3. `saved_arrays = np.load("saved_arrays.npz")`：載入壓縮檔案。
+4. `print("Keys:", list(saved_arrays.keys()))`：輸出鍵名。
+5. `print("array_a =", saved_arrays["array_a"])`：存取特定陣列。
 
 **🎯 重點摘要：**
 

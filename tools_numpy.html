@@ -20,17 +20,18 @@ NumPy 工具教學 HTML 文件
 瀏覽器支援：
 - 現代瀏覽器 (Chrome, Firefox, Safari, Edge)
 
-最後更新：2024
+最後更新：2025
 作者：HowToolHelp.com powered by GitHub Copilot
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
+<!-- Updated header with comprehensive meta tags -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐍 NumPy 完整教學指南：陣列建立、操作與線性代數實戰技巧 | Python 科學計算完全指南</title>
-  <meta name="description" content="學習 NumPy 的完整指南，從基本陣列操作到進階線性代數功能。包含實用範例、逐行解析和最佳實踐。適合 Python 程式設計師和資料科學學習者。"/>
-  <meta name="keywords" content="NumPy, Python, 陣列, 線性代數, 科學計算, 教學"/>
+  <title>🐍 NumPy 完整教學指南：陣列建立、操作與線性代數實戰技巧</title>
+  <meta name="description" content="學習 NumPy 的完整指南，從基本陣列操作到進階線性代數功能。包含實用範例、逐行解析和最佳實踐。適合 Python 程式設計師和資料科學學習者"/>
+  <meta name="keywords" content="NumPy, Python, 陣列, 線性代數, 科學計算, 教學, 廣播, 向量化, 資料分析"/>
 
   <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
   <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
@@ -108,12 +109,8 @@ NumPy 工具教學 HTML 文件
     .faq p { margin: 0.5em 0; }
     .hashtags { background-color: var(--summary-bg-color); padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; word-spacing: 10px; }
     mjx-container { text-align: center !important; margin: 1em 0; }
-    code { background-color: var(--code-bg-color); padding: 2px 4px; border-radius: 3px; font-family: 'Courier New', monospace; }
-    pre { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; overflow-x: auto; margin: 1em 0; }
-    .key-takeaways { background-color: var(--summary-bg-color); padding: 20px; border-radius: 8px; margin: 2em 0; }
-    .key-takeaways ul { margin: 0; padding-left: 20px; }
-    .code-breakdown { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; margin: 1em 0; border-left: 4px solid var(--heading-color); }
-    .code-breakdown h4 { margin-top: 0; color: var(--heading-color); }
+    pre { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; overflow-x: auto; }
+    code { background-color: var(--code-bg-color); padding: 2px 4px; border-radius: 3px; }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -1417,289 +1414,12 @@ print("my_a =", my_arrays["my_a"])</code></pre>
   <!-- =============================================================================
        FOOTER
        ============================================================================= -->
-  <footer class="hashtags" id="hashtags">
-    #Python #程式設計 #教學 #NumPy #陣列 #線性代數 #科學計算 #編程 #學習筆記 #程式開發者 #軟體工程 #資料科學 #機器學習 #數值計算 #向量化 #廣播 #矩陣運算 #特徵值 #SVD #資料分析 #效能優化
-  </footer>
-</body>
-</html>
-  
-  <!-- MathJax -->
-  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-  <style>
-    :root {
-      --bg-color: #ffffff;
-      --text-color: #333333;
-      --heading-color: #265D94;
-      --link-color: #0056b3;
-      --border-color: #dddddd;
-      --code-bg-color: #f5f5f5;
-      --summary-bg-color: #eef3f8;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg-color: #1a1a1a;
-        --text-color: #cccccc;
-        --heading-color: #87b5e1;
-        --link-color: #6caeef;
-        --border-color: #444444;
-        --code-bg-color: #2c2c2c;
-        --summary-bg-color: #252a30;
-      }
-    }
-    body {
-      font-family: 'Noto Sans TC', sans-serif;
-      line-height: 1.8;
-      margin: 0 auto;
-      padding: 20px;
-      max-width: 900px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-    }
-    h1, h2, h3, h4 {
-      color: var(--heading-color);
-      font-weight: 700;
-      margin-top: 1.5em;
-    }
-    h1 { font-size: 2.2em; text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
-    h2 { font-size: 1.8em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
-    h3 { font-size: 1.4em; }
-    h4 { font-size: 1.2em; }
-    a { color: var(--link-color); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    header, footer { text-align: center; margin-bottom: 2em; }
-    .meta { font-size: 0.9em; color: #666; }
-    .toc { background-color: var(--summary-bg-color); padding: 15px 25px; border-radius: 8px; margin-bottom: 2em; }
-    .toc h2 { margin-top: 0; }
-    .toc ul { padding-left: 20px; }
-    .toc ul ul { padding-left: 20px; }
-    .section { margin-bottom: 2em; }
-    table { width: 100%; border-collapse: collapse; margin: 1em 0; }
-    th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
-    th { background-color: var(--summary-bg-color); }
-    .summary-box { background-color: var(--summary-bg-color); border-left: 5px solid var(--heading-color); padding: 15px 20px; margin: 1.5em 0; border-radius: 5px; }
-    .faq p { margin: 0.5em 0; }
-    .hashtags { background-color: var(--summary-bg-color); padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; word-spacing: 10px; }
-    mjx-container { text-align: center !important; margin: 1em 0; }
-    pre { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; overflow-x: auto; }
-    code { background-color: var(--code-bg-color); padding: 2px 4px; border-radius: 3px; }
-  </style>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-</head>
-<body>
-  <!-- =============================================================================
-       HEADER AND TABLE OF CONTENTS
-       ============================================================================= -->
-  <header>
-    <h1>🐍 NumPy 工具箱：Python 數值運算全攻略</h1>
-    <p class="meta">NumPy 是 Python 最重要的科學運算套件之一，廣泛應用於資料分析、機器學習、工程計算等領域。本文將以台灣開發者視角，深入解析 NumPy 的核心功能，並以實際範例逐行解析，協助你在 Threads 平台上快速掌握 Python 數值運算的最佳實踐。</p>
-  </header>
-
-  <!--====================================
-      TABLE OF CONTENTS
-      ===================================-->
-  <nav class="toc" aria-label="本文目錄">
-    <h2>📝 本文目錄</h2>
-    <ul>
-      <li><a href="#key-takeaways">關鍵重點 (Key Takeaways)</a></li>
-      <li><a href="#array-basics">NumPy 基礎：陣列建立與屬性</a></li>
-      <li><a href="#array-indexing">陣列索引與切片</a></li>
-      <li><a href="#array-operations">陣列運算與廣播</a></li>
-      <li><a href="#advanced-techniques">進階技巧：隨機、統計與重塑</a></li>
-      <li><a href="#summary">總結與最佳實踐</a></li>
-      <li><a href="#faq">常見問答 (FAQ)</a></li>
-      <li><a href="#hashtags">推薦標籤 (Hashtags)</a></li>
-    </ul>
-  </nav>
-
-  <!-- =============================================================================
-       MAIN CONTENT AREA
-       ============================================================================= -->
-  <main>
-    <section class="section" id="key-takeaways" aria-labelledby="key-takeaways-heading">
-      <h2 id="key-takeaways-heading">🎯 關鍵重點 (Key Takeaways)</h2>
-      <ul>
-        <li>NumPy 提供高效的多維陣列運算能力</li>
-        <li>支援廣播、向量化運算，效能遠勝原生 Python list</li>
-        <li>內建隨機、統計、重塑等進階功能，適合資料科學與機器學習</li>
-      </ul>
-    </section>
-
-    <section class="section" id="array-basics" aria-labelledby="array-basics-heading">
-      <h2 id="array-basics-heading">NumPy 基礎：陣列建立與屬性</h2>
-      <p>💡 <strong>實際應用情境：</strong> 資料前處理、特徵工程、科學計算</p>
-
-      <h3>範例 1：建立一維與二維陣列</h3>
-      <pre><code>import numpy as np  # 匯入 NumPy 套件
-
-arr1 = np.array([1, 2, 3, 4, 5])  # 建立一維陣列
-arr2 = np.array([[1, 2, 3], [4, 5, 6]])  # 建立二維陣列
-
-print(arr1)
-print(arr2)</code></pre>
-      <p><strong>✅ 程式碼逐行解析：</strong></p>
-      <ol>
-        <li><code>import numpy as np</code>：以 np 作為 NumPy 的別名，方便後續呼叫。</li>
-        <li><code>arr1 = np.array([1, 2, 3, 4, 5])</code>：建立一維陣列。</li>
-        <li><code>arr2 = np.array([[1, 2, 3], [4, 5, 6]])</code>：建立二維陣列。</li>
-        <li><code>print(arr1)</code>、<code>print(arr2)</code>：輸出陣列內容。</li>
-      </ol>
-      <div class="summary-box">
-        <p><strong>🎯 重點摘要:</strong></p>
-        <ul>
-          <li><strong>核心功能</strong>: 快速建立多維陣列</li>
-          <li><strong>潛在問題</strong>: 輸入資料型態需一致</li>
-          <li><strong>最佳使用情境</strong>: 資料前處理、科學計算</li>
-        </ul>
-      </div>
-
-      <h3>範例 2：陣列屬性</h3>
-      <pre><code>print(arr2.shape)  # 查看陣列形狀
-print(arr2.dtype)  # 查看資料型態</code></pre>
-      <p><strong>✅ 程式碼逐行解析：</strong></p>
-      <ol>
-        <li><code>arr2.shape</code>：回傳 (2, 3)，表示二維陣列有 2 列 3 行。</li>
-        <li><code>arr2.dtype</code>：回傳元素的資料型態（如 int64）。</li>
-      </ol>
-      <div class="summary-box">
-        <p><strong>🎯 重點摘要:</strong></p>
-        <ul>
-          <li><strong>核心功能</strong>: 取得陣列結構與型態</li>
-          <li><strong>潛在問題</strong>: 型態不符可能導致運算錯誤</li>
-          <li><strong>最佳使用情境</strong>: 資料檢查、型態轉換</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="section" id="array-indexing" aria-labelledby="array-indexing-heading">
-      <h2 id="array-indexing-heading">陣列索引與切片</h2>
-      <p>💡 <strong>實際應用情境：</strong> 資料選取、特徵抽取</p>
-
-      <h3>範例 3：基本索引與切片</h3>
-      <pre><code>print(arr1[2])  # 取出第 3 個元素
-print(arr2[1, 2])  # 取出第 2 列第 3 行
-print(arr1[1:4])  # 取出第 2~4 個元素</code></pre>
-      <p><strong>✅ 程式碼逐行解析：</strong></p>
-      <ol>
-        <li><code>arr1[2]</code>：回傳 3。</li>
-        <li><code>arr2[1, 2]</code>：回傳 6。</li>
-        <li><code>arr1[1:4]</code>：回傳 [2, 3, 4]。</li>
-      </ol>
-      <div class="summary-box">
-        <p><strong>🎯 重點摘要:</strong></p>
-        <ul>
-          <li><strong>核心功能</strong>: 快速選取、切片資料</li>
-          <li><strong>潛在問題</strong>: 索引超出範圍會報錯</li>
-          <li><strong>最佳使用情境</strong>: 特徵抽取、資料分割</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="section" id="array-operations" aria-labelledby="array-operations-heading">
-      <h2 id="array-operations-heading">陣列運算與廣播</h2>
-      <p>💡 <strong>實際應用情境：</strong> 數值計算、資料標準化</p>
-
-      <h3>範例 4：向量化運算</h3>
-      <pre><code>arr3 = arr1 * 2  # 所有元素乘以 2
-arr4 = arr1 + np.array([10, 20, 30, 40, 50])  # 元素相加
-print(arr3)
-print(arr4)</code></pre>
-      <p><strong>✅ 程式碼逐行解析：</strong></p>
-      <ol>
-        <li><code>arr1 * 2</code>：所有元素都乘以 2，回傳 [2, 4, 6, 8, 10]。</li>
-        <li><code>arr1 + ...</code>：對應元素相加，回傳 [11, 22, 33, 44, 55]。</li>
-      </ol>
-      <div class="summary-box">
-        <p><strong>🎯 重點摘要:</strong></p>
-        <ul>
-          <li><strong>核心功能</strong>: 支援向量化與廣播運算</li>
-          <li><strong>潛在問題</strong>: 陣列形狀需相容</li>
-          <li><strong>最佳使用情境</strong>: 數值計算、資料標準化</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="section" id="advanced-techniques" aria-labelledby="advanced-techniques-heading">
-      <h2 id="advanced-techniques-heading">進階技巧：隨機、統計與重塑</h2>
-      <p>💡 <strong>實際應用情境：</strong> 資料模擬、統計分析、模型訓練</p>
-
-      <h3>範例 5：隨機數生成</h3>
-      <pre><code>rand_arr = np.random.rand(2, 3)  # 產生 2x3 隨機陣列
-print(rand_arr)</code></pre>
-      <p><strong>✅ 程式碼逐行解析：</strong></p>
-      <ol>
-        <li><code>np.random.rand(2, 3)</code>：產生 2x3 的 0~1 之間隨機浮點數陣列。</li>
-        <li><code>print(rand_arr)</code>：輸出隨機陣列。</li>
-      </ol>
-      <div class="summary-box">
-        <p><strong>🎯 重點摘要:</strong></p>
-        <ul>
-          <li><strong>核心功能</strong>: 產生隨機資料</li>
-          <li><strong>潛在問題</strong>: 隨機性導致結果不同</li>
-          <li><strong>最佳使用情境</strong>: 資料模擬、隨機抽樣</li>
-        </ul>
-      </div>
-
-      <h3>範例 6：統計運算</h3>
-      <pre><code>print(np.mean(arr1))  # 平均值
-print(np.std(arr1))   # 標準差</code></pre>
-      <p><strong>✅ 程式碼逐行解析：</strong></p>
-      <ol>
-        <li><code>np.mean(arr1)</code>：計算 arr1 的平均值。</li>
-        <li><code>np.std(arr1)</code>：計算 arr1 的標準差。</li>
-      </ol>
-      <div class="summary-box">
-        <p><strong>🎯 重點摘要:</strong></p>
-        <ul>
-          <li><strong>核心功能</strong>: 快速統計分析</li>
-          <li><strong>潛在問題</strong>: 資料型態需正確</li>
-          <li><strong>最佳使用情境</strong>: 資料分析、特徵工程</li>
-        </ul>
-      </div>
-
-      <h3>範例 7：陣列重塑</h3>
-      <pre><code>reshaped = arr2.reshape(3, 2)  # 重新調整形狀
-print(reshaped)</code></pre>
-      <p><strong>✅ 程式碼逐行解析：</strong></p>
-      <ol>
-        <li><code>arr2.reshape(3, 2)</code>：將原本 2x3 陣列重塑為 3x2。</li>
-        <li><code>print(reshaped)</code>：輸出重塑後的陣列。</li>
-      </ol>
-      <div class="summary-box">
-        <p><strong>🎯 重點摘要:</strong></p>
-        <ul>
-          <li><strong>核心功能</strong>: 靈活調整資料結構</li>
-          <li><strong>潛在問題</strong>: 元素數量需一致</li>
-          <li><strong>最佳使用情境</strong>: 資料前處理、模型輸入</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="section" id="summary" aria-labelledby="summary-heading">
-      <h2 id="summary-heading">💡 總結與最佳實踐</h2>
-      <p>NumPy 是 Python 資料科學不可或缺的工具，建議善用其高效運算、廣播機制與進階功能，並注意資料型態與陣列形狀的相容性，確保程式穩定運作。</p>
-    </section>
-
-    <section class="section" id="faq" aria-labelledby="faq-heading">
-      <h2 id="faq-heading">❓ 常見問答 (FAQ)</h2>
-      <div class="faq">
-        <p><strong>Q1: NumPy 與原生 list 有何差異？</strong><br>A1: NumPy 陣列支援向量化運算與多維結構，效能遠勝原生 list，適合大量數值計算。</p>
-        <p><strong>Q2: 如何避免陣列型態錯誤？</strong><br>A2: 建議建立陣列時明確指定 dtype，並善用 .astype() 轉換型態。</p>
-        <p><strong>Q3: 陣列重塑時遇到錯誤怎麼辦？</strong><br>A3: 請確認元素總數一致，否則 reshape 會報錯。</p>
-      </div>
-    </section>
-
-    <section class="section" id="hashtags" aria-labelledby="hashtags-heading">
-      <h2 id="hashtags-heading">🏷️ 推薦標籤 (Hashtags)</h2>
-      <p>#Python #程式設計 #教學 #編程 #開發 #技術分享 #學習筆記 #ThreadsTech #開發者社群</p>
-    </section>
-  </main>
-
-  <!-- =============================================================================
-       FOOTER
-       ============================================================================= -->
-  <footer class="hashtags" id="hashtags">
-    #Python #程式設計 #教學 #編程 #開發 #技術分享 #學習筆記 #ThreadsTech #開發者社群
-  </footer>
+  <footer>
+  <p>
+    <strong>推薦標籤：</strong>
+    #Python #程式設計 #教學 #NumPy #陣列 #線性代數 #科學計算 #編程 #學習筆記 #程式開發者 #軟體工程
+  </p>
+  <p class="copyright">© 2025 HowToolHelp.com | Powered by GitHub Copilot</p>
+</footer>
 </body>
 </html>
