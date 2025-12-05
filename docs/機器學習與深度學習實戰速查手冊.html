@@ -1,0 +1,2348 @@
+<!--
+機器學習與深度學習實戰速查手冊 HTML Template
+
+This template provides a comprehensive cheat sheet for Hands-on Machine Learning with Scikit-Learn, Keras, and TensorFlow, 3rd Edition, featuring key concepts, important functions, and code snippets for each chapter.
+
+Key features:
+- Responsive design with dark mode toggle
+- Navigation menu for quick access to chapters
+- Tables with code snippets for reference
+- MathJax integration for mathematical expressions
+- Accessibility features like skip links and semantic markup
+
+Dependencies:
+- MathJax (CDN): For rendering mathematical formulas
+- No external CSS/JS libraries beyond standard HTML/CSS/JS
+
+Template Context:
+- chapters (list): List of chapter IDs and titles for navigation
+- content (dict): Dictionary containing chapter data with concepts, functions, and code snippets
+
+Browser Support:
+- Modern browsers (Chrome 70+, Firefox 65+, Safari 12+, Edge 79+)
+
+Version: 1.1.0
+Last Updated: December 4, 2025
+Author: HowToolHelp/Intelligent
+
+=== 欄位格式標準 (以第5章為Golden Standard) ===
+
+1. 關鍵概念 (Key Concepts)
+   - 格式：使用 <strong>粗體</strong> 包圍概念名稱。
+   - 內容規則：
+     - 主要概念直接用中文描述。
+     - 如果有英文對應，後面可加 (英文翻譯)，如 <strong>支持向量機 (Support Vector Machines, SVMs)</strong>。
+     - 子項目（次要概念）可留空，或使用 <strong>(英文)</strong> 格式表示補充，如 <strong>(Support Vector Machines)</strong>。
+
+2. 重要函數 (Important Functions)
+   - 格式：使用 <code>函數名</code> 格式。
+   - 內容規則：
+     - 多個函數用逗號分隔，如 <code>SVC</code>，<code>LinearSVC</code>，<code>SVR</code>。
+     - 函數名應為實際的API名稱（來自scikit-learn、TensorFlow等）。
+     - 子項目可留空（使用空 <td></td>）。
+
+3. 功能簡介與應用場景 (Function Introduction & Application Scenarios)
+   - 格式：純文字描述，允許使用 <strong>粗體</strong> 強調關鍵詞。
+   - 內容規則：
+     - 詳細說明功能原理和技術細節。
+     - 強調關鍵詞，如 <strong>大邊界分類</strong>、<strong>核心技巧</strong>。
+     - 必須包含應用場景描述，以 "適用於..." 或 "應用於..." 開頭。
+     - 長度適中（1-2句），涵蓋核心價值和使用情境。
+
+4. Fine-tune 用參數 (Fine-tune Parameters)
+   - 格式：參數列表，使用 <strong><code>參數名</code></strong> (描述)。
+   - 內容規則：
+     - 多個參數用分號 ； 分隔。
+     - 每個參數包含：名稱（用 <code>）、描述（包括默認值、範圍、影響）。
+     - 如果無參數，使用 N/A 或 無特定參數，主要用於...。
+     - 描述應簡潔但資訊豐富，如值越大越嚴格。
+
+5. 範例代碼片段 (Example Code Snippets)
+   - 格式：使用 <td class="code-snippet"><code>代碼</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>。
+   - 內容規則：
+     - 代碼用 <code> 包圍。
+     - 多行代碼用 <br> 分隔（不使用 \n 或實際換行）。
+     - 結尾必須有 <button class="copy-btn" onclick="copyCode(this)">Copy</button>。
+     - 如果無代碼，使用 <code>N/A</code>。
+     - 代碼應簡潔、完整、可執行，包含import和基本用法。
+
+整體表格結構標準：
+- HTML結構：每個章節使用 <table> 包圍，包含 <tr> 和 <th> 標題行。
+- 一致性：所有章節的欄位順序和格式必須與第5章完全一致。
+- 樣式：使用 class="code-snippet" 確保代碼區塊樣式統一。
+- 語言：主要使用中文，技術術語可混用英文。
+-->
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <!-- Meta tags for document information -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO and social media meta tags -->
+    <title>機器學習與深度學習實戰速查手冊</title>
+    <meta name="description" content="Hands-on Machine Learning with Scikit-Learn, Keras, and TensorFlow, 3rd Edition 實戰速查手冊">
+    
+    <!-- Open Graph meta tags for social sharing -->
+    <meta property="og:title" content="機器學習與深度學習實戰速查手冊">
+    <meta property="og:description" content="Hands-on Machine Learning with Scikit-Learn, Keras, and TensorFlow, 3rd Edition 實戰速查手冊">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://example.com/ml-cheat-sheet.html">
+    <meta property="og:image" content="https://example.com/ml-cheat-sheet-preview.png">
+    <meta property="og:site_name" content="機器學習與深度學習實戰速查手冊">
+    <meta property="og:locale" content="zh_TW">
+    
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="機器學習與深度學習實戰速查手冊">
+    <meta name="twitter:description" content="Hands-on Machine Learning with Scikit-Learn, Keras, and TensorFlow, 3rd Edition 實戰速查手冊">
+    <meta name="twitter:image" content="https://example.com/ml-cheat-sheet-preview.png">
+    
+    <!-- Structured data for search engines -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "機器學習與深度學習實戰速查手冊",
+        "description": "Hands-on Machine Learning with Scikit-Learn, Keras, and TensorFlow, 3rd Edition 實戰速查手冊",
+        "url": "https://example.com/ml-cheat-sheet.html",
+        "author": {
+            "@type": "Person",
+            "name": "HowToolHelp/Intelligent"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Hands-on ML 3rd Edition"
+        },
+        "datePublished": "2025-12-04",
+        "dateModified": "2025-12-04",
+        "inLanguage": "zh-TW",
+        "mainEntity": {
+            "@type": "Book",
+            "name": "Hands-on Machine Learning with Scikit-Learn, Keras, and TensorFlow",
+            "author": "Aurélien Géron",
+            "edition": "3rd Edition",
+            "genre": "Machine Learning"
+        },
+        "about": [
+            {
+                "@type": "DefinedTerm",
+                "name": "Machine Learning",
+                "description": "機器學習是一種人工智慧的分支，讓電腦能夠從資料中學習並做出預測。"
+            },
+            {
+                "@type": "DefinedTerm",
+                "name": "Deep Learning",
+                "description": "深度學習是機器學習的一個子集，使用神經網路進行複雜的模式識別。"
+            }
+        ]
+    }
+    </script>
+    
+    <!-- Stylesheets in order of specificity -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css" id="prism-dark-theme" disabled>
+    
+    <!-- Polyfill for older browsers - ensures String.prototype.replaceAll compatibility -->
+    <script>
+        // Polyfill for older browsers
+        if (!String.prototype.replaceAll) {
+            String.prototype.replaceAll = function(search, replace) {
+                return this.split(search).join(replace);
+            };
+        }
+    </script>
+    
+    <!-- Inline styles for layout and theming -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #ffffff;
+            color: #333333;
+            transition: background-color 0.3s, color 0.3s;
+            scroll-behavior: smooth;
+        }
+
+        .dark-mode {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .dark-mode h1 {
+            color: #ecf0f1;
+        }
+
+        nav {
+            margin-bottom: 30px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        nav li {
+            margin: 0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #3498db;
+            padding: 8px 12px;
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .dark-mode nav a {
+            color: #5dade2;
+            border-color: #5dade2;
+        }
+
+        .dark-mode nav a:hover {
+            background-color: #5dade2;
+            color: #1a1a1a;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        section:nth-child(1) { animation-delay: 0.1s; }
+        section:nth-child(2) { animation-delay: 0.2s; }
+        section:nth-child(3) { animation-delay: 0.3s; }
+        section:nth-child(4) { animation-delay: 0.4s; }
+        section:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+
+        .dark-mode h2 {
+            color: #ecf0f1;
+            border-bottom-color: #5dade2;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s;
+        }
+
+        table:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .dark-mode table {
+            background-color: #2c2c2c;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+            transition: background-color 0.2s;
+        }
+
+        .dark-mode th, .dark-mode td {
+            border-color: #555;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .dark-mode th {
+            background-color: #3a3a3a;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+
+        .dark-mode tr:nth-child(even) {
+            background-color: #333;
+        }
+
+        tr:hover {
+            background-color: #e8f4f8;
+        }
+
+        .dark-mode tr:hover {
+            background-color: #444;
+        }
+
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .dark-mode code {
+            background-color: #2a2a2a;
+            color: #f8f8f2;
+            border: 1px solid #555;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .dark-mode pre {
+            background-color: #1e1e1e;
+            color: #f8f8f2;
+            border: 1px solid #555;
+        }
+
+        .code-snippet {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #777;
+        }
+
+        .dark-mode footer {
+            border-top-color: #555;
+            color: #aaa;
+        }
+
+        .toggle-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-button:hover {
+            background-color: #2980b9;
+        }
+
+        .dark-mode .toggle-button {
+            background-color: #5dade2;
+        }
+
+        .dark-mode .toggle-button:hover {
+            background-color: #48c9b0;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            display: none;
+        }
+
+        .back-to-top:hover {
+            background-color: #2980b9;
+        }
+
+        .dark-mode .back-to-top {
+            background-color: #5dade2;
+        }
+
+        .mobile-menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            display: none;
+            z-index: 1001;
+        }
+
+        .mobile-menu-toggle:hover {
+            background-color: #2980b9;
+        }
+
+        .dark-mode .mobile-menu-toggle {
+            background-color: #5dade2;
+        }
+
+        .dark-mode .mobile-menu-toggle:hover {
+            background-color: #48c9b0;
+        }
+
+        .nav-menu {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu.mobile-hidden {
+            display: none;
+        }
+
+        /* Search functionality styles */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .search-button, .clear-button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .search-button {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .search-button:hover {
+            background-color: #2980b9;
+        }
+
+        .clear-button {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .clear-button:hover {
+            background-color: #7f8c8d;
+        }
+
+        .search-results {
+            margin-top: 20px;
+        }
+
+        .search-result-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .search-result-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .search-result-title {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+
+        .search-result-snippet {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .dark-mode .search-input {
+            background-color: #333;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        .dark-mode .search-result-item {
+            background-color: #2c2c2c;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+
+        .dark-mode .search-result-item:hover {
+            background-color: #3c3c3c;
+        }
+
+        .dark-mode .search-result-title {
+            color: #5dade2;
+        }
+
+        .dark-mode .search-result-snippet {
+            color: #aaa;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                align-items: center;
+                position: fixed;
+                top: 60px;
+                left: 20px;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                padding: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                display: none;
+                z-index: 1000;
+            }
+
+            .dark-mode .nav-menu {
+                background-color: #2c2c2c;
+                border-color: #555;
+            }
+
+            .nav-menu.mobile-visible {
+                display: flex;
+            }
+
+            nav li {
+                margin: 2px 0;
+            }
+
+            nav a {
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+
+            table {
+                font-size: 0.9em;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            th, td {
+                padding: 8px;
+                min-width: 120px;
+            }
+
+            .toggle-button, .back-to-top, .feedback-button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .search-input {
+                min-width: 200px;
+            }
+
+            .search-button, .clear-button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+
+        /* Search results styling */
+        .search-result-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .search-result-section.dark-mode {
+            border-color: #555;
+            background-color: #333;
+        }
+
+        .search-result-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #007bff;
+            font-size: 1.1em;
+        }
+
+        .search-result-section.dark-mode h3 {
+            color: #4dabf7;
+        }
+
+        .search-result-item {
+            margin-bottom: 8px;
+        }
+
+        .search-result-item a {
+            color: #333;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .search-result-item a:hover {
+            background-color: #e9ecef;
+            color: #007bff;
+        }
+
+        .search-result-section.dark-mode .search-result-item a {
+            color: #e0e0e0;
+        }
+
+        .search-result-section.dark-mode .search-result-item a:hover {
+            background-color: #555;
+            color: #4dabf7;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .search-result-section.dark-mode .no-results {
+            color: #aaa;
+        }
+
+        /* Collapsible sections */
+        .section-toggle {
+            margin-left: 10px;
+            padding: 2px 8px;
+            font-size: 0.8em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .section-toggle:hover {
+            background-color: #0056b3;
+        }
+
+        .dark-mode .section-toggle {
+            background-color: #4dabf7;
+        }
+
+        .dark-mode .section-toggle:hover {
+            background-color: #2c7cd1;
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8em;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+        /* Feedback button */
+        .feedback-button {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .feedback-button:hover {
+            background-color: #218838;
+        }
+
+        .dark-mode .feedback-button {
+            background-color: #20c997;
+        }
+
+        .dark-mode .feedback-button:hover {
+            background-color: #17a2b8;
+        }
+
+        /* Print styles */
+        @media print {
+            .toggle-button, .back-to-top, .feedback-button, .copy-btn, .section-toggle, .search-container {
+                display: none !important;
+            }
+            
+            .dark-mode {
+                color: black !important;
+                background: white !important;
+            }
+            
+            .dark-mode * {
+                color: black !important;
+                background: white !important;
+            }
+            
+            nav ul {
+                display: none;
+            }
+            
+            section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Accessibility: Skip links -->
+    <nav class="skip-links" aria-label="Skip links">
+        <a href="#main-content">Skip to main content</a>
+        <a href="#navigation">Skip to navigation</a>
+        <a href="#footer">Skip to footer</a>
+    </nav>
+
+    <!-- Dark mode toggle and back-to-top -->
+    <button class="toggle-button" onclick="toggleDarkMode()" aria-label="切換深色模式" title="切換深色模式">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;">
+            <circle cx="12" cy="12" r="10" stroke="#007bff" stroke-width="2" fill="#fff"/>
+            <path d="M12 2a10 10 0 0 0 0 20c5.52 0 10-4.48 10-10S17.52 2 12 2z" fill="#007bff"/>
+        </svg>
+        深色模式
+    </button>
+    <button class="back-to-top" onclick="scrollToTop()" aria-label="回到頂部" title="回到頂部">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;">
+            <path d="M12 4v12M12 4l-6 6M12 4l6 6" stroke="#007bff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        回到頂部
+    </button>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="切換導航選單" title="切換導航選單">
+        <i class="fas fa-bars"></i>
+    </button>
+    <!-- <button class="feedback-button" onclick="openFeedback()" aria-label="提供回饋" title="提供回饋">
+        💬
+    </button> -->
+
+    <!-- Header -->
+    <header>
+        <h1>機器學習與深度學習實戰速查手冊</h1>
+        <p>Hands-on Machine Learning with Scikit-Learn, Keras, and TensorFlow, 3rd Edition 實戰速查手冊</p>
+    </header>
+
+    <!-- Modern Navigation Bar -->
+    <nav id="navigation" role="navigation" aria-label="Main navigation">
+        <ul class="nav-menu">
+            <li><a href="#introduction" aria-label="簡介" title="簡介"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">i</text></svg>簡介</a></li>
+            <li><a href="#chapter-1" aria-label="第1章" title="第1章：機器學習景觀"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">1</text></svg>第1章</a></li>
+            <li><a href="#chapter-2" aria-label="第2章" title="第2章：端到端機器學習專案"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">2</text></svg>第2章</a></li>
+            <li><a href="#chapter-3" aria-label="第3章" title="第3章：分類"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">3</text></svg>第3章</a></li>
+            <li><a href="#chapter-4" aria-label="第4章" title="第4章：訓練線性模型"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">4</text></svg>第4章</a></li>
+            <li><a href="#chapter-5" aria-label="第5章" title="第5章：支援向量機"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">5</text></svg>第5章</a></li>
+            <li><a href="#chapter-6" aria-label="第6章" title="第6章：決策樹"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">6</text></svg>第6章</a></li>
+            <li><a href="#chapter-7" aria-label="第7章" title="第7章：集成學習和隨機森林"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">7</text></svg>第7章</a></li>
+            <li><a href="#chapter-8" aria-label="第8章" title="第8章：降維"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">8</text></svg>第8章</a></li>
+            <li><a href="#chapter-9" aria-label="第9章" title="第9章：無監督學習"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">9</text></svg>第9章</a></li>
+            <li><a href="#chapter-10" aria-label="第10章" title="第10章：使用Keras的神經網路"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">10</text></svg>第10章</a></li>
+            <li><a href="#chapter-11" aria-label="第11章" title="第11章：訓練深度神經網路"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">11</text></svg>第11章</a></li>
+            <li><a href="#chapter-12" aria-label="第12章" title="第12章：使用TensorFlow的自訂模型和訓練"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">12</text></svg>第12章</a></li>
+            <li><a href="#chapter-13" aria-label="第13章" title="第13章：載入和預處理資料"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">13</text></svg>第13章</a></li>
+            <li><a href="#chapter-14" aria-label="第14章" title="第14章：使用CNN的深度電腦視覺"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">14</text></svg>第14章</a></li>
+            <li><a href="#chapter-15" aria-label="第15章" title="第15章：使用RNN和CNN處理序列"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">15</text></svg>第15章</a></li>
+            <li><a href="#chapter-16" aria-label="第16章" title="第16章：NLP與注意力機制"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">16</text></svg>第16章</a></li>
+            <li><a href="#chapter-17" aria-label="第17章" title="第17章：自編碼器、GAN與擴散模型"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">17</text></svg>第17章</a></li>
+            <li><a href="#chapter-18" aria-label="第18章" title="第18章：強化學習"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">18</text></svg>第18章</a></li>
+            <li><a href="#chapter-19" aria-label="第19章" title="第19章：大規模訓練和部署"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#007bff" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#007bff">19</text></svg>第19章</a></li>
+            <li><a href="#changelog" aria-label="更新日誌" title="更新日誌：版本變更和功能增強"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><rect x="4" y="4" width="16" height="16" stroke="#28a745" stroke-width="2" fill="none"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="#28a745">C</text></svg>更新日誌</a></li>
+        </ul>
+    </nav>
+
+    <!-- =============================================================================
+         MAIN CONTENT AREA
+         ============================================================================= -->
+
+    <!--====================================
+        MAIN CONTENT
+        ===================================-->
+    <!-- Main content container with semantic markup - Contains all chapter sections with tables of concepts, functions, and code snippets -->
+    <main id="main-content" role="main">
+        
+        <!--====================================
+            INTRODUCTION SECTION
+            ===================================-->
+        <!-- Introduction section - Overview of the cheat sheet and list of covered chapters -->
+        <section id="introduction">
+            <h2 class="section-title">簡介</h2>
+            <p>本速查手冊基於《Hands-on Machine Learning with Scikit-Learn, Keras, and TensorFlow, 3rd Edition》書籍，提供各章節的關鍵概念、重要函數、範例代碼片段的快速參考。</p>
+            <p>本手冊涵蓋以下章節：</p>
+            <ul>
+                <li><a href="#chapter-1">第1章：機器學習景觀</a></li>
+                <li><a href="#chapter-2">第2章：端到端機器學習專案</a></li>
+                <li><a href="#chapter-3">第3章：分類</a></li>
+                <li><a href="#chapter-4">第4章：訓練線性模型</a></li>
+                <li><a href="#chapter-5">第5章：支援向量機</a></li>
+                <li><a href="#chapter-6">第6章：決策樹</a></li>
+                <li><a href="#chapter-7">第7章：集成學習和隨機森林</a></li>
+                <li><a href="#chapter-8">第8章：降維</a></li>
+                <li><a href="#chapter-9">第9章：無監督學習</a></li>
+                <li><a href="#chapter-10">第10章：使用Keras的神經網路</a></li>
+                <li><a href="#chapter-11">第11章：訓練深度神經網路</a></li>
+                <li><a href="#chapter-12">第12章：使用TensorFlow的自訂模型和訓練</a></li>
+                <li><a href="#chapter-13">第13章：載入和預處理資料</a></li>
+                <li><a href="#chapter-14">第14章：使用CNN的深度電腦視覺</a></li>
+                <li><a href="#chapter-15">第15章：使用RNN和CNN處理序列</a></li>
+                <li><a href="#chapter-16">第16章：使用RNN和注意力進行NLP</a></li>
+                <li><a href="#chapter-17">第17章：自動編碼器、GAN和擴散模型</a></li>
+                <li><a href="#chapter-18">第18章：強化學習</a></li>
+                <li><a href="#chapter-19">第19章：大規模訓練和部署</a></li>
+                <li><a href="#changelog">更新日誌：版本變更和功能增強</a></li>
+            </ul>
+        </section>
+
+        <!-- Quick Reference Summary - Condensed overview of key functions -->
+        <section id="quick-reference">
+            <h2 class="section-title">快速參考總覽</h2>
+            <p>各章節關鍵函數和概念的快速總覽：</p>
+            <table>
+                <tr>
+                    <th>章節</th>
+                    <th>關鍵函數/概念</th>
+                    <th>應用場景</th>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-1">第1章</a></td>
+                    <td>ML類型、資料管道、交叉驗證</td>
+                    <td>專案規劃和評估</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-2">第2章</a></td>
+                    <td>資料探索、預處理、分割</td>
+                    <td>端到端專案</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-3">第3章</a></td>
+                    <td>分類器、評估指標</td>
+                    <td>分類任務</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-4">第4章</a></td>
+                    <td>線性模型、正規化</td>
+                    <td>回歸和優化</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-5">第5章</a></td>
+                    <td>SVM、核函數</td>
+                    <td>分類和回歸</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-6">第6章</a></td>
+                    <td>決策樹、可視化</td>
+                    <td>可解釋分類</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-7">第7章</a></td>
+                    <td>集成學習、隨機森林</td>
+                    <td>高準確率模型</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-8">第8章</a></td>
+                    <td>PCA、降維</td>
+                    <td>特徵壓縮</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-9">第9章</a></td>
+                    <td>K-means、聚類</td>
+                    <td>無監督學習</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-10">第10章</a></td>
+                    <td>Keras Sequential、訓練</td>
+                    <td>神經網路基礎</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-11">第11章</a></td>
+                    <td>批次正規化、優化</td>
+                    <td>深度網路訓練</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-12">第12章</a></td>
+                    <td>自訂損失、層</td>
+                    <td>TensorFlow自訂</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-13">第13章</a></td>
+                    <td>tf.data、預處理</td>
+                    <td>資料管道</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-14">第14章</a></td>
+                    <td>Conv2D、CNN</td>
+                    <td>電腦視覺</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-15">第15章</a></td>
+                    <td>RNN、LSTM</td>
+                    <td>序列處理</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-16">第16章</a></td>
+                    <td>Embedding、注意力</td>
+                    <td>NLP</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-17">第17章</a></td>
+                    <td>Autoencoder、GAN</td>
+                    <td>生成模型</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-18">第18章</a></td>
+                    <td>OpenAI Gym、RL</td>
+                    <td>強化學習</td>
+                </tr>
+                <tr>
+                    <td><a href="#chapter-19">第19章</a></td>
+                    <td>TensorFlow Serving</td>
+                    <td>模型部署</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Search Functionality -->
+        <section id="search-section">
+            <h2 class="section-title">搜尋功能</h2>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="輸入關鍵字搜尋函數、概念或章節..." class="search-input">
+                <button id="search-button" class="search-button">搜尋</button>
+                <button id="clear-search" class="clear-button">清除</button>
+            </div>
+            <div id="search-results" class="search-results"></div>
+        </section>
+        <section id="chapter-1">
+            <h2 class="section-title">第1章：機器學習景觀</h2>
+            <!-- Reference table for chapter 1 - Displays key concepts, important functions, and example code -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr>
+                    <td>機器學習類型：監督學習、無監督學習、強化學習</td>
+                    <td>無</td>
+                    <td>機器學習的三種主要類型：監督學習基於標籤資料學習預測，無監督學習從未標籤資料中發現模式，強化學習通過試錯學習最佳策略。應用於分類、聚類、推薦系統、遊戲AI等。</td>
+                    <td>無</td>
+                    <td>無</td>
+                </tr>
+                <tr>
+                    <td>機器學習專案的典型步驟</td>
+                    <td>無</td>
+                    <td>機器學習專案的標準流程：定義問題、獲取資料、探索資料、準備資料、選擇模型、訓練模型、微調模型、展示解決方案。應用於確保專案的系統性和有效性。</td>
+                    <td>無</td>
+                    <td>無</td>
+                </tr>
+                <tr>
+                    <td>資料管道 (Data Pipeline)</td>
+                    <td><code>sklearn.pipeline.Pipeline</code></td>
+                    <td>將資料預處理和模型訓練結合的管道。應用於自動化機器學習工作流程，確保一致性和可重現性。</td>
+                    <td>steps, memory</td>
+                    <td class="code-snippet"><code>from sklearn.pipeline import Pipeline<br>from sklearn.preprocessing import StandardScaler<br>from sklearn.linear_model import LogisticRegression<br>pipeline = Pipeline([('scaler', StandardScaler()), ('classifier', LogisticRegression())])<br>pipeline.fit(X_train, y_train)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td>交叉驗證</td>
+                    <td><code>sklearn.model_selection.cross_val_score</code></td>
+                    <td>評估模型在不同資料子集上的表現。應用於檢測過擬合和選擇最佳模型。</td>
+                    <td>cv, scoring</td>
+                    <td class="code-snippet"><code>from sklearn.model_selection import cross_val_score<br>scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')<br>print("Cross-validation scores:", scores)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td>常見陷阱：過擬合 vs. 欠擬合</td>
+                    <td>無</td>
+                    <td><span class="tooltip">過擬合<span class="tooltip-text">模型在訓練資料上表現良好，但在新資料上表現差</span></span>：模型在訓練資料上表現良好但在測試資料上差；<span class="tooltip">欠擬合<span class="tooltip-text">模型無法捕捉資料中的模式</span></span>：模型無法捕捉資料模式。最佳實踐：使用交叉驗證、正規化、增加資料量。</td>
+                    <td>無</td>
+                    <td>無</td>
+                </tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 2: End-to-End Machine Learning Project - Data exploration, preprocessing, pipelines -->
+        <section id="chapter-2">
+            <h2 class="section-title">第2章：端到端機器學習專案</h2>
+            <!-- Reference table for chapter 2 - End-to-end ML project workflow -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr><td><strong>數據探索與分析函數</strong></td><td><code>head()</code>，<code>info()</code>，<code>describe()</code>，<code>corr()</code></td><td><strong>數據探索</strong>：檢查數據結構、統計摘要和相關性。應用於了解數據集特性和品質。</td><td>N/A。</td><td class="code-snippet"><code>df.head()  # 查看前5行<br>df.info()  # 數據類型和非空值<br>df.describe()  # 統計摘要<br>df.corr()  # 相關性矩陣</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>超參數調優</strong></td><td><code>GridSearchCV</code>，<code>RandomizedSearchCV</code></td><td><strong>超參數調優</strong>：使用交叉驗證自動搜索最佳超參數組合。應用於尋找最佳模型參數。</td><td><code>param_grid</code> (參數網格)，<code>n_iter</code> (隨機搜索的迭代次數)，<code>cv</code> (交叉驗證折疊數)。</td><td class="code-snippet"><code>from sklearn.model_selection import GridSearchCV<br>GridSearchCV(estimator, param_grid, cv=5).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>數據預處理</strong></td><td><code>Pipeline</code>，<code>ColumnTransformer</code>，<code>make_pipeline</code></td><td>將多個數據轉換步驟和模型<strong>串聯成一個序列</strong>，實現自動化流程。應用於處理混合數據類型 (數值和類別)。</td><td><strong><code>steps</code></strong> (包含的轉換器和最終模型列表)；<strong><code>memory</code></strong> (緩存目錄，用於加速重複調用)。</td><td class="code-snippet"><code>from sklearn.pipeline import Pipeline<br>from sklearn.preprocessing import StandardScaler<br>from sklearn.linear_model import LogisticRegression<br>Pipeline([('scaler', StandardScaler()), ('clf', LogisticRegression())]).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td></td><td><code>StandardScaler</code>，<code>MinMaxScaler</code>，<code>SimpleImputer</code>，<code>OneHotEncoder</code></td><td><strong>數據預處 理</strong>：標準化/縮放特徵，處理缺失值（<code>SimpleImputer</code> 使用 <code>median</code> 或 <code>most_frequent</code> 策略），將類別特徵轉換為數值（<strong>獨熱編碼</strong>）。</td><td><code>strategy</code> (Imputer，如 "median")；<code>handle_unknown</code> (OneHotEncoder，如 "ignore")；<code>feature_range</code> (MinMaxScaler)。</td><td class="code-snippet"><code>from sklearn.preprocessing import StandardScaler<br>scaler = StandardScaler().fit(X)<br>X_scaled = scaler.transform(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>數據清理選項</strong></td><td><code>dropna()</code>，<code>fillna()</code>，<code>drop_duplicates()</code></td><td><strong>數據清理</strong>：處理缺失值、重複數據和異常值。應用於提高數據品質和模型性能。</td><td><code>axis</code> (刪除方向)，<code>how</code> (刪除條件)，<code>value</code> (填充值)，<code>method</code> (填充方法)。</td><td class="code-snippet"><code># 刪除缺失值<br>df.dropna(axis=0, how='any')<br># 填充缺失值<br>df.fillna(value=0)<br># 刪除重複行<br>df.drop_duplicates()</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>特徵工程</strong></td><td><code>pd.cut()</code>，<code>pd.qcut()</code>，<code>np.c_[]</code></td><td><strong>特徵工程</strong>：創建新特徵，如分箱特徵、組合特徵等。應用於提升模型性能和捕捉複雜關係。</td><td><code>bins</code> (分箱數量)，<code>labels</code> (分箱標籤)，<code>q</code> (分位數)。</td><td class="code-snippet"><code>import pandas as pd<br>import numpy as np<br># 分箱特徵<br>housing['income_cat'] = pd.cut(housing['median_income'], bins=[0., 1.5, 3.0, 4.5, 6., np.inf], labels=[1, 2, 3, 4, 5])<br># 組合特徵<br>housing['rooms_per_household'] = housing['total_rooms'] / housing['households']</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>數據分割</strong></td><td><code>train_test_split</code></td><td>將數據集分割為訓練集和測試集。</td><td><code>test_size</code>, <code>train_size</code>, <code>random_state</code>, <code>shuffle</code>, <code>stratify</code>。</td><td class="code-snippet"><code>from sklearn.model_selection import train_test_split<br>X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>自定義數據分割函數</strong></td><td><code>shuffle_and_split_data</code></td><td><strong>自定義數據分割</strong>：實現自定義的數據分割邏輯，確保訓練和測試集的獨立性。</td><td><code>test_ratio</code> (測試集比例)，<code>random_state</code> (隨機種子)。</td><td class="code-snippet"><code>def shuffle_and_split_data(data, test_ratio, random_state=42):<br>    np.random.seed(random_state)<br>    shuffled_indices = np.random.permutation(len(data))<br>    test_set_size = int(len(data) * test_ratio)<br>    test_indices = shuffled_indices[:test_set_size]<br>    train_indices = shuffled_indices[test_set_size:]<br>    return data.iloc[train_indices], data.iloc[test_indices]</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>分層分割</strong></td><td><code>StratifiedShuffleSplit</code></td><td>分層隨機分割，確保每個折疊中的類別分佈與原始數據相 同。</td><td><code>n_splits</code>, <code>test_size</code>, <code>train_size</code>, <code>random_state</code>。</td><td class="code-snippet"><code>from sklearn.model_selection import StratifiedShuffleSplit<br>sss = StratifiedShuffleSplit(n_splits=5, test_size=0.2, random_state=42)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>交叉驗證</strong></td><td><code>StratifiedKFold</code></td><td>分層 K 折交叉驗證。</td><td><code>n_splits</code>, <code>shuffle</code>, <code>rando m_state</code>。</td><td class="code-snippet"><code>from sklearn.model_selection import StratifiedKFold<br>skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td></td><td><code>cross_val_predict</code>, <code>cross_val_score</code></td><td>交叉驗證預測和評分。</td><td><code>estima tor</code>, <code>X</code>, <code>y</code>, <code>cv</code>, <code>scoring</code>。</td><td class="code-snippet"><code>from sklearn.model_selection import cross_val_score<br>scores = cross_val_score(estimator, X, y, cv=5, scoring='accuracy')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>學習曲線</strong></td><td><code>learning_curve</code></td><td>繪製學習曲線，顯示訓練和驗證分數隨樣本數量的變化。</td><td><code>estimator</code>, <code>X</code>, <code>y</code>, <code>train_sizes</code>, <code>cv</code>。</td><td class="code-snippet"><code>from sklearn.model_selection import learning_curve<br>train_sizes, train_scores, val_scores = learning_curve(estimator, X, y, cv=5)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>類別編碼</strong></td><td><code>OrdinalEncoder</code></td><td>將類別特徵編碼為整數。</td><td><code>categories</code>, <code>dtype</code>。</td><td class="code-snippet"><code>from sklearn.preprocessing import OrdinalEncoder<br>encoder = OrdinalEncoder().fit(X)<br>X_encoded = encoder.transform(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>Pandas數據處理</strong></td><td><code>pd.concat()</code>，<code>pd.merge()</code>，<code>pd.pivot_table()</code></td><td><strong>Pandas數據處理</strong>：數據合併、連接和重塑。應用於數據整合和特徵工程。</td><td><code>axis</code> (合併軸向)，<code>how</code> (合併方式)，<code>on</code> (合併鍵)，<code>values</code> (聚合值)，<code>index</code> (行索引)，<code>columns</code> (列索引)。</td><td class="code-snippet"><code>import pandas as pd<br># 合併數據框<br>pd.concat([df1, df2], axis=0)<br># 連接數據<br>pd.merge(df1, df2, on='key', how='left')<br># 數據透視表<br>pd.pivot_table(df, values='value', index='row', columns='col')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>自定義轉換器</strong></td><td><code>FunctionTransformer</code></td><td>使用任意可調用函數構造轉換器。</td><td><code>func</code>, <code>inverse _func</code>, <code>validate</code>。</td><td class="code-snippet"><code>from sklearn.preprocessing import FunctionTransformer<br>import numpy as np<br>transformer = FunctionTransformer(func=np.log1p).fit(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>聚類相似度轉換器</strong></td><td><code>ClusterSimilarity</code></td><td><strong>聚類相似度轉換器</strong>：基於聚類質心的相似度計算新特徵。應用於將地理位置等特徵轉換為相似度分數。</td><td><code>n_clusters</code> (聚類數量)，<code>gamma</code> (相似度參數)，<code>random_state</code> (隨機種子)。</td><td class="code-snippet"><code>from sklearn.base import BaseEstimator, TransformerMixin<br>from sklearn.cluster import KMeans<br>class ClusterSimilarity(BaseEstimator, TransformerMixin):<br>    def __init__(self, n_clusters=10, gamma=1.0, random_state=None):<br>        self.n_clusters = n_clusters<br>        self.gamma = gamma<br>        self.random_state = random_state<br>    def fit(self, X, y=None, sample_weight=None):<br>        self.kmeans_ = KMeans(self.n_clusters, random_state=self.random_state)<br>        self.kmeans_.fit(X, sample_weight=sample_weight)<br>        return self<br>    def transform(self, X):<br>        return rbf_kernel(X, self.kmeans_.cluster_centers_, gamma=self.gamma)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>自定義估計器</strong></td><td><code>BaseEstimator</code>, <code>TransformerMixin</code></td><td>基類，用於繼承自定義估計器。</td><td>N/A。</td><td class="code-snippet"><code>from sklearn.base import BaseEstimator, TransformerMixin<br>class MyEstimator(BaseEstimator, TransformerMixin): pass</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>輸入驗證</strong></td><td><code>check_array</code>, <code>check_is_fitted</code></td><td>輸入驗證工具。</td><td>各種參數。</td><td class="code-snippet"><code>from sklearn.utils.validation import check_array<br>X = check_array(X, ensure_2d=True)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>目標變數轉換</strong></td><td><code>TransformedTargetRegressor</code></td><td><strong>目標變數轉換</strong>：對目標變數進行轉換的元估計器。應用於目標變數需要正規化或轉換的迴歸任務。</td><td><code>regressor</code> (基礎迴歸器)，<code>transformer</code> (目標變數轉換器)。</td><td class="code-snippet"><code>from sklearn.compose import TransformedTargetRegressor<br>from sklearn.preprocessing import StandardScaler<br>ttr = TransformedTargetRegressor(regressor=LinearRegression(), transformer=StandardScaler())</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+                <tr><td><strong>數據下載</strong></td><td><code>fetch_openml</code></td><td>從 OpenML 下載數據集。</td><td><code>name</code>, <code>version</code>, <code>as_frame</code>。</td><td class="code-snippet"><code>from sklearn.datasets import fetch_openml<br>data = fetch_openml('mnist_784', version=1, as_frame=False)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td></tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 3: Classification - Binary and multiclass classification -->
+        <section id="chapter-3">
+            <h2 class="section-title">第3章：分類</h2>
+            <!-- Reference table for chapter 3 - Classification algorithms and metrics -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr>
+                    <td><strong>混淆矩陣</strong></td>
+                    <td><code>confusion_matrix</code></td>
+                    <td>計算真陽性、假陽性、真陰性、假陰性的矩陣：用於評估分類模型的基本性能，識別哪些類別容易混淆。</td>
+                    <td><code>y_true</code> (真實標籤), <code>y_pred</code> (預測標籤), <code>labels</code> (類別標籤), <code>sample_weight</code> (樣本權重)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics import confusion_matrix<br>cm = confusion_matrix(y_true, y_pred)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>精確率</strong></td>
+                    <td><code>precision_score</code></td>
+                    <td>計算預測為正類的樣本中真正為正類的比例：適用於關注假陽性的場景，如垃圾郵件檢測。</td>
+                    <td><code>y_true</code> (真實標籤), <code>y_pred</code> (預測標籤), <code>average</code> (多分類平均方式), <code>pos_label</code> (正類標籤)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics import precision_score<br>precision = precision_score(y_true, y_pred)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>召回率</strong></td>
+                    <td><code>recall_score</code></td>
+                    <td>計算真正為正類的樣本中被正確預測的比例：適用於關注假陰性的場景，如疾病檢測。</td>
+                    <td><code>y_true</code> (真實標籤), <code>y_pred</code> (預測標籤), <code>average</code> (多分類平均方式), <code>pos_label</code> (正類標籤)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics import recall_score<br>recall = recall_score(y_true, y_pred)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>F1 分數</strong></td>
+                    <td><code>f1_score</code></td>
+                    <td>精確率和召回率的調和平均：用於平衡精確率和召回率的權衡，適用於不平衡數據集。</td>
+                    <td><code>y_true</code> (真實標籤), <code>y_pred</code> (預測標籤), <code>average</code> (多分類平均方式), <code>pos_label</code> (正類標籤)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics import f1_score<br>f1 = f1_score(y_true, y_pred)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>ROC AUC 分數</strong></td>
+                    <td><code>roc_auc_score</code></td>
+                    <td>計算ROC曲線下的面積：用於評估二分類器的整體性能，越接近1表示性能越好。</td>
+                    <td><code>y_true</code> (真實標籤), <code>y_score</code> (預測分數), <code>average</code> (多分類平均方式), <code>max_fpr</code> (最大假陽率)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics import roc_auc_score<br>auc = roc_auc_score(y_true, y_scores)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                                     <tr>
+                    <td></td>
+                    <td><code>SGDClassifier</code>，<code>f1_score()</code>，<code>ROC curve</code></td>
+                    <td><strong>分類評估</strong>：隨機梯度下降分類器 
+適用於大規模數據。性能評估使用 <strong>F1 分數</strong> (Precision/Recall 權衡) 和 <strong>ROC 曲線</strong>。</td>
+                    <td>調整<strong>決策閾值</strong> (Threshold)；<code>loss</code> (e.g., <strong>"hinge"</strong>)。</td>
+                    <td class="code-snippet"><code>from sklearn.linear_model import SGDClassifier<br>from sklearn.metrics import f1_score<br>clf = SGDClassifier(loss='hinge').fit(X, y)<br>f1 = f1_score(y_true, y_pred)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>多分類</strong></td>
+                    <td><code>OneVsRestClassifier</code>，<code>OneVsOneClassifier</code></td>
+                    <td><strong>多分類任務</strong>：處理多個類別的分類，使用一對多或一對一策略將二分類器擴展到多分類。</td>
+                    <td><code>estimator</code> (基礎二分類器)。</td>
+                    <td class="code-snippet"><code>from sklearn.multiclass import OneVsRestClassifier<br>from sklearn.svm import SVC<br>ovr_clf = OneVsRestClassifier(SVC()).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>混淆矩陣分析</strong></td>
+                    <td><code>ConfusionMatrixDisplay</code></td>
+                    <td><strong>錯誤分析</strong>：詳細分析分類錯誤的分佈，識別哪些類別容易混淆。</td>
+                    <td><code>confusion_matrix</code> (混淆矩陣)，<code>display_labels</code> (類別標籤)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics import ConfusionMatrixDisplay<br>cm = confusion_matrix(y_true, y_pred)<br>disp = ConfusionMatrixDisplay(cm, display_labels=class_names)<br>disp.plot()</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>精確率/召回率權衡</strong></td>
+                    <td><code>precision_recall_curve</code>，<code>PrecisionRecallDisplay</code></td>
+                    <td><strong>閾值調整</strong>：調整決策閾值以平衡精確率和召回率，適用於不平衡數據集。</td>
+                    <td><code>pos_label</code> (正類標籤)，<code>response_method</code> (預測方法)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics import precision_recall_curve<br>precisions, recalls, thresholds = precision_recall_curve(y_true, y_scores)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>ROC曲線</strong></td>
+                    <td><code>roc_curve</code>，<code>auc</code>，<code>RocCurveDisplay</code></td>
+                    <td><strong>分類器評估</strong>：繪製真陽率vs假陽率曲線，計算AUC面積評估分類器性能。</td>
+                    <td><code>pos_label</code> (正類標籤)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics import roc_curve, auc<br>fpr, tpr, thresholds = roc_curve(y_true, y_scores)<br>roc_auc = auc(fpr, tpr)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>多標籤分類</strong></td>
+                    <td><code>MultiOutputClassifier</code>，<code>ClassifierChain</code></td>
+                    <td><strong>多標籤任務</strong>：每個樣本可以屬於多個類別的分類，使用二分類器組合處理。</td>
+                    <td><code>estimator</code> (基礎分類器)。</td>
+                    <td class="code-snippet"><code>from sklearn.multioutput import MultiOutputClassifier<br>multi_clf = MultiOutputClassifier(LogisticRegression()).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>多輸出分類</strong></td>
+                    <td><code>MultiOutputClassifier</code></td>
+                    <td><strong>多輸出任務</strong>：同時預測多個相關輸出的分類任務。</td>
+                    <td><code>estimator</code> (基礎分類器)。</td>
+                    <td class="code-snippet"><code>from sklearn.multioutput import MultiOutputClassifier<br>multi_clf = MultiOutputClassifier(LogisticRegression()).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>錯誤分析</strong></td>
+                    <td><code>cross_val_predict</code></td>
+                    <td><strong>模型診斷</strong>：使用交叉驗證預測分析模型錯誤模式，識別改進方向。</td>
+                    <td><code>cv</code> (交叉驗證折數)，<code>method</code> (預測方法)。</td>
+                    <td class="code-snippet"><code>from sklearn.model_selection import cross_val_predict<br>y_train_pred = cross_val_predict(clf, X_train, y_train, cv=3)<br>conf_mx = confusion_matrix(y_train, y_train_pred)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>羅吉斯迴歸</strong></td>
+                    <td><code>LogisticRegression</code></td>
+                    <td><strong>邏輯斯蒂回歸</strong>：應用於二分類和多分類任務，估計類別機率。</td>
+                    <td><strong>$C$</strong> (正規化參數，控制正規化強度，值越大正規化越弱)；<code>penalty</code> ('l1', 'l2', 'elasticnet'，'l2'適用大多數情況)。</td>
+                    <td class="code-snippet"><code>from sklearn.linear_model import LogisticRegression<br>log_reg = LogisticRegression(C=1.0).fit(X, y)<br>probs = log_reg.predict_proba(X_test)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 4: Training Linear Models - Gradient descent, regularization -->
+        <section id="chapter-4">
+            <h2 class="section-title">第4章：訓練線性模型</h2>
+            <!-- Reference table for chapter 4 - Linear models and optimization -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>                <tr>
+                    <td><strong>線性與廣義線性模型</strong></td>
+                    <td><code>LinearRegression</code></td>
+                    <td><strong>線性迴歸</strong>：使用 Normal Equation 或 SVD 直接計算最佳模型參數（最小化 MSE）。</td>
+                    <td>無（封閉式解法）。</td>
+                    <td class="code-snippet"><code>from sklearn.linear_model import LinearRegression<br>lr = LinearRegression().fit(X, y)<br>y_pred = lr.predict(X_test)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>Normal Equation</strong></td>
+                    <td><code>np.linalg.inv</code></td>
+                    <td><strong>手動實現線性回歸</strong>：使用矩陣運算直接計算參數，適用於小規模數據集。</td>
+                    <td>無。</td>
+                    <td class="code-snippet"><code>import numpy as np<br>X_b = np.c_[np.ones((100, 1)), X]  # 添加截距項<br>theta_best = np.linalg.inv(X_b.T.dot(X_b)).dot(X_b.T).dot(y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>Batch Gradient Descent</strong></td>
+                    <td><code>np.random.randn</code></td>
+                    <td><strong>批量梯度下降</strong>：使用整個訓練集計算梯度，適用於小規模數據集。</td>
+                    <td><code>eta</code> (學習率)；<code>n_iterations</code> (迭代次數)。</td>
+                    <td class="code-snippet"><code>eta = 0.1<br>n_iterations = 1000<br>m = 100<br>theta = np.random.randn(2, 1)<br>for iteration in range(n_iterations):<br>    gradients = 2/m * X_b.T.dot(X_b.dot(theta) - y)<br>    theta = theta - eta * gradients</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>Stochastic Gradient Descent</strong></td>
+                    <td><code>np.random.randint</code></td>
+                    <td><strong>隨機梯度下降</strong>：每次使用一個樣本計算梯度，適用於大規模數據集。</td>
+                    <td><code>eta</code> (學習率)；<code>n_epochs</code> (訓練輪數)。</td>
+                    <td class="code-snippet"><code>n_epochs = 50<br>t0, t1 = 5, 50<br>def learning_schedule(t):<br>    return t0 / (t + t1)<br>theta = np.random.randn(2, 1)<br>for epoch in range(n_epochs):<br>    for i in range(m):<br>        random_index = np.random.randint(m)<br>        xi = X_b[random_index:random_index+1]<br>        yi = y[random_index:random_index+1]<br>        gradients = 2 * xi.T.dot(xi.dot(theta) - yi)<br>        eta = learning_schedule(epoch * m + i)<br>        theta = theta - eta * gradients</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>Mini-batch Gradient Descent</strong></td>
+                    <td><code>np.random.permutation</code></td>
+                    <td><strong>小批量梯度下降</strong>：使用小批量樣本計算梯度，平衡效率和穩定性。</td>
+                    <td><code>batch_size</code> (批量大小)；<code>eta</code> (學習率)。</td>
+                    <td class="code-snippet"><code>batch_size = 20<br>n_iterations = 1000<br>theta = np.random.randn(2, 1)<br>for iteration in range(n_iterations):<br>    shuffled_indices = np.random.permutation(m)<br>    X_b_shuffled = X_b[shuffled_indices]<br>    y_shuffled = y[shuffled_indices]<br>    for i in range(0, m, batch_size):<br>        xi = X_b_shuffled[i:i+batch_size]<br>        yi = y_shuffled[i:i+batch_size]<br>        gradients = 2/batch_size * xi.T.dot(xi.dot(theta) - yi)<br>        theta = theta - eta * gradients</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>學習曲線</strong></td>
+                    <td><code>learning_curve</code></td>
+                    <td><strong>學習曲線分析</strong>：繪製訓練和驗證分數隨樣本數量的變化，檢測過擬合和欠擬合。</td>
+                    <td><code>estimator</code> (估計器)；<code>X</code>, <code>y</code> (數據)；<code>train_sizes</code> (訓練樣本比例)。</td>
+                    <td class="code-snippet"><code>from sklearn.model_selection import learning_curve<br>train_sizes, train_scores, val_scores = learning_curve(<br>    LinearRegression(), X, y, train_sizes=np.linspace(0.1, 1.0, 10), cv=5)<br>plt.plot(train_sizes, train_scores.mean(axis=1), label='Training score')<br>plt.plot(train_sizes, val_scores.mean(axis=1), label='Validation score')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>Early Stopping</strong></td>
+                    <td><code>SGDRegressor</code></td>
+                    <td><strong>早期停止</strong>：監控驗證誤差，當誤差不再改善時停止訓練，防止過擬合。</td>
+                    <td><code>validation_fraction</code> (驗證集比例)；<code>n_iter_no_change</code> (無改善的最大迭代次數)。</td>
+                    <td class="code-snippet"><code>from sklearn.linear_model import SGDRegressor<br>sgd_reg = SGDRegressor(penalty=None, eta0=0.1, random_state=42)<br>sgd_reg.fit(X_train, y_train)<br># 手動實現早期停止<br>best_score = float('inf')<br>for epoch in range(1000):<br>    sgd_reg.partial_fit(X_train, y_train)<br>    y_val_predict = sgd_reg.predict(X_val)<br>    val_error = mean_squared_error(y_val, y_val_predict)<br>    if val_error < best_score:<br>        best_score = val_error<br>        best_epoch = epoch<br>        best_model = clone(sgd_reg)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>  <tr>
+                    <td><strong>(Linear & Generalized Linear Models)</strong></td>
+                    <td><code>Ridge</code>，<code>Lasso</code>，<code>ElasticNet</code></td>
+                    <td><strong>正規化線性模型</strong>：分別使用 $\ell_2$、$\ell_1$ 或兩者組合來約束權重，以減少過度擬合。</td>
+                    <td><strong>正規化強度</strong> $\alpha$ (alpha)：值越大，約束越強。</td>
+                    <td class="code-snippet"><code>from sklearn.linear_model import Ridge<br>ridge = Ridge(alpha=0.1).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                                      <tr>
+                    <td><strong>隨機梯度下降</strong></td>
+                    <td><code>SGDRegressor</code></td>
+                    <td>線性模型，使用 SGD 訓練：適用於大規模數據集的線性迴歸，通過隨機梯度下降優化參數。</td>
+                    <td><code>loss</code> ('squared_error', 'huber'，'squared_error'適用標準迴歸)；<code>penalty</code> ('l2', 'l1', 'elasticnet')；<code>alpha</code> (正規化強度)；<code>learning_rate</code> ('constant', 'optimal', 'invscaling')；<code>eta0</code> (初始學習率)。</td>
+                    <td class="code-snippet"><code>from sklearn.linear_model import SGDRegressor<br>sgd = SGDRegressor(loss='squared_error').fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                       <tr>
+                    <td><strong>目標變數轉換</strong></td>
+                    <td><code>TransformedTargetRegressor</code></td>
+                    <td>對目標變數進行轉換的元估計器：適用於目標變數需要正規化或轉換的迴歸任務。</td>
+                    <td><code>regressor</code> (基礎迴歸器，如 LinearRegression)；<code>transformer</code> (目標變數轉換器，如 StandardScaler)。</td>
+                    <td class="code-snippet"><code>from sklearn.compose import TransformedTargetRegressor<br>from sklearn.preprocessing import StandardScaler<br>ttr = TransformedTargetRegressor(regressor=LinearRegression(), transformer=StandardScaler())</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                      <tr>
+                    <td><strong>特徵工程</strong></td>
+                    <td><code>add_dummy_feature</code></td>
+                    <td>向數據集添加截距列：適用於線性模型需要顯式截距項的情況。</td>
+                    <td><code>X</code> (輸入數據矩陣)；<code>value</code> (添加的截距值，通常為1.0)。</td>
+                    <td class="code-snippet"><code>from sklearn.preprocessing import add_dummy_feature<br>X_with_dummy = add_dummy_feature(X, value=1.0)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                       <tr>
+                    <td></td>
+                    <td><code>PolynomialFeatures</code></td>
+                    <td>生成多項式和交互特徵：適用於捕捉非線性關係和特徵交互的迴歸任務。</td>
+                    <td><code>degree</code> (多項式維度，值越大複雜度越高)；<code>interaction_only</code> (是否只生成交互項)；<code>include_bias</code> (是否包含偏置項)。</td>
+                    <td class="code-snippet"><code>from sklearn.preprocessing import PolynomialFeatures<br>poly = PolynomialFeatures(degree=2).fit_transform(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>多項式回歸</strong></td>
+                    <td><code>PolynomialFeatures</code> + <code>LinearRegression</code></td>
+                    <td><strong>多項式回歸</strong>：使用多項式特徵進行線性回歸，捕捉非線性關係。</td>
+                    <td><code>degree</code> (多項式維度)。</td>
+                    <td class="code-snippet"><code>from sklearn.preprocessing import PolynomialFeatures<br>from sklearn.linear_model import LinearRegression<br>poly_features = PolynomialFeatures(degree=2, include_bias=False)<br>X_poly = poly_features.fit_transform(X)<br>lin_reg = LinearRegression()<br>lin_reg.fit(X_poly, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                  <tr>
+                    <td><strong>迴歸指標</strong></td>
+                    <td><code>mean_squared_error</code>, <code>root_mean_squared_error</code></td>
+                    <td>均方誤差和均方根誤差：評估迴歸模型性能的標準指標。</td>
+                    <td><code>y_true</code> (真實值)；<code>y_pred</code> (預測值)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics import mean_squared_error<br>mse = mean_squared_error(y_true, y_pred)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table></table>
+            </div>
+        </section>
+
+        <!-- Chapter 5: Support Vector Machines - SVM theory and applications -->
+        <section id="chapter-5">
+            <h2 class="section-title">第5章：支援向量機</h2>
+            <!-- Reference table for chapter 5 - SVM algorithms and kernels -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>                <tr>
+                    <td><strong>支持向量機</strong></td>
+                    <td><code>SVC</code>，<code>LinearSVC</code>，<code>SVR</code></td>
+                    <td><strong>SVM 分類與迴歸</strong>：<strong>大邊界分類</strong> (Large Margin Classification) 尋找最優決策邊界。使用 <strong>核心技巧</strong> (Kernel Trick) 處理非線性數據，適用於<strong>文本分類</strong>、<strong>圖像識別</strong>、<strong>生物資訊學</strong>等任務。</td>
+                    <td><strong><code>C</code></strong> (正規化參數，控制邊界寬度，值越大越嚴格)；<strong><code>kernel</code></strong> ('rbf', 'poly', 'linear'，'rbf'適用大多數非線性問題)；<strong><code>gamma</code></strong> (RBF核心參數，'scale'自動調整，值越大越複雜)。</td>
+                    <td class="code-snippet"><code>from sklearn.svm import SVC<br>svc = SVC(kernel='rbf', C=1.0, gamma='scale').fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                         <tr>
+                    <td><strong>(Support Vector Machines, SVMs)</strong></td>
+                    <td><code>hinge loss function</code></td>
+                    <td><strong>SVM 理論基礎</strong>：硬邊界與軟邊界分類的數學原理。通過<strong>對偶問題</strong>優化求解，理解SVM的核心概念和損失函數設計。</td>
+                    <td>N/A；相關參數為 <code>C</code> 和 <code>gamma</code>。</td>
+                    <td class="code-snippet"><code>N/A</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td></td>
+                    <td><code>LinearSVR</code></td>
+                    <td><strong>線性支持向量迴歸</strong>：適用於<strong>線性可分</strong>的迴歸任務，比標準SVR更高效。適合大規模數據集的迴歸預測。</td>
+                    <td><strong><code>epsilon</code></strong> (不敏感區間寬度，控制容忍度)；<strong><code>C</code></strong> (正規化參數)；<strong><code>loss</code></strong> ('epsilon_insensitive' 或 'squared_epsilon_insensitive')。</td>
+                    <td class="code-snippet"><code>from sklearn.svm import LinearSVR<br>svr = LinearSVR(epsilon=0.1, C=1.0).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                               <tr>
+                    <td><strong>核心函數</strong></td>
+                    <td><code>rbf_kernel</code></td>
+                    <td><strong>RBF 核心函數</strong>：高斯徑向基函數，將數據映射到無限維空間。適用於<strong>大多數非線性分類任務</strong>，特別適合複雜的決策邊界。</td>
+                    <td><strong><code>gamma</code></strong> (核心係數，控制影響範圍，值越大局部性越強)；<code>X</code>, <code>Y</code> (輸入數據矩陣)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics.pairwise import rbf_kernel<br>K = rbf_kernel(X, Y, gamma=1.0)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                <tr>
+                    <td><strong>多項式核心</strong></td>
+                    <td><code>SVC(kernel="poly")</code></td>
+                    <td><strong>多項式核心函數</strong>：將數據映射到高階多項式特徵空間。適用於<strong>非線性分類任務</strong>，特別適合具有多項式決策邊界的數據。</td>
+                    <td><strong><code>degree</code></strong> (多項式階數，預設3)；<strong><code>coef0</code></strong> (獨立項係數，控制高階項影響)；<strong><code>C</code></strong> (正規化參數)；<strong><code>gamma</code></strong> (核心係數)。</td>
+                    <td class="code-snippet"><code>from sklearn.svm import SVC<br>poly_svm = SVC(kernel="poly", degree=3, coef0=1, C=5).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                <tr>
+                    <td><strong>相似性特徵</strong></td>
+                    <td><code>gaussian_rbf</code></td>
+                    <td><strong>相似性特徵</strong>：基於高斯RBF函數的相似性度量，將數據映射到高維空間。適用於<strong>非線性SVM</strong>的核技巧實現。</td>
+                    <td><strong><code>gamma</code></strong> (控制鐘形曲線寬度，值越大影響範圍越小)；<code>landmark</code> (參考點坐標)；<code>x</code> (輸入數據點)。</td>
+                    <td class="code-snippet"><code>def gaussian_rbf(x, landmark, gamma):<br>    return np.exp(-gamma * np.linalg.norm(x - landmark, axis=1)**2)<br><br>similarity_features = gaussian_rbf(X, landmark, gamma=0.3)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                <tr>
+                    <td><strong>高斯RBF核心</strong></td>
+                    <td><code>SVC(kernel="rbf")</code></td>
+                    <td><strong>高斯RBF核心</strong>：使用高斯徑向基函數作為核函數的SVM。適用於<strong>大多數非線性分類任務</strong>，特別適合複雜且未知的決策邊界。</td>
+                    <td><strong><code>gamma</code></strong> (核心係數，'scale'自動調整，值越大越複雜)；<strong><code>C</code></strong> (正規化參數，控制邊界寬度)。</td>
+                    <td class="code-snippet"><code>from sklearn.svm import SVC<br>rbf_svm = SVC(kernel="rbf", gamma=5, C=0.001).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                <tr>
+                    <td><strong>SVM迴歸</strong></td>
+                    <td><code>SVR</code></td>
+                    <td><strong>支持向量迴歸</strong>：SVM的迴歸版本，尋找最大邊界的迴歸線。適用於<strong>非線性迴歸任務</strong>，對異常值具有魯棒性。</td>
+                    <td><strong><code>kernel</code></strong> ('rbf', 'poly', 'linear')；<strong><code>C</code></strong> (正規化參數)；<strong><code>epsilon</code></strong> (不敏感區間寬度)；<strong><code>gamma</code></strong> (RBF核心參數)。</td>
+                    <td class="code-snippet"><code>from sklearn.svm import SVR<br>svr = SVR(kernel="rbf", C=1.0, epsilon=0.1).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                <tr>
+                    <td><strong>Hinge損失函數</strong></td>
+                    <td><code>hinge loss</code></td>
+                    <td><strong>Hinge損失</strong>：SVM分類的損失函數，懲罰分類錯誤的樣本。數學公式：max(0, 1 - t·s)，其中t是真實標籤，s是決策函數值。</td>
+                    <td>N/A；相關參數為 <code>C</code> (控制懲罰強度)。</td>
+                    <td class="code-snippet"><code># Hinge loss calculation<br>hinge_loss = np.maximum(0, 1 - t * s)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                <tr>
+                    <td><strong>平方Hinge損失函數</strong></td>
+                    <td><code>squared hinge loss</code></td>
+                    <td><strong>平方Hinge損失</strong>：Hinge損失的平方版本，對異常值更敏感。數學公式：max(0, 1 - t·s)²，常用於<code>LinearSVC</code>的預設損失函數。</td>
+                    <td>N/A；相關參數為 <code>C</code> (控制懲罰強度)。</td>
+                    <td class="code-snippet"><code># Squared hinge loss calculation<br>squared_hinge_loss = np.maximum(0, 1 - t * s) ** 2</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                <tr>
+                    <td><strong>自定義SVM實現</strong></td>
+                    <td><code>MyLinearSVC</code></td>
+                    <td><strong>從頭實現線性SVM</strong>：使用批量梯度下降實現線性SVM分類器。適用於<strong>學習SVM內部機制</strong>和自定義優化。</td>
+                    <td><strong><code>C</code></strong> (正規化參數)；<strong><code>eta0</code></strong> (初始學習率)；<strong><code>n_epochs</code></strong> (訓練輪數)。</td>
+                    <td class="code-snippet"><code>class MyLinearSVC(BaseEstimator):<br>    def __init__(self, C=1, eta0=1, n_epochs=1000):<br>        self.C = C<br>        self.eta0 = eta0<br>        self.n_epochs = n_epochs<br><br>    def fit(self, X, y):<br>        # Batch gradient descent implementation<br>        # ... (implementation details)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 6: Decision Trees - Training, visualization, and prediction -->
+        <section id="chapter-6">
+            <h2 class="section-title">第6章：決策樹</h2>
+            <!-- Reference table for chapter 6 - Decision tree classifier methods -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>                <tr>
+                    <td><strong>決策樹與集成方法</strong></td>
+                    <td><code>DecisionTreeClassifier</code>/<code>Regressor</code></td>
+                    <td><strong>決策樹</strong>：<strong>白箱模型</strong>。利用 <strong>CART 演算法</strong> 和 <strong>Gini 不純度/熵</strong> 進行分割。</td>
+                    <td><strong><code>max_depth</code></strong> (最大深度，控制樹的深度以防止過擬合)；<strong><code>min_samples_leaf</code></strong> (葉節點最小樣本數，用於正則化)。</td>
+                    <td class="code-snippet"><code>from sklearn.tree import DecisionTreeClassifier<br>dt = DecisionTreeClassifier(max_depth=5).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td></td>
+                    <td><code>load_iris</code></td>
+                    <td>載入鳶尾花數據集，用於決策樹訓練和可視化：適用於分類任務的標準數據集。</td>
+                    <td><code>as_frame</code> (是否返回DataFrame格式)；<code>return_X_y</code> (是否分離特徵和標籤)。</td>
+                    <td class="code-snippet"><code>from sklearn.datasets import load_iris<br>iris = load_iris(as_frame=True)<br>X = iris.data<br>y = iris.target</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td><strong>預測方法</strong></td>
+                    <td><code>predict_proba</code></td>
+                    <td>估計類別概率，用於決策樹的概率預測：適用於需要概率輸出的分類任務。</td>
+                    <td><code>X</code> (輸入特徵矩陣)。</td>
+                    <td class="code-snippet"><code>proba = dt.predict_proba(X_test)<br>print(proba)  # 輸出每個類別的概率</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td></td>
+                    <td><code>predict</code></td>
+                    <td>進行類別預測，用於決策樹的分類輸出：適用於標準分類任務。</td>
+                    <td><code>X</code> (輸入特徵矩陣)。</td>
+                    <td class="code-snippet"><code>y_pred = dt.predict(X_test)<br>print(y_pred)  # 輸出預測類別</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td><strong>正則化參數</strong></td>
+                    <td><code>min_samples_leaf</code></td>
+                    <td>葉節點最小樣本數，用於控制樹的複雜度：適用於防止過擬合，提高泛化能力。</td>
+                    <td><code>min_samples_leaf</code> (葉節點最小樣本數，整數或比例)。</td>
+                    <td class="code-snippet"><code>dt_reg = DecisionTreeClassifier(min_samples_leaf=5)<br>dt_reg.fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td><strong>決策樹回歸</strong></td>
+                    <td><code>DecisionTreeRegressor</code></td>
+                    <td>決策樹回歸器，用於連續值預測：適用於回歸任務，處理非線性關係。</td>
+                    <td><code>max_depth</code> (最大深度)；<code>min_samples_split</code> (最小分割樣本數)。</td>
+                    <td class="code-snippet"><code>from sklearn.tree import DecisionTreeRegressor<br>dtr = DecisionTreeRegressor(max_depth=3).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td><strong>PCA預處理</strong></td>
+                    <td><code>make_pipeline(StandardScaler, PCA)</code></td>
+                    <td>使用PCA對數據進行預處理，以處理軸方向敏感性：適用於改善決策樹對旋轉數據的魯棒性。</td>
+                    <td><code>n_components</code> (主成分數量)；<code>whiten</code> (是否白化)。</td>
+                    <td class="code-snippet"><code>from sklearn.pipeline import make_pipeline<br>from sklearn.preprocessing import StandardScaler<br>from sklearn.decomposition import PCA<br>pca_pipe = make_pipeline(StandardScaler(), PCA())<br>X_pca = pca_pipe.fit_transform(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td><strong>Gini不純度</strong></td>
+                    <td><code>Gini impurity</code></td>
+                    <td>Gini不純度公式，用於評估節點的純度：$G = 1 - \sum_{k=1}^{K} p_k^2$，適用於CART演算法的分割標準。</td>
+                    <td><code>criterion='gini'</code> (分割標準)。</td>
+                    <td class="code-snippet"><code># Gini不純度計算<br>def gini_impurity(counts):<br>    total = sum(counts)<br>    return 1 - sum((count/total)**2 for count in counts)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td><strong>樹結構訪問</strong></td>
+                    <td><code>tree_</code></td>
+                    <td>訪問決策樹的內部結構，用於分析和調試：適用於檢查樹的屬性，如深度、節點數等。</td>
+                    <td><code>tree_.node_count</code> (節點數)；<code>tree_.max_depth</code> (最大深度)。</td>
+                    <td class="code-snippet"><code>tree = dt.tree_<br>print(f"節點數: {tree.node_count}")<br>print(f"最大深度: {tree.max_depth}")</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td><strong>超參數調優</strong></td>
+                    <td><code>GridSearchCV</code></td>
+                    <td>網格搜索交叉驗證，用於決策樹超參數調優：適用於系統性地搜索最佳參數組合。</td>
+                    <td><code>param_grid</code> (參數網格)；<code>cv</code> (交叉驗證折數)。</td>
+                    <td class="code-snippet"><code>from sklearn.model_selection import GridSearchCV<br>param_grid = {'max_depth': [3, 5, 7]}<br>grid = GridSearchCV(dt, param_grid, cv=5).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td><strong>多數投票</strong></td>
+                    <td><code>mode</code> (from scipy.stats)</td>
+                    <td>多數投票聚合，用於集成決策樹的預測：適用於隨機森林等集成方法的實現。</td>
+                    <td><code>axis</code> (投票軸)。</td>
+                    <td class="code-snippet"><code>from scipy.stats import mode<br>y_pred_ensemble = mode(y_pred_matrix, axis=0)[0]</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td></td>
+                    <td><code>export_graphviz</code></td>
+                    <td>將決策樹導出為 GraphViz DOT 格式文件，用於可視化：適用於理解和展示決策樹的結構。</td>
+                    <td><code>out_file</code> (輸出文件路徑)；<code>feature_names</code> (特徵名稱列表)；<code>class_names</code> (類別名稱列表)；<code>rounded</code> (是否圓角)；<code>filled</code> (是否填充顏色)。</td>
+                    <td class="code-snippet"><code>from sklearn.tree import export_graphviz<br>export_graphviz(dt, out_file='tree.dot', feature_names=feature_names)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                    <tr>
+                    <td><strong>決策樹可視化</strong></td>
+                    <td><code>Source.from_file</code></td>
+                    <td>從 DOT 文件讀取並顯示決策樹圖形，用於可視化 <code>export_graphviz</code> 導出的樹結構：適用於在 Jupyter Notebook 中展示決策樹的可視化圖形。</td>
+                    <td><code>filepath</code> (DOT 文件路徑)。</td>
+                    <td class="code-snippet"><code>from graphviz import Source<br>graph = Source.from_file('tree.dot')<br>graph.view()</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                 <tr>
+                    <td><strong>數據生成</strong></td>
+                    <td><code>make_moons</code></td>
+                    <td>生成月亮形數據集，用於測試非線性分類：適用於測試決策樹等非線性模型的性能。</td>
+                    <td><code>n_samples</code> (樣本數)；<code>noise</code> (噪聲標準差)；<code>random_state</code> (隨機種子)。</td>
+                    <td class="code-snippet"><code>from sklearn.datasets import make_moons<br>X, y = make_moons(n_samples=1000, noise=0.1, random_state=42)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                      <tr>
+                    <td><strong>交叉驗證</strong></td>
+                    <td><code>ShuffleSplit</code></td>
+                    <td>隨機分割數據集，用於交叉驗證：適用於隨機分割訓練和測試集，確保模型評估的可靠性。</td>
+                    <td><code>n_splits</code> (分割次數)；<code>train_size</code> (訓練集比例)；<code>test_size</code> (測試集比例)；<code>random_state</code> (隨機種子)。</td>
+                    <td class="code-snippet"><code>from sklearn.model_selection import ShuffleSplit<br>ss = ShuffleSplit(n_splits=5, test_size=0.2, random_state=42)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 7: Ensemble Learning and Random Forests - Voting, bagging, boosting -->
+        <section id="chapter-7">
+            <h2 class="section-title">第7章：集成學習和隨機森林</h2>
+            <!-- Reference table for chapter 7 - Ensemble methods and random forest techniques -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>                <tr>
+                    <td><strong>決策樹與集成學習</strong></td>
+                    <td><code>RandomForestClassifier</code>，<code>BaggingClassifier</code>，<code>VotingClassifier</code></td>
+                    <td><strong>隨機森林</strong>：通過 <strong>Bagging</strong> 結合多棵決策樹，有效<strong>降低變異性</strong>。<code>VotingClassifier</code> 結合不同模型的預測結果。</td>
+                    <td><strong><code>n_estimators</code></strong> (樹的數量)；<strong><code>max_features</code></strong> (每次分割時隨機採樣的特徵數)；<strong><code>voting</code></strong> 類型 ('hard' 或 'soft')。</td>
+                    <td class="code-snippet"><code>from sklearn.ensemble import RandomForestClassifier<br>rf = RandomForestClassifier(n_estimators=100).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                                <tr>
+                    <td><strong>梯度提升</strong></td>
+                    <td><code>GradientBoostingRegressor</code>/<code>Classifier</code></td>
+                    <td><strong>梯度提升</strong> (Boosting)：序列訓練，每一步都糾正前一個模型的<strong>殘差誤差</strong>，以<strong>降低偏差</strong>：適用於提高模型準確率，特別適合處理複雜的非線性關係。</td>
+                    <td><code>learning_rate</code> (學習率，控制每棵樹的貢獻)；<code>n_estimators</code> (樹的數量)；<code>max_depth</code> (每棵樹的最大深度)。</td>
+                    <td class="code-snippet"><code>from sklearn.ensemble import GradientBoostingClassifier<br>gb = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                 <tr>
+                    <td><strong>AdaBoost</strong></td>
+                    <td><code>AdaBoostClassifier</code></td>
+                    <td>AdaBoost 分類器：通過迭代訓練弱學習器並調整樣本權重來提高整體性能。</td>
+                    <td><code>n_estimators</code> (弱學習器的數量)；<code>learning_rate</code> (學習率)；<code>algorithm</code> (演算法類型，如 'SAMME')。</td>
+                    <td class="code-snippet"><code>from sklearn.ensemble import AdaBoostClassifier<br>ada = AdaBoostClassifier(n_estimators=50).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                             <tr>
+                    <td><strong>極端隨機樹</strong></td>
+                    <td><code>ExtraTreesClassifier</code></td>
+                    <td>極端隨機樹分類器：通過隨機選擇分割特徵來增加多樣性，提高泛化能力。</td>
+                    <td><code>n_estimators</code> (樹的數量)；<code>criterion</code> (分割標準，如 'gini')；<code>max_depth</code> (最大深度)。</td>
+                    <td class="code-snippet"><code>from sklearn.ensemble import ExtraTreesClassifier<br>et = ExtraTreesClassifier(n_estimators=100).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                          <tr>
+                    <td><strong>直方圖梯度提升</strong></td>
+                    <td><code>HistGradientBoostingRegressor</code></td>
+                    <td>基於直方圖的梯度提升迴歸樹：使用直方圖近似來加速訓練，適合大規模數據。</td>
+                    <td><code>learning_rate</code> (學習率)；<code>max_iter</code> (最大迭代次數)；<code>max_leaf_nodes</code> (葉節點的最大數量)。</td>
+                    <td class="code-snippet"><code>from sklearn.ensemble import HistGradientBoostingRegressor<br>hgb = HistGradientBoostingRegressor(max_iter=100).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                   <tr>
+                    <td><strong>堆疊</strong></td>
+                    <td><code>StackingClassifier</code></td>
+                    <td>堆疊估計器：通過訓練元模型來組合多個基礎模型的預測結果。</td>
+                    <td><code>estimators</code> (基礎估計器列表)；<code>final_estimator</code> (最終估計器)；<code>cv</code> (交叉驗證折疊數)。</td>
+                    <td class="code-snippet"><code>from sklearn.ensemble import StackingClassifier<br>from sklearn.linear_model import LogisticRegression<br>stack = StackingClassifier(estimators=[('rf', RandomForestClassifier()), ('gb', GradientBoostingClassifier())], final_estimator=LogisticRegression())</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>包外評估</strong></td>
+                    <td><code>oob_score</code>，<code>oob_decision_function_</code></td>
+                    <td>包外評估：使用未參與訓練的樣本評估Bagging模型性能，無需額外驗證集。</td>
+                    <td><code>oob_score</code> (是否啟用包外評估)。</td>
+                    <td class="code-snippet"><code>bag_clf = BaggingClassifier(DecisionTreeClassifier(), oob_score=True, random_state=42)<br>bag_clf.fit(X_train, y_train)<br>print(bag_clf.oob_score_)<br>print(bag_clf.oob_decision_function_[:3])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>特徵重要性</strong></td>
+                    <td><code>feature_importances_</code></td>
+                    <td>特徵重要性：衡量每個特徵在隨機森林中的貢獻程度，用於特徵選擇。</td>
+                    <td>無特定參數，屬性返回重要性分數數組。</td>
+                    <td class="code-snippet"><code>from sklearn.datasets import load_iris<br>rnd_clf = RandomForestClassifier(n_estimators=500, random_state=42)<br>rnd_clf.fit(iris.data, iris.target)<br>for score, name in zip(rnd_clf.feature_importances_, iris.data.columns):<br>    print(f'importance: {round(score, 2)}, feature: {name}')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>提前停止</strong></td>
+                    <td><code>n_iter_no_change</code></td>
+                    <td>提前停止：當驗證分數在指定迭代次數內無改善時停止訓練，防止過擬合。</td>
+                    <td><code>n_iter_no_change</code> (無改善迭代次數閾值)。</td>
+                    <td class="code-snippet"><code>gbrt = GradientBoostingRegressor(max_depth=2, n_estimators=500,<br>    n_iter_no_change=10, random_state=42)<br>gbrt.fit(X, y)<br>print(gbrt.n_estimators_)  # 實際使用的估計器數量</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>分類特徵管道處理</strong></td>
+                    <td><code>make_pipeline</code>，<code>OrdinalEncoder</code></td>
+                    <td>使用管道處理分類特徵：結合編碼器和HistGradientBoostingRegressor處理混合數據類型。</td>
+                    <td><code>categorical_features</code> (分類特徵位置)。</td>
+                    <td class="code-snippet"><code>from sklearn.pipeline import make_pipeline<br>from sklearn.compose import make_column_transformer<br>from sklearn.preprocessing import OrdinalEncoder<br>hgb_reg = make_pipeline(<br>    make_column_transformer((OrdinalEncoder(), ["ocean_proximity"]),<br>                            remainder="passthrough"),<br>    HistGradientBoostingRegressor(categorical_features=[0], random_state=42)<br>)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 8: Dimensionality Reduction - PCA, kernel PCA, manifold learning -->
+        <section id="chapter-8">
+            <h2 class="section-title">第8章：降維</h2>
+            <!-- Reference table for chapter 8 - Dimensionality reduction techniques -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>                <tr>
+                    <td><strong>降維與流形學習</strong></td>
+                    <td><code>PCA</code>，<code>RandomizedPCA</code>，<code>KernelPCA</code></td>
+                    <td><strong>主成分分析</strong> (PCA)：<strong>最流行降維演算法</strong>。通過 <strong>SVD</strong> 找出保留<strong>最大變異數</strong>的超平面：適用於數據可視化、噪聲去除和特徵提取。</td>
+                    <td><code>n_components</code> (目標維度或變異數比例)；<code>svd_solver</code> (SVD求解器，如 'randomized' 用於加速)。</td>
+                    <td class="code-snippet"><code>from sklearn.decomposition import PCA<br>pca = PCA(n_components=2).fit(X)<br>X_pca = pca.transform(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                     <tr>
+                    <td><strong>(Dimensionality Reduction)</strong></td>
+                    <td><code>LocallyLinearEmbedding</code> (LLE)</td>
+                    <td><strong>流形學習</strong>：應用於處理<strong>非線性數據集</strong>（如 Swiss Roll）：適用於揭示數據的低維流形結構。</td>
+                    <td><code>n_neighbors</code> (近鄰數)；<code>max_iter</code> (最大迭代次數)。</td>
+                    <td class="code-snippet"><code>from sklearn.manifold import LocallyLinearEmbedding<br>lle = LocallyLinearEmbedding(n_neighbors=10, n_components=2).fit_transform(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                   <tr>
+                    <td><strong>增量PCA</strong></td>
+                    <td><code>IncrementalPCA</code></td>
+                    <td>增量主成分分析：適用於無法一次性載入全部數據的大規模數據集。</td>
+                    <td><code>n_components</code> (目標維度)；<code>whiten</code> (是否白化數據)。</td>
+                    <td class="code-snippet"><code>from sklearn.decomposition import IncrementalPCA<br>ipca = IncrementalPCA(n_components=2).fit(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                       <tr>
+                    <td><strong>線性判別分析</strong></td>
+                    <td><code>LinearDiscriminantAnalysis</code></td>
+                    <td>線性判別分析：同時進行降維和分類的監督學習方法。</td>
+                    <td><code>solver</code> (求解器)；<code>shrinkage</code> (收縮參數)；<code>n_components</code> (目標維度)。</td>
+                    <td class="code-snippet"><code>from sklearn.discriminant_analysis import LinearDiscriminantAnalysis<br>lda = LinearDiscriminantAnalysis(n_components=2).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                   <tr>
+                    <td><strong>Isomap</strong></td>
+                    <td><code>Isomap</code></td>
+                    <td>Isomap 嵌入：基於測地線距離的非線性降維方法。</td>
+                    <td><code>n_neighbors</code> (近鄰數)；<code>n_components</code> (目標維度)。</td>
+                    <td class="code-snippet"><code>from sklearn.manifold import Isomap<br>iso = Isomap(n_neighbors=10, n_components=2).fit_transform(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                         <tr>
+                    <td><strong>多維縮放</strong></td>
+                    <td><code>MDS</code></td>
+                    <td>多維縮放：通過保留成對距離來進行降維。</td>
+                    <td><code>n_components</code> (目標維度)；<code>metric</code> (是否使用度量距離)。</td>
+                    <td class="code-snippet"><code>from sklearn.manifold import MDS<br>mds = MDS(n_components=2).fit_transform(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                                          <tr>
+                    <td><strong>t-SNE</strong></td>
+                    <td><code>TSNE</code></td>
+                    <td>t-分佈隨機鄰域嵌入：適用於高維數據的可視化，特別適合聚類分析。</td>
+                    <td><code>n_components</code> (目標維度)；<code>perplexity</code> (困惑度)；<code>learning_rate</code> (學習率)。</td>
+                    <td class="code-snippet"><code>from sklearn.manifold import TSNE<br>tsne = TSNE(n_components=2, perplexity=30).fit_transform(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                             <tr>
+                    <td><strong>隨機投影</strong></td>
+                    <td><code>GaussianRandomProjection</code>, <code>SparseRandomProjection</code></td>
+                    <td>隨機投影：使用隨機矩陣進行快速降維，基於Johnson-Lindenstrauss引理。</td>
+                    <td><code>n_components</code> (目標維度)；<code>eps</code> (誤差容忍度)。</td>
+                    <td class="code-snippet"><code>from sklearn.random_projection import GaussianRandomProjection<br>grp = GaussianRandomProjection(n_components=2).fit_transform(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                <tr>
+                    <td><strong>Johnson-Lindenstrauss引理</strong></td>
+                    <td><code>johnson_lindenstrauss_min_dim</code></td>
+                    <td>找到安全的隨機投影維度：根據Johnson-Lindenstrauss引理計算最小維度。</td>
+                    <td><code>n_samples</code> (樣本數)；<code>eps</code> (誤差容忍度)。</td>
+                    <td class="code-snippet"><code>from sklearn.random_projection import johnson_lindenstrauss_min_dim<br>min_dim = johnson_lindenstrauss_min_dim(n_samples=1000, eps=0.1)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 9: Unsupervised Learning - Clustering algorithms -->
+        <section id="chapter-9">
+            <h2 class="section-title">第9章：無監督學習</h2>
+            <!-- Reference table for chapter 9 - Clustering and unsupervised techniques -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr>
+                    <td><strong>異常檢測</strong></td>
+                    <td><code>IsolationForest</code></td>
+                    <td>異常檢測演算法：通過隔離森林來識別異常數據點。</td>
+                    <td><code>n_estimators</code> (樹的數量)；<code>contamination</code> (污染比例)；<code>random_state</code> (隨機種子)。</td>
+                    <td class="code-snippet"><code>from sklearn.ensemble import IsolationForest<br>clf = IsolationForest(random_state=42).fit(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                       <tr>
+                    <td><strong>無監督學習核心演算法</strong></td>
+                    <td><code>KMeans</code>，<code>DBSCAN</code>，<code>GaussianMixture</code> (GMM)</td>
+                    <td><strong>聚類分析</strong> (Clustering)：用於<strong>客戶分群</strong>、<strong>異常偵測</strong>。DBSCAN 基於密度，GMM 基於概率分佈：適用於發現數據中的自然群組結構。</td>
+                    <td><code>n_clusters</code> (聚類數，適用於KMeans和GMM)；<code>eps</code> (密度半徑，適用於DBSCAN)；<code>min_samples</code> (最小樣本數，適用於DBSCAN)。</td>
+                    <td class="code-snippet"><code>from sklearn.cluster import KMeans<br>kmeans = KMeans(n_clusters=3).fit(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                               <tr>
+                    <td><strong>層次聚類</strong></td>
+                    <td><code>AgglomerativeClustering</code></td>
+                    <td>凝聚聚類：通過自下而上合併聚類來構建層次結構。</td>
+                    <td><code>n_clusters</code> (聚類數)；<code>affinity</code> (距離度量)；<code>linkage</code> (鏈接方法)。</td>
+                    <td class="code-snippet"><code>from sklearn.cluster import AgglomerativeClustering<br>agg = AgglomerativeClustering(n_clusters=3).fit(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                     <tr>
+                    <td><strong>增量聚類</strong></td>
+                    <td><code>MiniBatchKMeans</code></td>
+                    <td>小批量 K-Means 聚類：適用於大規模數據集的增量聚類。</td>
+                    <td><code>n_clusters</code> (聚類數)；<code>batch_size</code> (批次大小)。</td>
+                    <td class="code-snippet"><code>from sklearn.cluster import MiniBatchKMeans<br>mbk = MiniBatchKMeans(n_clusters=3, batch_size=100).fit(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                      <tr>
+                    <td><strong>圖論聚類</strong></td>
+                    <td><code>SpectralClustering</code></td>
+                    <td>譜聚類：使用圖論中的譜圖分割來進行聚類。</td>
+                    <td><code>n_clusters</code> (聚類數)；<code>affinity</code> (親和度矩陣構造方式)。</td>
+                    <td class="code-snippet"><code>from sklearn.cluster import SpectralClustering<br>sc = SpectralClustering(n_clusters=3).fit(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                             <tr>
+                    <td><strong>聚類評估</strong></td>
+                    <td><code>silhouette_samples</code>, <code>silhouette_score</code></td>
+                    <td>輪廓係數計算：評估聚類質量的指標，值越接近1表示聚類越好。</td>
+                    <td><code>X</code> (數據矩陣)；<code>labels</code> (聚類標籤)；<code>metric</code> (距離度量)。</td>
+                    <td class="code-snippet"><code>from sklearn.metrics import silhouette_score<br>score = silhouette_score(X, labels)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                         <tr>
+                    <td><strong>概率聚類</strong></td>
+                    <td><code>BayesianGaussianMixture</code></td>
+                    <td>變分貝葉斯高斯混合：自動確定最佳組件數的概率聚類方法。</td>
+                    <td><code>n_components</code> (組件數)；<code>covariance_type</code> (協方差類型)。</td>
+                    <td class="code-snippet"><code>from sklearn.mixture import BayesianGaussianMixture<br>bgm = BayesianGaussianMixture(n_components=3).fit(X)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 10: Neural Networks with Keras - Building and training neural networks -->
+        <section id="chapter-10">
+            <h2 class="section-title">第10章：使用Keras的神經網路</h2>
+            <!-- Reference table for chapter 10 - Keras sequential models and training -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>                <tr>
+                    <td><strong>多層感知器</strong></td>
+                    <td><code>MLPClassifier</code></td>
+                    <td>多層感知器分類器：使用反向傳播訓練的神經網路分類器。</td>
+                    <td><code>hidden_layer_sizes</code> (隱藏層大小)；<code>activation</code> (激活函數)；<code>solver</code> (優化器)。</td>
+                    <td class="code-snippet"><code>from sklearn.neural_network import MLPClassifier<br>mlp = MLPClassifier(hidden_layer_sizes=(100,)).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                           <tr>
+                    <td><strong>深度學習核心組件</strong></td>
+                    <td><code>tf.keras.models.Sequential</code>，<code>tf.keras.layers.Dense</code></td>
+                    <td><strong>序列模型</strong> (Sequential API)：構建 MLP 網路。<strong>全連接層</strong>：適用於構建簡單的前饋神經網路。</td>
+                    <td><code>units</code> (神經元數量)；<code>activation</code> (激活函數)；<code>kernel_initializer</code> (權重初始化器)。</td>
+                    <td class="code-snippet"><code>import tensorflow as tf<br>model = tf.keras.Sequential([tf.keras.layers.Dense(10, activation='relu')])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                            <tr>
+                    <td><strong>感知器和多層感知器</strong></td>
+                    <td><code>Perceptron</code>, <code>MLPClassifier</code>, <code>MLPRegressor</code></td>
+                    <td>感知器和多層感知器：基本的線性分類器和多層神經網路。</td>
+                    <td><code>hidden_layer_sizes</code> (隱藏層大小)；<code>activation</code> (激活函數)；<code>solver</code> (優化器)。</td>
+                    <td class="code-snippet"><code>from sklearn.neural_network import MLPClassifier<br>mlp = MLPClassifier(hidden_layer_sizes=(100,)).fit(X, y)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 11: Training Deep Neural Networks - Regularization, optimization -->
+        <section id="chapter-11">
+            <h2 class="section-title">第11章：訓練深度神經網路</h2>
+            <!-- Reference table for chapter 11 - Advanced training techniques for deep networks -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>                <tr>
+                    <td><strong>(Deep Learning Core Components)</strong></td>
+                    <td><code>tf.keras.layers.BatchNormalization</code></td>
+                    <td><strong>批次正規化</strong> (BN)：<strong>加速訓練</strong>並緩解<strong>梯度不穩定性</strong>：適用於穩定訓練過程，提高收斂速度。</td>
+                    <td><code>momentum</code> (移動平均動量)；<code>axis</code> (正規化軸)。</td>
+                    <td class="code-snippet"><code>model.add(tf.keras.layers.BatchNormalization())</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                                                                                                                        <tr>
+                    <td><strong>正則化技術</strong></td>
+                    <td><code>tf.keras.layers.Dropout</code>，<code>tf.keras.regularizers.l1</code>/<code>l2</code></td>
+                    <td><strong>正則化技術</strong>：<strong>Dropout</strong> 減少神經元共適應，提升泛化能力。L1/L2 懲罰項約束權重：適用於防止過擬合，提高模型泛化性能。</td>
+                    <td><code>rate</code> (丟棄率)；<code>factor</code> (正規化因子)。</td>
+                    <td class="code-snippet"><code>model.add(tf.keras.layers.Dropout(0.5))</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 12: Custom Models and Training with TensorFlow - Custom loss, metrics, layers -->
+        <section id="chapter-12">
+            <h2 class="section-title">第12章：使用TensorFlow的自訂模型和訓練</h2>
+            <!-- Reference table for chapter 12 - Custom TensorFlow components -->
+            <div class="card">
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>                <tr>
+                    <td><strong>TensorFlow 底層與客製化</strong></td>
+                    <td><code>tf.GradientTape</code>，<code>@tf.function</code></td>
+                    <td><strong>自動微分</strong> (Autodiff)：記錄計算過程以<strong>計算梯度</strong>。使用 <code>@tf.function</code> 將 Python 函數轉換為 <strong>TensorFlow Graph</strong> 進行優化：適用於自定義訓練循環和複雜的梯度計算。</td>
+                    <td>無特定參數，主要用於梯度計算上下文。</td>
+                    <td class="code-snippet"><code>import tensorflow as tf<br>with tf.GradientTape() as tape:<br>    loss = compute_loss()<br>    grads = tape.gradient(loss, variables)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>                <tr>
+                    <td><strong>張量與操作</strong></td>
+                    <td><code>tf.Variable</code>，<code>tf.constant</code>，<code>tf.placeholder</code></td>
+                    <td><strong>張量與操作</strong>：<code>Variable</code> (可變參數)；<code>constant</code> (常量)；<code>placeholder</code> (外部輸入)：TensorFlow的基本數據結構和操作。</td>
+                    <td>無特定參數，這些是基本張量類型。</td>
+                    <td class="code-snippet"><code>var = tf.Variable([1.0, 2.0])<br>const = tf.constant([3.0, 4.0])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+            </div>
+        </section>
+
+        <!-- Chapter 13: Loading and Preprocessing Data - TensorFlow data API -->
+        <section id="chapter-13">
+            <h2>第13章：載入和預處理資料</h2>
+            <!-- Reference table for chapter 13 - Data loading and preprocessing with TensorFlow -->
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr>
+                    <td><strong>資料API</strong></td>
+                    <td><code>tf.data.Dataset</code></td>
+                    <td>高效能的資料載入和預處理管道。應用於大規模資料集的批次處理和預取：適用於優化數據輸入管道，提高訓練效率。</td>
+                    <td><code>buffer_size</code> (緩衝區大小)；<code>batch_size</code> (批次大小)；<code>prefetch</code> (預取數量)。</td>
+                    <td class="code-snippet"><code>dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))<br>dataset = dataset.shuffle(buffer_size=1000).batch(32).prefetch(1)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>數據管道與特徵預處理</strong></td>
+                    <td><code>tf.data.Dataset</code>，<code>tf.data.TextLineDataset</code>，<code>interleave()</code></td>
+                    <td><strong>高效數據加載</strong>：處理大規模數據 (如 CSV, TFRecords)。使用 <code>interleave()</code> 進行<strong>並行讀取</strong>以提高效率 ：適用於處理多個文件和大規模數據集。</td>
+                    <td><code>cycle_length</code> (並行讀取的文件數)；<code>batch_size</code> (批次大小)。</td>
+                    <td class="code-snippet"><code>dataset = tf.data.Dataset.from_tensor_slices((X, y)).batch(32)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>(Data Pipelines & Feature Prep)</strong></td>
+                    <td><code>tf.keras.layers.Embedding</code>，<code>TextVectorization</code>，<code>CategoryEncoding</code></td>
+                    <td><strong>特徵預處理層</strong>：將文本/類別特徵轉換為數值向量。<strong>詞嵌入</strong> (Word Embeddings) 處理高維文本：適用於NLP和類別數據的自動預處理。</td>
+                    <td><code>output_dim</code> (嵌入維度)；<code>output_mode</code> (輸出模式，如"tf_idf")。</td>
+                    <td class="code-snippet"><code>embedding = tf.keras.layers.Embedding(input_dim=1000, output_dim=64)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>tensorflow.train</code></td>
+                    <td>用於創建 TFRecord 文件的工具：適用於高效存儲和讀取大規模數據。</td>
+                    <td>無特定參數，用於TFRecord文件操作。</td>
+                    <td class="code-snippet"><code>writer = tf.io.TFRecordWriter('data.tfrecord')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>tensorflow_datasets</code></td>
+                    <td>數據集集合，可與 TensorFlow 一起使用：提供標準化的數據集加載接口。</td>
+                    <td>無特定參數，提供標準數據集。</td>
+                    <td class="code-snippet"><code>import tensorflow_datasets as tfds<br>ds = tfds.load('mnist')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>tensorflow_hub</code></td>
+                    <td>訓練過的機器學習模型倉庫：適用於遷移學習和模型重用。</td>
+                    <td>無特定參數，提供預訓練模型。</td>
+                    <td class="code-snippet"><code>import tensorflow_hub as hub<br>model = hub.load('https://tfhub.dev/google/imagenet/mobilenet_v2_100_224/classification/4')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>文字預處理</strong></td>
+                    <td><code>tf.strings</code></td>
+                    <td>將原始文字轉換為數值特徵的預處理層。應用於NLP任務的文字向量化：適用於文本數據的自動處理和轉換。</td>
+                    <td><code>output_mode</code> (輸出模式)；<code>max_tokens</code> (最大詞彙數)。</td>
+                    <td class="code-snippet"><code>text_vec_layer = keras.layers.TextVectorization(<br>    output_mode="tf_idf", max_tokens=1000)<br>text_vec_layer.adapt(train_texts)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>影像預處理</strong></td>
+                    <td><code>tf.image</code></td>
+                    <td>常見的影像轉換和增強操作。應用於電腦視覺任務的資料預處理：適用於圖像數據的標準化處理。</td>
+                    <td><code>size</code> (目標大小)；<code>method</code> (插值方法)。</td>
+                    <td class="code-snippet"><code>def preprocess(image, label):<br>    resized_image = tf.image.resize(image, [224, 224])<br>    return resized_image, label<br>dataset = dataset.map(preprocess)</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Chapter 14: Deep Computer Vision with CNNs - Convolutional neural networks -->
+        <section id="chapter-14">
+            <h2>第14章：使用CNN的深度電腦視覺</h2>
+            <!-- Reference table for chapter 14 - CNN architectures and transfer learning -->
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr>
+                    <td><strong>建立CNN</strong></td>
+                    <td><code>keras.layers.Conv2D</code></td>
+                    <td>建立卷積神經網路進行影像特徵提取。應用於影像分類、物體檢測等電腦視覺任務：適用於處理圖像數據的特徵學習。</td>
+                    <td><code>filters</code> (濾波器數量)；<code>kernel_size</code> (卷積核大小)；<code>strides</code> (步長)；<code>padding</code> (填充方式)；<code>activation</code> (激活函數)。</td>
+                    <td class="code-snippet"><code>model = keras.models.Sequential([<br>    keras.layers.Conv2D(64, 7, activation="relu", padding="same",<br>                        input_shape=[28, 28, 1]),<br>    keras.layers.MaxPooling2D(2),<br>    keras.layers.Conv2D(128, 3, activation="relu", padding="same"),<br>    keras.layers.Conv2D(128, 3, activation="relu", padding="same"),<br>    keras.layers.MaxPooling2D(2),<br>    keras.layers.Flatten(),<br>    keras.layers.Dense(64, activation="relu"),<br>    keras.layers.Dense(10, activation="softmax")<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>使用預訓練模型進行遷移學習</strong></td>
+                    <td><code>keras.applications.ResNet50</code></td>
+                    <td>利用預訓練的深度網路進行遷移學習。應用於小資料集上的高效能模型訓練：適用於利用現有知識快速適應新任務。</td>
+                    <td><code>weights</code> (權重類型)；<code>include_top</code> (是否包含分類頭)；<code>input_shape</code> (輸入形狀)。</td>
+                    <td class="code-snippet"><code>base_model = keras.applications.ResNet50(weights="imagenet",<br>                                         include_top=False)<br>base_model.trainable = False<br>model = keras.models.Sequential([<br>    base_model,<br>    keras.layers.GlobalAveragePooling2D(),<br>    keras.layers.Dense(10, activation="softmax")<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Chapter 15: Processing Sequences with RNNs and CNNs - Recurrent neural networks -->
+        <section id="chapter-15">
+            <h2>第15章：使用RNN和CNN處理序列</h2>
+            <!-- Reference table for chapter 15 - RNN and sequence processing -->
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr>
+                    <td><strong>建立RNN</strong></td>
+                    <td><code>keras.layers.SimpleRNN</code></td>
+                    <td>建立簡單的遞歸神經網路處理序列資料。應用於時間序列預測和序列分類：適用於基本的序列建模任務。</td>
+                    <td><code>units</code> (神經元數量)；<code>return_sequences</code> (是否返回所有時間步)；<code>input_shape</code> (輸入形狀)。</td>
+                    <td class="code-snippet"><code>model = keras.models.Sequential([<br>    keras.layers.SimpleRNN(20, return_sequences=True, input_shape=[None, 1]),<br>    keras.layers.SimpleRNN(20),<br>    keras.layers.Dense(1)<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>使用LSTM</strong></td>
+                    <td><code>keras.layers.LSTM</code></td>
+                    <td>使用長短期記憶網路處理長序列。應用於需要記憶長期依賴的序列任務：適用於處理長距離依賴關係。</td>
+                    <td><code>units</code> (神經元數量)；<code>return_sequences</code> (是否返回所有時間步)；<code>input_shape</code> (輸入形狀)。</td>
+                    <td class="code-snippet"><code>model = keras.models.Sequential([<br>    keras.layers.LSTM(20, return_sequences=True, input_shape=[None, 1]),<br>    keras.layers.LSTM(20),<br>    keras.layers.Dense(1)<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>使用GRU</strong></td>
+                    <td><code>keras.layers.GRU</code></td>
+                    <td>使用門控遞歸單元處理序列資料。應用於計算效率和效能平衡的序列任務：適用於需要平衡性能和效率的序列處理。</td>
+                    <td><code>units</code> (神經元數量)；<code>return_sequences</code> (是否返回所有時間步)；<code>input_shape</code> (輸入形狀)。</td>
+                    <td class="code-snippet"><code>model = keras.models.Sequential([<br>    keras.layers.GRU(20, return_sequences=True, input_shape=[None, 1]),<br>    keras.layers.GRU(20),<br>    keras.layers.Dense(1)<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Chapter 16: NLP with RNNs and Attention - Natural language processing -->
+        <section id="chapter-16">
+            <h2>第16章：使用RNN和注意力進行NLP</h2>
+            <!-- Reference table for chapter 16 - NLP with RNNs and embeddings -->
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr>
+                    <td><strong>字元級RNN模型</strong></td>
+                    <td><code>keras.layers.GRU</code></td>
+                    <td>建立字元級的文字生成模型。應用於文字生成和語言模型任務：適用於生成連續文本和語言建模。</td>
+                    <td><code>units</code> (神經元數量)；<code>return_sequences</code> (是否返回所有時間步)；<code>input_shape</code> (輸入形狀)。</td>
+                    <td class="code-snippet"><code>model = keras.models.Sequential([<br>    keras.layers.GRU(128, return_sequences=True, input_shape=[None, max_id]),<br>    keras.layers.GRU(128),<br>    keras.layers.Dense(max_id, activation="softmax")<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>使用遮罩</strong></td>
+                    <td><code>keras.layers.Masking</code></td>
+                    <td>處理可變長度序列的遮罩層。應用於處理填充序列時忽略填充值：適用於處理不等長序列數據。</td>
+                    <td><code>mask_value</code> (遮罩值)；<code>input_shape</code> (輸入形狀)。</td>
+                    <td class="code-snippet"><code>model = keras.models.Sequential([<br>    keras.layers.Masking(mask_value=0., input_shape=[None, 1]),<br>    keras.layers.GRU(20),<br>    keras.layers.Dense(1)<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>使用預訓練的詞嵌入</strong></td>
+                    <td><code>keras.layers.Embedding</code></td>
+                    <td>將詞彙轉換為密集向量表示。應用於捕捉詞語語義關係的NLP任務：適用於學習詞語的語義嵌入。</td>
+                    <td><code>input_dim</code> (詞彙大小)；<code>output_dim</code> (嵌入維度)；<code>input_length</code> (輸入序列長度)。</td>
+                    <td class="code-snippet"><code>model = keras.models.Sequential([<br>    keras.layers.Embedding(vocab_size, embed_size, input_length=max_length),<br>    keras.layers.GRU(128),<br>    keras.layers.Dense(1, activation="sigmoid")<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Chapter 17: Autoencoders, GANs, and Diffusion Models - Generative models -->
+        <section id="chapter-17">
+            <h2>第17章：自動編碼器、GAN和擴散模型</h2>
+            <!-- Reference table for chapter 17 - Autoencoders and GANs -->
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr>
+                    <td><strong>線性自動編碼器</strong></td>
+                    <td><code>keras.models.Sequential</code></td>
+                    <td>學習資料壓縮和重建的無監督模型。應用於降維和特徵學習：適用於學習數據的緊湊表示。</td>
+                    <td><code>input_shape</code> (輸入形狀)；<code>units</code> (編碼器神經元數量)。</td>
+                    <td class="code-snippet"><code>encoder = keras.models.Sequential([keras.layers.Dense(2, input_shape=[784])])<br>decoder = keras.models.Sequential([keras.layers.Dense(784, input_shape=[2])])<br>autoencoder = keras.models.Sequential([encoder, decoder])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>卷積自動編碼器</strong></td>
+                    <td><code>keras.layers.Conv2D</code></td>
+                    <td>使用卷積層的自動編碼器。應用於影像壓縮和生成任務：適用於圖像數據的壓縮和重建。</td>
+                    <td><code>filters</code> (濾波器數量)；<code>kernel_size</code> (卷積核大小)；<code>strides</code> (步長)；<code>padding</code> (填充方式)。</td>
+                    <td class="code-snippet"><code>conv_encoder = keras.models.Sequential([<br>    keras.layers.Reshape([28, 28, 1], input_shape=[28, 28]),<br>    keras.layers.Conv2D(16, kernel_size=3, padding="same", activation="relu"),<br>    keras.layers.MaxPool2D(pool_size=2),<br>    keras.layers.Flatten()<br>])<br>conv_decoder = keras.models.Sequential([<br>    keras.layers.Reshape([7, 7, 16], input_shape=[49*16]),<br>    keras.layers.Conv2DTranspose(16, kernel_size=3, strides=2, padding="same", activation="relu"),<br>    keras.layers.Reshape([28, 28, 1])<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>GAN</strong></td>
+                    <td><code>keras.models.Sequential</code></td>
+                    <td>生成對抗網路學習資料分佈。應用於影像生成和風格轉換：適用於生成逼真的新數據樣本。</td>
+                    <td><code>units</code> (神經元數量)；<code>activation</code> (激活函數)；<code>input_shape</code> (輸入形狀)。</td>
+                    <td class="code-snippet"><code>codings_size = 30<br>generator = keras.models.Sequential([<br>    keras.layers.Dense(100, activation="relu", input_shape=[codings_size]),<br>    keras.layers.Dense(150, activation="relu"),<br>    keras.layers.Dense(28 * 28, activation="sigmoid"),<br>    keras.layers.Reshape([28, 28])<br>])<br>discriminator = keras.models.Sequential([<br>    keras.layers.Flatten(input_shape=[28, 28]),<br>    keras.layers.Dense(150, activation="relu"),<br>    keras.layers.Dense(100, activation="relu"),<br>    keras.layers.Dense(1, activation="sigmoid")<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Chapter 18: Reinforcement Learning - RL with OpenAI Gym -->
+        <section id="chapter-18">
+            <h2>第18章：強化學習</h2>
+            <!-- Reference table for chapter 18 - Reinforcement learning basics -->
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr>
+                    <td><strong>OpenAI Gym</strong></td>
+                    <td><code>gym.make()</code></td>
+                    <td>強化學習的標準環境介面。應用於測試和開發RL演算法：適用於標準化RL環境的交互。</td>
+                    <td><code>env_name</code> (環境名稱)。</td>
+                    <td class="code-snippet"><code>import gym<br>env = gym.make("CartPole-v1")<br>obs = env.reset()<br>for step in range(1000):<br>    action = env.action_space.sample()<br>    obs, reward, done, info = env.step(action)<br>    if done:<br>        break</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>神經網路策略</strong></td>
+                    <td><code>keras.models.Sequential</code></td>
+                    <td>使用神經網路學習策略函數。應用於複雜環境的策略梯度方法：適用於學習最優行動策略。</td>
+                    <td><code>units</code> (神經元數量)；<code>activation</code> (激活函數)；<code>input_shape</code> (輸入形狀)。</td>
+                    <td class="code-snippet"><code>n_inputs = 4  # 環境觀測<br>model = keras.models.Sequential([<br>    keras.layers.Dense(5, activation="elu", input_shape=[n_inputs]),<br>    keras.layers.Dense(1, activation="sigmoid")<br>])</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Chapter 19: Training and Deploying at Scale - Model deployment -->
+        <section id="chapter-19">
+            <h2>第19章：大規模訓練和部署</h2>
+            <!-- Reference table for chapter 19 - Large-scale training and deployment -->
+            <table>
+                <tr>
+                    <th>關鍵概念</th>
+                    <th>重要函數</th>
+                    <th>功能簡介與應用場景</th>
+                    <th>Fine-tune 用參數</th>
+                    <th>範例代碼片段</th>
+                </tr>
+                <tr>
+                    <td><strong>規模化與部署</strong></td>
+                    <td><code>tf.distribute.MirroredStrategy</code>，<code>MultiWorkerMirroredStrategy</code></td>
+                    <td><strong>分散式訓練</strong>：在多 GPU 或多台機器上進行<strong>數據并行化</strong> (Data Parallelism)，以加速大規模模型的訓練：適用於大規模深度學習模型的訓練加速。</td>
+                    <td><code>batch_size</code> (批次大小，需被副本數整除)。</td>
+                    <td class="code-snippet"><code>strategy = tf.distribute.MirroredStrategy()<br>with strategy.scope():<br>    model = create_model()</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>(Scaling & Deployment)</strong></td>
+                    <td><code>TFLiteConverter</code>，<code>tf.saved_model.save</code>，<code>Keras Tuner</code></td>
+                    <td><strong>部署與優化</strong>：將模型轉換為 TFLite 格式以部署到行動/嵌入式設備；使用 <strong>Keras Tuner</strong> 進行超參數自動優化：適用於模型壓縮和自動超參數調優。</td>
+                    <td><code>max_trial_count</code> (最大嘗試次數)；搜索範圍 (超參數搜索空間)。</td>
+                    <td class="code-snippet"><code>converter = tf.lite.TFLiteConverter.from_saved_model('saved_model_path')<br>tflite_model = converter.convert()</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>使用TensorFlow Serving進行服務</strong></td>
+                    <td><code>tf.saved_model.save()</code></td>
+                    <td>將訓練好的模型儲存為SavedModel格式。應用於生產環境的模型部署：適用於TensorFlow Serving等服務框架。</td>
+                    <td><code>model</code> (要保存的模型)；<code>export_dir</code> (導出目錄)。</td>
+                    <td class="code-snippet"><code>tf.saved_model.save(model, "/tmp/my_mnist_model/1/")</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td><strong>使用Google Cloud AI Platform進行預測</strong></td>
+                    <td><code>googleapiclient.discovery.build</code></td>
+                    <td>在雲端平台部署和服務機器學習模型。應用於大規模的模型推論服務：適用於雲端AI服務的模型部署。</td>
+                    <td><code>service_name</code> (服務名稱)；<code>version</code> (版本)；<code>credentials</code> (憑證)。</td>
+                    <td class="code-snippet"><code>from googleapiclient import discovery<br>ai_platform = discovery.build('ml', 'v1')<br>response = ai_platform.projects().predict(<br>    name=project_name,<br>    body={'instances': instances}<br>).execute()</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>google.cloud.aiplatform</code></td>
+                    <td>Vertex AI 用於機器學習：適用於Google Cloud的端到端ML平台。</td>
+                    <td>無特定參數，Vertex AI 服務接口。</td>
+                    <td class="code-snippet"><code>from google.cloud import aiplatform<br>aiplatform.init(project='my-project')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>hypertune</code></td>
+                    <td>超參數調優庫。</td>
+                    <td>N/A。</td>
+                    <td class="code-snippet"><code>import hypertune<br>hpt = hypertune.HyperTune()</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>keras_tuner</code></td>
+                    <td>Keras 模型的超參數調優。</td>
+                    <td>N/A。</td>
+                    <td class="code-snippet"><code>import keras_tuner as kt<br>tuner = kt.Hyperband(build_model, objective='val_accuracy')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>tensorboard</code></td>
+                    <td>TensorFlow 可視化工具包。</td>
+                    <td>N/A。</td>
+                    <td class="code-snippet"><code>import tensorboard<br>%tensorboard --logdir logs</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>tqdm</code></td>
+                    <td>進度條庫。</td>
+                    <td>N/A。</td>
+                    <td class="code-snippet"><code>from tqdm import tqdm<br>for i in tqdm(range(100)): pass</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>transformers</code></td>
+                    <td>最新的自然語言處理庫。</td>
+                    <td>N/A。</td>
+                    <td class="code-snippet"><code>from transformers import pipeline<br>classifier = pipeline('sentiment-analysis')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>PIL</code></td>
+                    <td>Python 圖像處理庫。</td>
+                    <td>N/A。</td>
+                    <td class="code-snippet"><code>from PIL import Image<br>img = Image.open('image.jpg')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>nltk</code></td>
+                    <td>自然語言處理工具包。</td>
+                    <td>N/A。</td>
+                    <td class="code-snippet"><code>import nltk<br>nltk.download('punkt')</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><code>graphviz</code></td>
+                    <td>圖形可視化軟體。</td>
+                    <td>N/A。</td>
+                    <td class="code-snippet"><code>import graphviz<br>dot = graphviz.Digraph()</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></td>
+                </tr>
+            </table>
+        </section>
+    </main>
+
+    <!-- =============================================================================
+         GLOSSARY AND APPENDICES
+         ============================================================================= -->
+
+    <!--====================================
+        GLOSSARY
+        ===================================-->
+    <!-- Glossary section - Key terms and definitions -->
+    <section id="glossary">
+        <h2 class="section-title">術語表</h2>
+        <dl>
+            <dt>過擬合 (Overfitting)</dt>
+            <dd>模型在訓練資料上表現良好，但在新資料上表現差。參見<a href="#chapter-1">第1章</a>。</dd>
+            
+            <dt>欠擬合 (Underfitting)</dt>
+            <dd>模型無法捕捉資料中的模式。參見<a href="#chapter-1">第1章</a>。</dd>
+            
+            <dt>交叉驗證 (Cross-Validation)</dt>
+            <dd>評估模型在不同資料子集上的表現。參見<a href="#chapter-1">第1章</a>。</dd>
+            
+            <dt>梯度下降 (Gradient Descent)</dt>
+            <dd>優化演算法，用於最小化損失函數。參見<a href="#chapter-4">第4章</a>。</dd>
+            
+            <dt>正規化 (Regularization)</dt>
+            <dd>防止過擬合的技術，如L1/L2正規化。參見<a href="#chapter-4">第4章</a>。</dd>
+            
+            <dt>支援向量機 (SVM)</dt>
+            <dd>強大的分類和回歸演算法。參見<a href="#chapter-5">第5章</a>。</dd>
+            
+            <dt>核函數 (Kernel)</dt>
+            <dd>將資料映射到高維空間的函數。參見<a href="#chapter-5">第5章</a>。</dd>
+            
+            <dt>主成分分析 (PCA)</dt>
+            <dd>降維技術，保留最大變異性。參見<a href="#chapter-8">第8章</a>。</dd>
+            
+            <dt>K-平均 (K-Means)</dt>
+            <dd>聚類演算法，將資料分為K個群組。參見<a href="#chapter-9">第9章</a>。</dd>
+            
+            <dt>批次正規化 (Batch Normalization)</dt>
+            <dd>加速神經網路訓練的技術。參見<a href="#chapter-11">第11章</a>。</dd>
+            
+            <dt>卷積神經網路 (CNN)</dt>
+            <dd>專門處理影像資料的神經網路。參見<a href="#chapter-14">第14章</a>。</dd>
+            
+            <dt>遞歸神經網路 (RNN)</dt>
+            <dd>處理序列資料的神經網路。參見<a href="#chapter-15">第15章</a>。</dd>
+            
+            <dt>長短期記憶 (LSTM)</dt>
+            <dd>RNN的變體，能學習長期依賴。參見<a href="#chapter-15">第15章</a>。</dd>
+            
+            <dt>生成對抗網路 (GAN)</dt>
+            <dd>生成模型，由生成器和判別器組成。參見<a href="#chapter-17">第17章</a>。</dd>
+            
+            <dt>強化學習 (Reinforcement Learning)</dt>
+            <dd>通過試錯學習最佳策略的學習方式。參見<a href="#chapter-18">第18章</a>。</dd>
+        </dl>
+    </section>
+
+    <!--====================================
+        APPENDICES
+        ===================================-->
+    <!-- Appendices section - Common errors, debugging tips, further reading -->
+    <section id="appendices">
+        <h2 class="section-title">附錄</h2>
+        
+        <h3>常見錯誤與除錯技巧</h3>
+        <ul>
+            <li><strong>ImportError:</strong> 確保已安裝正確的套件版本。使用 <code>pip install scikit-learn==1.3.0 tensorflow==2.13.0</code></li>
+            <li><strong>Shape錯誤:</strong> 檢查資料形狀，使用 <code>print(X.shape)</code> 除錯</li>
+            <li><strong>過擬合:</strong> 使用交叉驗證、正規化或增加資料量</li>
+            <li><strong>訓練不收斂:</strong> 檢查學習率、資料正規化、損失函數</li>
+            <li><strong>記憶體不足:</strong> 使用批次處理、減少模型大小或使用GPU</li>
+        </ul>
+        
+        <h3>進一步閱讀</h3>
+        <ul>
+            <li><a href="https://scikit-learn.org/stable/documentation.html">Scikit-Learn官方文件</a></li>
+            <li><a href="https://www.tensorflow.org/guide">TensorFlow指南</a></li>
+            <li><a href="https://keras.io/">Keras文件</a></li>
+            <li><a href="https://github.com/ageron/handson-ml3">Hands-on ML 3rd Edition GitHub</a></li>
+            <li><a href="https://www.coursera.org/learn/machine-learning">Andrew Ng的機器學習課程</a></li>
+        </ul>
+        
+        <h3>版本相容性</h3>
+        <p>本速查手冊相容於：</p>
+        <ul>
+            <li>Python 3.8+</li>
+            <li>Scikit-Learn 1.3+</li>
+            <li>TensorFlow 2.13+</li>
+            <li>Keras 2.13+</li>
+            <li>NumPy 1.21+</li>
+            <li>Pandas 1.5+</li>
+        </ul>
+    </section>
+
+    <!--====================================
+        CHANGELOG
+        ===================================-->
+    <!-- Changelog section - Tracking enhancements and updates -->
+    <section id="changelog">
+        <h2 class="section-title">更新日誌</h2>
+        
+        <h3>版本 1.1.0 (2025-12-04)</h3>
+        <ul>
+            <li>重構程式碼結構：將內嵌CSS和JavaScript移至外部檔案以提升維護性</li>
+            <li>新增效能優化：懶載入MathJax，提升初始載入速度</li>
+            <li>新增離線支援：實作Service Worker以快取資源</li>
+            <li>改善SEO：新增Open Graph和Twitter Card元標籤</li>
+            <li>新增結構化資料：加入JSON-LD以協助搜尋引擎理解內容</li>
+            <li>增強錯誤處理：為MathJax載入失敗新增降級處理</li>
+            <li>版本控制：新增版本號和最後更新日期</li>
+        </ul>
+        
+        <h3>版本 1.0.0 (2025-12-04)</h3>
+        <ul>
+            <li>初始版本發佈</li>
+            <li>包含所有19章的機器學習和深度學習概念</li>
+            <li>實作搜尋功能、深色模式、響應式設計</li>
+            <li>新增語法高亮和程式碼複製功能</li>
+        </ul>
+    </section>
+
+    <!-- =============================================================================
+         FOOTER SECTION
+         ============================================================================= -->
+
+    <!--====================================
+        PAGE FOOTER
+        ===================================-->
+    <!-- Footer with copyright information - Provides attribution and source details -->
+    <footer id="footer">
+        <p>© 2023 機器學習與深度學習實戰速查手冊. 基於 Hands-on Machine Learning with Scikit-Learn, Keras, and TensorFlow, 3rd Edition.</p>
+    </footer>
+
+    <!-- =============================================================================
+         JAVASCRIPT SECTION
+         ============================================================================= -->
+
+    <!--====================================
+        DARK MODE TOGGLE SCRIPT
+        ===================================-->
+    <!-- JavaScript for dark mode functionality - Toggles body class for theme switching -->
+    <script src="scripts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    
+    <!-- Load MathJax for mathematical expressions -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</body>
+</html>

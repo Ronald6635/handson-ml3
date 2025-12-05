@@ -1,0 +1,1062 @@
+{
+  "第1章：機器學習景觀": [
+    {
+      "關鍵概念": "機器學習類型：監督學習、無監督學習、強化學習",
+      "重要函數": "無",
+      "功能簡介與應用場景": "機器學習的三種主要類型：監督學習基於標籤資料學習預測，無監督學習從未標籤資料中發現模式，強化學習通過試錯學習最佳策略。應用於分類、聚類、推薦系統、遊戲AI等。",
+      "Fine-tune 用參數": "無",
+      "範例代碼片段": "無"
+    },
+    {
+      "關鍵概念": "機器學習專案的典型步驟",
+      "重要函數": "無",
+      "功能簡介與應用場景": "機器學習專案的標準流程：定義問題、獲取資料、探索資料、準備資料、選擇模型、訓練模型、微調模型、展示解決方案。應用於確保專案的系統性和有效性。",
+      "Fine-tune 用參數": "無",
+      "範例代碼片段": "無"
+    },
+    {
+      "關鍵概念": "資料管道 (Data Pipeline)",
+      "重要函數": "sklearn.pipeline.Pipeline",
+      "功能簡介與應用場景": "將資料預處理和模型訓練結合的管道。應用於自動化機器學習工作流程，確保一致性和可重現性。",
+      "Fine-tune 用參數": "steps, memory",
+      "範例代碼片段": "from sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\npipeline = Pipeline([('scaler', StandardScaler()), ('classifier', LogisticRegression())])\npipeline.fit(X_train, y_train)"
+    },
+    {
+      "關鍵概念": "交叉驗證",
+      "重要函數": "sklearn.model_selection.cross_val_score",
+      "功能簡介與應用場景": "評估模型在不同資料子集上的表現。應用於檢測過擬合和選擇最佳模型。",
+      "Fine-tune 用參數": "cv, scoring",
+      "範例代碼片段": "from sklearn.model_selection import cross_val_score\nscores = cross_val_score(model, X, y, cv=5, scoring='accuracy')\nprint(\"Cross-validation scores:\", scores)"
+    },
+    {
+      "關鍵概念": "常見陷阱：過擬合 vs. 欠擬合",
+      "重要函數": "無",
+      "功能簡介與應用場景": "過擬合：模型在訓練資料上表現良好，但在新資料上表現差；欠擬合：模型無法捕捉資料模式。最佳實踐：使用交叉驗證、正規化、增加資料量。",
+      "Fine-tune 用參數": "無",
+      "範例代碼片段": "無"
+    }
+  ],
+  "第2章：端到端機器學習專案": [
+    {
+      "關鍵概念": "數據探索與分析函數",
+      "重要函數": "head(), info(), describe(), corr()",
+      "功能簡介與應用場景": "數據探索：檢查數據結構、統計摘要和相關性。應用於了解數據集特性和品質。",
+      "Fine-tune 用參數": "N/A。",
+      "範例代碼片段": "df.head()  # 查看前5行\ndf.info()  # 數據類型和非空值\ndf.describe()  # 統計摘要\ndf.corr()  # 相關性矩陣"
+    },
+    {
+      "關鍵概念": "超參數調優",
+      "重要函數": "GridSearchCV，RandomizedSearchCV",
+      "功能簡介與應用場景": "超參數調優：使用交叉驗證自動搜索最佳超參數組合。應用於尋找最佳模型參數。",
+      "Fine-tune 用參數": "param_grid (參數網格)，n_iter (隨機搜索的迭代次數)，cv (交叉驗證折疊數)。",
+      "範例代碼片段": "from sklearn.model_selection import GridSearchCV\nGridSearchCV(estimator, param_grid, cv=5).fit(X, y)"
+    },
+    {
+      "關鍵概念": "數據預處理",
+      "重要函數": "Pipeline，ColumnTransformer，make_pipeline",
+      "功能簡介與應用場景": "將多個數據轉換步驟和模型串聯成一個序列，實現自動化流程。應用於處理混合數據類型 (數值和類別)。",
+      "Fine-tune 用參數": "steps (包含的轉換器和最終模型列表)；memory (緩存目錄，用於加速重複調用)。",
+      "範例代碼片段": "from sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\nPipeline([('scaler', StandardScaler()), ('clf', LogisticRegression())]).fit(X, y)"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "StandardScaler，MinMaxScaler，SimpleImputer，OneHotEncoder",
+      "功能簡介與應用場景": "數據預處理：標準化/縮放特徵，處理缺失值（SimpleImputer 使用 median 或 most_frequent 策略），將類別特徵轉換為數值（獨熱編碼）。",
+      "Fine-tune 用參數": "strategy (Imputer，如 \"median\")；handle_unknown (OneHotEncoder，如 \"ignore\")；feature_range (MinMaxScaler)。",
+      "範例代碼片段": "from sklearn.preprocessing import StandardScaler\nscaler = StandardScaler().fit(X)\nX_scaled = scaler.transform(X)"
+    },
+    {
+      "關鍵概念": "數據清理選項",
+      "重要函數": "dropna()，fillna()，drop_duplicates()",
+      "功能簡介與應用場景": "數據清理：處理缺失值、重複數據和異常值。應用於提高數據品質和模型性能。",
+      "Fine-tune 用參數": "axis (刪除方向)，how (刪除條件)，value (填充值)，method (填充方法)。",
+      "範例代碼片段": "# 刪除缺失值\ndf.dropna(axis=0, how='any')\n# 填充缺失值\ndf.fillna(value=0)\n# 刪除重複行\ndf.drop_duplicates()"
+    },
+    {
+      "關鍵概念": "特徵工程",
+      "重要函數": "pd.cut()，pd.qcut()，np.c_[]",
+      "功能簡介與應用場景": "特徵工程：創建新特徵，如分箱特徵、組合特徵等。應用於提升模型性能和捕捉複雜關係。",
+      "Fine-tune 用參數": "bins (分箱數量)，labels (分箱標籤)，q (分位數)。",
+      "範例代碼片段": "import pandas as pd\nimport numpy as np\n# 分箱特徵\nhousing['income_cat'] = pd.cut(housing['median_income'], bins=[0., 1.5, 3.0, 4.5, 6., np.inf], labels=[1, 2, 3, 4, 5])\n# 組合特徵\nhousing['rooms_per_household'] = housing['total_rooms'] / housing['households']"
+    },
+    {
+      "關鍵概念": "數據分割",
+      "重要函數": "train_test_split",
+      "功能簡介與應用場景": "將數據集分割為訓練集和測試集。",
+      "Fine-tune 用參數": "test_size, train_size, random_state, shuffle, stratify。",
+      "範例代碼片段": "from sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)"
+    },
+    {
+      "關鍵概念": "自定義數據分割函數",
+      "重要函數": "shuffle_and_split_data",
+      "功能簡介與應用場景": "自定義數據分割：實現自定義的數據分割邏輯，確保訓練和測試集的獨立性。",
+      "Fine-tune 用參數": "test_ratio (測試集比例)，random_state (隨機種子)。",
+      "範例代碼片段": "def shuffle_and_split_data(data, test_ratio, random_state=42):\n    np.random.seed(random_state)\n    shuffled_indices = np.random.permutation(len(data))\n    test_set_size = int(len(data) * test_ratio)\n    test_indices = shuffled_indices[:test_set_size]\n    train_indices = shuffled_indices[test_set_size:]\n    return data.iloc[train_indices], data.iloc[test_indices]"
+    },
+    {
+      "關鍵概念": "分層分割",
+      "重要函數": "StratifiedShuffleSplit",
+      "功能簡介與應用場景": "分層隨機分割，確保每個折疊中的類別分佈與原始數據相同。",
+      "Fine-tune 用參數": "n_splits, test_size, train_size, random_state。",
+      "範例代碼片段": "from sklearn.model_selection import StratifiedShuffleSplit\nsss = StratifiedShuffleSplit(n_splits=5, test_size=0.2, random_state=42)"
+    },
+    {
+      "關鍵概念": "交叉驗證",
+      "重要函數": "StratifiedKFold",
+      "功能簡介與應用場景": "分層 K 折交叉驗證。",
+      "Fine-tune 用參數": "n_splits, shuffle, random_state。",
+      "範例代碼片段": "from sklearn.model_selection import StratifiedKFold\nskf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "cross_val_predict, cross_val_score",
+      "功能簡介與應用場景": "交叉驗證預測和評分。",
+      "Fine-tune 用參數": "estimator, X, y, cv, scoring。",
+      "範例代碼片段": "from sklearn.model_selection import cross_val_score\nscores = cross_val_score(estimator, X, y, cv=5, scoring='accuracy')"
+    },
+    {
+      "關鍵概念": "學習曲線",
+      "重要函數": "learning_curve",
+      "功能簡介與應用場景": "繪製學習曲線，顯示訓練和驗證分數隨樣本數量的變化。",
+      "Fine-tune 用參數": "estimator, X, y, train_sizes, cv。",
+      "範例代碼片段": "from sklearn.model_selection import learning_curve\ntrain_sizes, train_scores, val_scores = learning_curve(estimator, X, y, cv=5)"
+    },
+    {
+      "關鍵概念": "類別編碼",
+      "重要函數": "OrdinalEncoder",
+      "功能簡介與應用場景": "將類別特徵編碼為整數。",
+      "Fine-tune 用參數": "categories, dtype。",
+      "範例代碼片段": "from sklearn.preprocessing import OrdinalEncoder\nencoder = OrdinalEncoder().fit(X)\nX_encoded = encoder.transform(X)"
+    },
+    {
+      "關鍵概念": "Pandas數據處理",
+      "重要函數": "pd.concat()，pd.merge()，pd.pivot_table()",
+      "功能簡介與應用場景": "Pandas數據處理：數據合併、連接和重塑。應用於數據整合和特徵工程。",
+      "Fine-tune 用參數": "axis (合併軸向)，how (合併方式)，on (合併鍵)，values (聚合值)，index (行索引)，columns (列索引)。",
+      "範例代碼片段": "import pandas as pd\n# 合併數據框\npd.concat([df1, df2], axis=0)\n# 連接數據\npd.merge(df1, df2, on='key', how='left')\n# 數據透視表\npd.pivot_table(df, values='value', index='row', columns='col')"
+    },
+    {
+      "關鍵概念": "自定義轉換器",
+      "重要函數": "FunctionTransformer",
+      "功能簡介與應用場景": "使用任意可調用函數構造轉換器。",
+      "Fine-tune 用參數": "func, inverse_func, validate。",
+      "範例代碼片段": "from sklearn.preprocessing import FunctionTransformer\nimport numpy as np\ntransformer = FunctionTransformer(func=np.log1p).fit(X)"
+    },
+    {
+      "關鍵概念": "聚類相似度轉換器",
+      "重要函數": "ClusterSimilarity",
+      "功能簡介與應用場景": "聚類相似度轉換器：基於聚類質心的相似度計算新特徵。應用於將地理位置等特徵轉換為相似度分數。",
+      "Fine-tune 用參數": "n_clusters (聚類數量)，gamma (相似度參數)，random_state (隨機種子)。",
+      "範例代碼片段": "from sklearn.base import BaseEstimator, TransformerMixin\nfrom sklearn.cluster import KMeans\nclass ClusterSimilarity(BaseEstimator, TransformerMixin):\n    def __init__(self, n_clusters=10, gamma=1.0, random_state=None):\n        self.n_clusters = n_clusters\n        self.gamma = gamma\n        self.random_state = random_state\n    def fit(self, X, y=None, sample_weight=None):\n        self.kmeans_ = KMeans(self.n_clusters, random_state=self.random_state)\n        self.kmeans_.fit(X, sample_weight=sample_weight)\n        return self\n    def transform(self, X):\n        return rbf_kernel(X, self.kmeans_.cluster_centers_, gamma=self.gamma)"
+    },
+    {
+      "關鍵概念": "自定義估計器",
+      "重要函數": "BaseEstimator, TransformerMixin",
+      "功能簡介與應用場景": "基類，用於繼承自定義估計器。",
+      "Fine-tune 用參數": "N/A。",
+      "範例代碼片段": "from sklearn.base import BaseEstimator, TransformerMixin\nclass MyEstimator(BaseEstimator, TransformerMixin): pass"
+    },
+    {
+      "關鍵概念": "輸入驗證",
+      "重要函數": "check_array, check_is_fitted",
+      "功能簡介與應用場景": "輸入驗證工具。",
+      "Fine-tune 用參數": "各種參數。",
+      "範例代碼片段": "from sklearn.utils.validation import check_array\nX = check_array(X, ensure_2d=True)"
+    },
+    {
+      "關鍵概念": "目標變數轉換",
+      "重要函數": "TransformedTargetRegressor",
+      "功能簡介與應用場景": "目標變數轉換：對目標變數進行轉換的元估計器。應用於目標變數需要正規化或轉換的迴歸任務。",
+      "Fine-tune 用參數": "regressor (基礎迴歸器)，transformer (目標變數轉換器)。",
+      "範例代碼片段": "from sklearn.compose import TransformedTargetRegressor\nfrom sklearn.preprocessing import StandardScaler\nttr = TransformedTargetRegressor(regressor=LinearRegression(), transformer=StandardScaler())"
+    },
+    {
+      "關鍵概念": "數據下載",
+      "重要函數": "fetch_openml",
+      "功能簡介與應用場景": "從 OpenML 下載數據集。",
+      "Fine-tune 用參數": "name, version, as_frame。",
+      "範例代碼片段": "from sklearn.datasets import fetch_openml\ndata = fetch_openml('mnist_784', version=1, as_frame=False)"
+    }
+  ],
+  "第3章：分類": [
+    {
+      "關鍵概念": "混淆矩陣",
+      "重要函數": "confusion_matrix",
+      "功能簡介與應用場景": "計算真陽性、假陽性、真陰性、假陰性的矩陣：用於評估分類模型的基本性能，識別哪些類別容易混淆。",
+      "Fine-tune 用參數": "y_true (真實標籤), y_pred (預測標籤), labels (類別標籤), sample_weight (樣本權重)。",
+      "範例代碼片段": "from sklearn.metrics import confusion_matrix\ncm = confusion_matrix(y_true, y_pred)"
+    },
+    {
+      "關鍵概念": "精確率",
+      "重要函數": "precision_score",
+      "功能簡介與應用場景": "計算預測為正類的樣本中真正為正類的比例：適用於關注假陽性的場景，如垃圾郵件檢測。",
+      "Fine-tune 用參數": "y_true (真實標籤), y_pred (預測標籤), average (多分類平均方式), pos_label (正類標籤)。",
+      "範例代碼片段": "from sklearn.metrics import precision_score\nprecision = precision_score(y_true, y_pred)"
+    },
+    {
+      "關鍵概念": "召回率",
+      "重要函數": "recall_score",
+      "功能簡介與應用場景": "計算真正為正類的樣本中被正確預測的比例：適用於關注假陰性的場景，如疾病檢測。",
+      "Fine-tune 用參數": "y_true (真實標籤), y_pred (預測標籤), average (多分類平均方式), pos_label (正類標籤)。",
+      "範例代碼片段": "from sklearn.metrics import recall_score\nrecall = recall_score(y_true, y_pred)"
+    },
+    {
+      "關鍵概念": "F1 分數",
+      "重要函數": "f1_score",
+      "功能簡介與應用場景": "精確率和召回率的調和平均：用於平衡精確率和召回率的權衡，適用於不平衡數據集。",
+      "Fine-tune 用參數": "y_true (真實標籤), y_pred (預測標籤), average (多分類平均方式), pos_label (正類標籤)。",
+      "範例代碼片段": "from sklearn.metrics import f1_score\nf1 = f1_score(y_true, y_pred)"
+    },
+    {
+      "關鍵概念": "ROC AUC 分數",
+      "重要函數": "roc_auc_score",
+      "功能簡介與應用場景": "計算ROC曲線下的面積：用於評估二分類器的整體性能，越接近1表示性能越好。",
+      "Fine-tune 用參數": "y_true (真實標籤), y_score (預測分數), average (多分類平均方式), max_fpr (最大假陽率)。",
+      "範例代碼片段": "from sklearn.metrics import roc_auc_score\nauc = roc_auc_score(y_true, y_scores)"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "SGDClassifier，f1_score()，ROC curve",
+      "功能簡介與應用場景": "分類評估：隨機梯度下降分類器適用於大規模數據。性能評估使用 F1 分數 (Precision/Recall 權衡) 和 ROC 曲線。",
+      "Fine-tune 用參數": "調整決策閾值 (Threshold)；loss (e.g., \"hinge\")。",
+      "範例代碼片段": "from sklearn.linear_model import SGDClassifier\nfrom sklearn.metrics import f1_score\nclf = SGDClassifier(loss='hinge').fit(X, y)\nf1 = f1_score(y_true, y_pred)"
+    },
+    {
+      "關鍵概念": "多分類",
+      "重要函數": "OneVsRestClassifier，OneVsOneClassifier",
+      "功能簡介與應用場景": "多分類任務：處理多個類別的分類，使用一對多或一對一策略將二分類器擴展到多分類。",
+      "Fine-tune 用參數": "estimator (基礎二分類器)。",
+      "範例代碼片段": "from sklearn.multiclass import OneVsRestClassifier\nfrom sklearn.svm import SVC\novr_clf = OneVsRestClassifier(SVC()).fit(X, y)"
+    },
+    {
+      "關鍵概念": "混淆矩陣分析",
+      "重要函數": "ConfusionMatrixDisplay",
+      "功能簡介與應用場景": "錯誤分析：詳細分析分類錯誤的分佈，識別哪些類別容易混淆。",
+      "Fine-tune 用參數": "confusion_matrix (混淆矩陣)，display_labels (類別標籤)。",
+      "範例代碼片段": "from sklearn.metrics import ConfusionMatrixDisplay\ncm = confusion_matrix(y_true, y_pred)\ndisp = ConfusionMatrixDisplay(cm, display_labels=class_names)\ndisp.plot()"
+    },
+    {
+      "關鍵概念": "精確率/召回率權衡",
+      "重要函數": "precision_recall_curve，PrecisionRecallDisplay",
+      "功能簡介與應用場景": "閾值調整：調整決策閾值以平衡精確率和召回率，適用於不平衡數據集。",
+      "Fine-tune 用參數": "pos_label (正類標籤)，response_method (預測方法)。",
+      "範例代碼片段": "from sklearn.metrics import precision_recall_curve\nprecisions, recalls, thresholds = precision_recall_curve(y_true, y_scores)"
+    },
+    {
+      "關鍵概念": "ROC曲線",
+      "重要函數": "roc_curve，auc，RocCurveDisplay",
+      "功能簡介與應用場景": "分類器評估：繪製真陽率vs假陽率曲線，計算AUC面積評估分類器性能。",
+      "Fine-tune 用參數": "pos_label (正類標籤)。",
+      "範例代碼片段": "from sklearn.metrics import roc_curve, auc\nfpr, tpr, thresholds = roc_curve(y_true, y_scores)\nroc_auc = auc(fpr, tpr)"
+    },
+    {
+      "關鍵概念": "多標籤分類",
+      "重要函數": "MultiOutputClassifier，ClassifierChain",
+      "功能簡介與應用場景": "多標籤任務：每個樣本可以屬於多個類別的分類，使用二分類器組合處理。",
+      "Fine-tune 用參數": "estimator (基礎分類器)。",
+      "範例代碼片段": "from sklearn.multioutput import MultiOutputClassifier\nmulti_clf = MultiOutputClassifier(LogisticRegression()).fit(X, y)"
+    },
+    {
+      "關鍵概念": "多輸出分類",
+      "重要函數": "MultiOutputClassifier",
+      "功能簡介與應用場景": "多輸出任務：同時預測多個相關輸出的分類任務。",
+      "Fine-tune 用參數": "estimator (基礎分類器)。",
+      "範例代碼片段": "from sklearn.multioutput import MultiOutputClassifier\nmulti_clf = MultiOutputClassifier(LogisticRegression()).fit(X, y)"
+    },
+    {
+      "關鍵概念": "錯誤分析",
+      "重要函數": "cross_val_predict",
+      "功能簡介與應用場景": "模型診斷：使用交叉驗證預測分析模型錯誤模式，識別改進方向。",
+      "Fine-tune 用參數": "cv (交叉驗證折數)，method (預測方法)。",
+      "範例代碼片段": "from sklearn.model_selection import cross_val_predict\ny_train_pred = cross_val_predict(clf, X_train, y_train, cv=3)\nconf_mx = confusion_matrix(y_train, y_train_pred)"
+    },
+    {
+      "關鍵概念": "羅吉斯迴歸",
+      "重要函數": "LogisticRegression",
+      "功能簡介與應用場景": "邏輯斯蒂回歸：應用於二分類和多分類任務，估計類別機率。",
+      "Fine-tune 用參數": "C (正規化參數，控制正規化強度，值越大正規化越弱)；penalty ('l1', 'l2', 'elasticnet', 'l2'適用大多數情況)。",
+      "範例代碼片段": "from sklearn.linear_model import LogisticRegression\nlog_reg = LogisticRegression(C=1.0).fit(X, y)\nprobs = log_reg.predict_proba(X_test)"
+    }
+  ],
+  "第4章：訓練線性模型": [
+    {
+      "關鍵概念": "線性與廣義線性模型",
+      "重要函數": "LinearRegression",
+      "功能簡介與應用場景": "線性迴歸：使用 Normal Equation 或 SVD 直接計算最佳模型參數（最小化 MSE）。",
+      "Fine-tune 用參數": "無（封閉式解法）。",
+      "範例代碼片段": "from sklearn.linear_model import LinearRegression\nlr = LinearRegression().fit(X, y)\ny_pred = lr.predict(X_test)"
+    },
+    {
+      "關鍵概念": "Normal Equation",
+      "重要函數": "np.linalg.inv",
+      "功能簡介與應用場景": "手動實現線性回歸：使用矩陣運算直接計算參數，適用於小規模數據集。",
+      "Fine-tune 用參數": "無。",
+      "範例代碼片段": "import numpy as np\nX_b = np.c_[np.ones((100, 1)), X]  # 添加截距項\ntheta_best = np.linalg.inv(X_b.T.dot(X_b)).dot(X_b.T).dot(y)"
+    },
+    {
+      "關鍵概念": "Batch Gradient Descent",
+      "重要函數": "np.random.randn",
+      "功能簡介與應用場景": "批量梯度下降：使用整個訓練集計算梯度，適用於小規模數據集。",
+      "Fine-tune 用參數": "eta (學習率)；n_iterations (迭代次數)。",
+      "範例代碼片段": "eta = 0.1\nn_iterations = 1000\nm = 100\ntheta = np.random.randn(2, 1)\nfor iteration in range(n_iterations):\n    gradients = 2/m * X_b.T.dot(X_b.dot(theta) - y)\n    theta = theta - eta * gradients"
+    },
+    {
+      "關鍵概念": "Stochastic Gradient Descent",
+      "重要函數": "np.random.randint",
+      "功能簡介與應用場景": "隨機梯度下降：每次使用一個樣本計算梯度，適用於大規模數據集。",
+      "Fine-tune 用參數": "eta (學習率)；n_epochs (訓練輪數)。",
+      "範例代碼片段": "n_epochs = 50\nt0, t1 = 5, 50\ndef learning_schedule(t):\n    return t0 / (t + t1)\ntheta = np.random.randn(2, 1)\nfor epoch in range(n_epochs):\n    for i in range(m):\n        random_index = np.random.randint(m)\n        xi = X_b[random_index:random_index+1]\n        yi = y[random_index:random_index+1]\n        gradients = 2 * xi.T.dot(xi.dot(theta) - yi)\n        eta = learning_schedule(epoch * m + i)\n        theta = theta - eta * gradients"
+    },
+    {
+      "關鍵概念": "Mini-batch Gradient Descent",
+      "重要函數": "np.random.permutation",
+      "功能簡介與應用場景": "小批量梯度下降：使用小批量樣本計算梯度，平衡效率和穩定性。",
+      "Fine-tune 用參數": "batch_size (批量大小)；eta (學習率)。",
+      "範例代碼片段": "batch_size = 20\nn_iterations = 1000\ntheta = np.random.randn(2, 1)\nfor iteration in range(n_iterations):\n    shuffled_indices = np.random.permutation(m)\n    X_b_shuffled = X_b[shuffled_indices]\n    y_shuffled = y[shuffled_indices]\n    for i in range(0, m, batch_size):\n        xi = X_b_shuffled[i:i+batch_size]\n        yi = y_shuffled[i:i+batch_size]\n        gradients = 2/batch_size * xi.T.dot(xi.dot(theta) - yi)\n        theta = theta - eta * gradients"
+    },
+    {
+      "關鍵概念": "學習曲線",
+      "重要函數": "learning_curve",
+      "功能簡介與應用場景": "學習曲線分析：繪製訓練和驗證分數隨樣本數量的變化，檢測過擬合和欠擬合。",
+      "Fine-tune 用參數": "estimator (估計器)；X, y (數據)；train_sizes (訓練樣本比例)。",
+      "範例代碼片段": "from sklearn.model_selection import learning_curve\ntrain_sizes, train_scores, val_scores = learning_curve(\n    LinearRegression(), X, y, train_sizes=np.linspace(0.1, 1.0, 10), cv=5)\nplt.plot(train_sizes, train_scores.mean(axis=1), label='Training score')\nplt.plot(train_sizes, val_scores.mean(axis=1), label='Validation score')"
+    },
+    {
+      "關鍵概念": "Early Stopping",
+      "重要函數": "SGDRegressor",
+      "功能簡介與應用場景": "早期停止：監控驗證誤差，當誤差不再改善時停止訓練，防止過擬合。",
+      "Fine-tune 用參數": "validation_fraction (驗證集比例)；n_iter_no_change (無改善的最大迭代次數)。",
+      "範例代碼片段": "from sklearn.linear_model import SGDRegressor\nsgd_reg = SGDRegressor(penalty=None, eta0=0.1, random_state=42)\nsgd_reg.fit(X_train, y_train)\n# 手動實現早期停止\nbest_score = float('inf')\nfor epoch in range(1000):\n    sgd_reg.partial_fit(X_train, y_train)\n    y_val_predict = sgd_reg.predict(X_val)\n    val_error = mean_squared_error(y_val, y_val_predict)\n    if val_error < best_score:\n        best_score = val_error\n        best_epoch = epoch\n        best_model = clone(sgd_reg)"
+    },
+    {
+      "關鍵概念": "(Linear & Generalized Linear Models)",
+      "重要函數": "Ridge，Lasso，ElasticNet",
+      "功能簡介與應用場景": "正規化線性模型：分別使用 ℓ_2、ℓ_1 或兩者組合來約束權重，以減少過度擬合。",
+      "Fine-tune 用參數": "正規化強度 α (alpha)：值越大，約束越強。",
+      "範例代碼片段": "from sklearn.linear_model import Ridge\nridge = Ridge(alpha=0.1).fit(X, y)"
+    },
+    {
+      "關鍵概念": "隨機梯度下降",
+      "重要函數": "SGDRegressor",
+      "功能簡介與應用場景": "線性模型，使用 SGD 訓練：適用於大規模數據集的線性迴歸，通過隨機梯度下降優化參數。",
+      "Fine-tune 用參數": "loss ('squared_error', 'huber'，'squared_error'適用標準迴歸)；penalty ('l2', 'l1', 'elasticnet')；alpha (正規化強度)；learning_rate ('constant', 'optimal', 'invscaling')；eta0 (初始學習率)。",
+      "範例代碼片段": "from sklearn.linear_model import SGDRegressor\nsgd = SGDRegressor(loss='squared_error').fit(X, y)"
+    },
+    {
+      "關鍵概念": "目標變數轉換",
+      "重要函數": "TransformedTargetRegressor",
+      "功能簡介與應用場景": "對目標變數進行轉換的元估計器：適用於目標變數需要正規化或轉換的迴歸任務。",
+      "Fine-tune 用參數": "regressor (基礎迴歸器，如 LinearRegression)；transformer (目標變數轉換器，如 StandardScaler)。",
+      "範例代碼片段": "from sklearn.compose import TransformedTargetRegressor\nfrom sklearn.preprocessing import StandardScaler\nttr = TransformedTargetRegressor(regressor=LinearRegression(), transformer=StandardScaler())"
+    },
+    {
+      "關鍵概念": "特徵工程",
+      "重要函數": "add_dummy_feature",
+      "功能簡介與應用場景": "向數據集添加截距列：適用於線性模型需要顯式截距項的情況。",
+      "Fine-tune 用參數": "X (輸入數據矩陣)；value (添加的截距值，通常為1.0)。",
+      "範例代碼片段": "from sklearn.preprocessing import add_dummy_feature\nX_with_dummy = add_dummy_feature(X, value=1.0)"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "PolynomialFeatures",
+      "功能簡介與應用場景": "生成多項式和交互特徵：適用於捕捉非線性關係和特徵交互的迴歸任務。",
+      "Fine-tune 用參數": "degree (多項式維度，值越大複雜度越高)；interaction_only (是否只生成交互項)；include_bias (是否包含偏置項)。",
+      "範例代碼片段": "from sklearn.preprocessing import PolynomialFeatures\npoly = PolynomialFeatures(degree=2).fit_transform(X)"
+    },
+    {
+      "關鍵概念": "多項式回歸",
+      "重要函數": "PolynomialFeatures + LinearRegression",
+      "功能簡介與應用場景": "多項式回歸：使用多項式特徵進行線性回歸，捕捉非線性關係。",
+      "Fine-tune 用參數": "degree (多項式維度)。",
+      "範例代碼片段": "from sklearn.preprocessing import PolynomialFeatures\nfrom sklearn.linear_model import LinearRegression\npoly_features = PolynomialFeatures(degree=2, include_bias=False)\nX_poly = poly_features.fit_transform(X)\nlin_reg = LinearRegression()\nlin_reg.fit(X_poly, y)"
+    },
+    {
+      "關鍵概念": "迴歸指標",
+      "重要函數": "mean_squared_error, root_mean_squared_error",
+      "功能簡介與應用場景": "均方誤差和均方根誤差：評估迴歸模型性能的標準指標。",
+      "Fine-tune 用參數": "y_true (真實值)；y_pred (預測值)。",
+      "範例代碼片段": "from sklearn.metrics import mean_squared_error\nmse = mean_squared_error(y_true, y_pred)"
+    }
+  ],
+  "第5章：支援向量機": [
+    {
+      "關鍵概念": "支持向量機",
+      "重要函數": "SVC，LinearSVC，SVR",
+      "功能簡介與應用場景": "SVM 分類與迴歸：大邊界分類 (Large Margin Classification) 尋找最優決策邊界。使用 核心技巧 (Kernel Trick) 處理非線性數據，適用於文本分類、圖像識別、生物資訊學等任務。",
+      "Fine-tune 用參數": "C (正規化參數，控制邊界寬度，值越大越嚴格)；kernel ('rbf', 'poly', 'linear'，'rbf'適用大多數非線性問題)；gamma (RBF核心參數，'scale'自動調整，值越大越複雜)。",
+      "範例代碼片段": "from sklearn.svm import SVC\nsvc = SVC(kernel='rbf', C=1.0, gamma='scale').fit(X, y)"
+    },
+    {
+      "關鍵概念": "(Support Vector Machines, SVMs)",
+      "重要函數": "hinge loss function",
+      "功能簡介與應用場景": "SVM 理論基礎：硬邊界與軟邊界分類的數學原理。通過對偶問題優化求解，理解SVM的核心概念和損失函數設計。",
+      "Fine-tune 用參數": "N/A；相關參數為 C 和 gamma。",
+      "範例代碼片段": "N/A"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "LinearSVR",
+      "功能簡介與應用場景": "線性支持向量迴歸：適用於線性可分的迴歸任務，比標準SVR更高效。適合大規模數據集的迴歸預測。",
+      "Fine-tune 用參數": "epsilon (不敏感區間寬度，控制容忍度)；C (正規化參數)；loss ('epsilon_insensitive' 或 'squared_epsilon_insensitive')。",
+      "範例代碼片段": "from sklearn.svm import LinearSVR\nsvr = LinearSVR(epsilon=0.1, C=1.0).fit(X, y)"
+    },
+    {
+      "關鍵概念": "核心函數",
+      "重要函數": "rbf_kernel",
+      "功能簡介與應用場景": "RBF 核心函數：高斯徑向基函數，將數據映射到無限維空間。適用於大多數非線性分類任務，特別適合複雜的決策邊界。",
+      "Fine-tune 用參數": "gamma (核心係數，控制影響範圍，值越大局部性越強)；X, Y (輸入數據矩陣)。",
+      "範例代碼片段": "from sklearn.metrics.pairwise import rbf_kernel\nK = rbf_kernel(X, Y, gamma=1.0)"
+    },
+    {
+      "關鍵概念": "多項式核心",
+      "重要函數": "SVC(kernel=\"poly\")",
+      "功能簡介與應用場景": "多項式核心函數：將數據映射到高階多項式特徵空間。適用於非線性分類任務，特別適合具有多項式決策邊界的數據。",
+      "Fine-tune 用參數": "degree (多項式階數，預設3)；coef0 (獨立項係數，控制高階項影響)；C (正規化參數)；gamma (核心係數)。",
+      "範例代碼片段": "from sklearn.svm import SVC\npoly_svm = SVC(kernel=\"poly\", degree=3, coef0=1, C=5).fit(X, y)"
+    },
+    {
+      "關鍵概念": "相似性特徵",
+      "重要函數": "gaussian_rbf",
+      "功能簡介與應用場景": "相似性特徵：基於高斯RBF函數的相似性度量，將數據映射到高維空間。適用於非線性SVM的核技巧實現。",
+      "Fine-tune 用參數": "gamma (控制鐘形曲線寬度，值越大影響範圍越小)；landmark (參考點坐標)；x (輸入數據點)。",
+      "範例代碼片段": "def gaussian_rbf(x, landmark, gamma):\n    return np.exp(-gamma * np.linalg.norm(x - landmark, axis=1)**2)\n\nsimilarity_features = gaussian_rbf(X, landmark, gamma=0.3)"
+    },
+    {
+      "關鍵概念": "高斯RBF核心",
+      "重要函數": "SVC(kernel=\"rbf\")",
+      "功能簡介與應用場景": "高斯RBF核心：使用高斯徑向基函數作為核函數的SVM。適用於大多數非線性分類任務，特別適合複雜且未知的決策邊界。",
+      "Fine-tune 用參數": "gamma (核心係數，'scale'自動調整，值越大越複雜)；C (正規化參數，控制邊界寬度)。",
+      "範例代碼片段": "from sklearn.svm import SVC\nrbf_svm = SVC(kernel=\"rbf\", gamma=5, C=0.001).fit(X, y)"
+    },
+    {
+      "關鍵概念": "SVM迴歸",
+      "重要函數": "SVR",
+      "功能簡介與應用場景": "支持向量迴歸：SVM的迴歸版本，尋找最大邊界的迴歸線。適用於非線性迴歸任務，對異常值具有魯棒性。",
+      "Fine-tune 用參數": "kernel ('rbf', 'poly', 'linear')；C (正規化參數)；epsilon (不敏感區間寬度)；gamma (RBF核心參數)。",
+      "範例代碼片段": "from sklearn.svm import SVR\nsvr = SVR(kernel=\"rbf\", C=1.0, epsilon=0.1).fit(X, y)"
+    },
+    {
+      "關鍵概念": "Hinge損失函數",
+      "重要函數": "hinge loss",
+      "功能簡介與應用場景": "Hinge損失：SVM分類的損失函數，懲罰分類錯誤的樣本。數學公式：max(0, 1 - t·s)，其中t是真實標籤，s是決策函數值。",
+      "Fine-tune 用參數": "N/A；相關參數為 C (控制懲罰強度)。",
+      "範例代碼片段": "# Hinge loss calculation\nhinge_loss = np.maximum(0, 1 - t * s)"
+    },
+    {
+      "關鍵概念": "平方Hinge損失函數",
+      "重要函數": "squared hinge loss",
+      "功能簡介與應用場景": "平方Hinge損失：Hinge損失的平方版本，對異常值更敏感。數學公式：max(0, 1 - t·s)²，常用於LinearSVC的預設損失函數。",
+      "Fine-tune 用參數": "N/A；相關參數為 C (控制懲罰強度)。",
+      "範例代碼片段": "# Squared hinge loss calculation\nsquared_hinge_loss = np.maximum(0, 1 - t * s) ** 2"
+    },
+    {
+      "關鍵概念": "自定義SVM實現",
+      "重要函數": "MyLinearSVC",
+      "功能簡介與應用場景": "從頭實現線性SVM：使用批量梯度下降實現線性SVM分類器。適用於學習SVM內部機制和自定義優化。",
+      "Fine-tune 用參數": "C (正規化參數)；eta0 (初始學習率)；n_epochs (訓練輪數)。",
+      "範例代碼片段": "class MyLinearSVC(BaseEstimator):\n    def __init__(self, C=1, eta0=1, n_epochs=1000):\n        self.C = C\n        self.eta0 = eta0\n        self.n_epochs = n_epochs\n\n    def fit(self, X, y):\n        # Batch gradient descent implementation\n        # ... (implementation details)"
+    }
+  ],
+  "第6章：決策樹": [
+    {
+      "關鍵概念": "決策樹與集成方法",
+      "重要函數": "DecisionTreeClassifier/Regressor",
+      "功能簡介與應用場景": "決策樹：白箱模型。利用 CART 演算法 和 Gini 不純度/熵 進行分割。",
+      "Fine-tune 用參數": "max_depth (最大深度，控制樹的深度以防止過擬合)；min_samples_leaf (葉節點最小樣本數，用於正則化)。",
+      "範例代碼片段": "from sklearn.tree import DecisionTreeClassifier\ndt = DecisionTreeClassifier(max_depth=5).fit(X, y)"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "load_iris",
+      "功能簡介與應用場景": "載入鳶尾花數據集，用於決策樹訓練和可視化：適用於分類任務的標準數據集。",
+      "Fine-tune 用參數": "as_frame (是否返回DataFrame格式)；return_X_y (是否分離特徵和標籤)。",
+      "範例代碼片段": "from sklearn.datasets import load_iris\niris = load_iris(as_frame=True)\nX = iris.data\ny = iris.target"
+    },
+    {
+      "關鍵概念": "預測方法",
+      "重要函數": "predict_proba",
+      "功能簡介與應用場景": "估計類別概率，用於決策樹的概率預測：適用於需要概率輸出的分類任務。",
+      "Fine-tune 用參數": "X (輸入特徵矩陣)。",
+      "範例代碼片段": "proba = dt.predict_proba(X_test)\nprint(proba)  # 輸出每個類別的概率"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "predict",
+      "功能簡介與應用場景": "進行類別預測，用於決策樹的分類輸出：適用於標準分類任務。",
+      "Fine-tune 用參數": "X (輸入特徵矩陣)。",
+      "範例代碼片段": "y_pred = dt.predict(X_test)\nprint(y_pred)  # 輸出預測類別"
+    },
+    {
+      "關鍵概念": "正則化參數",
+      "重要函數": "min_samples_leaf",
+      "功能簡介與應用場景": "葉節點最小樣本數，用於控制樹的複雜度：適用於防止過擬合，提高泛化能力。",
+      "Fine-tune 用參數": "min_samples_leaf (葉節點最小樣本數，整數或比例)。",
+      "範例代碼片段": "dt_reg = DecisionTreeClassifier(min_samples_leaf=5)\ndt_reg.fit(X, y)"
+    },
+    {
+      "關鍵概念": "決策樹回歸",
+      "重要函數": "DecisionTreeRegressor",
+      "功能簡介與應用場景": "決策樹回歸器，用於連續值預測：適用於回歸任務，處理非線性關係。",
+      "Fine-tune 用參數": "max_depth (最大深度)；min_samples_split (最小分割樣本數)。",
+      "範例代碼片段": "from sklearn.tree import DecisionTreeRegressor\ndtr = DecisionTreeRegressor(max_depth=3).fit(X, y)"
+    },
+    {
+      "關鍵概念": "PCA預處理",
+      "重要函數": "make_pipeline(StandardScaler, PCA)",
+      "功能簡介與應用場景": "使用PCA對數據進行預處理，以處理軸方向敏感性：適用於改善決策樹對旋轉數據的魯棒性。",
+      "Fine-tune 用參數": "n_components (主成分數量)；whiten (是否白化)。",
+      "範例代碼片段": "from sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.decomposition import PCA\npca_pipe = make_pipeline(StandardScaler(), PCA())\nX_pca = pca_pipe.fit_transform(X)"
+    },
+    {
+      "關鍵概念": "Gini不純度",
+      "重要函數": "Gini impurity",
+      "功能簡介與應用場景": "Gini不純度公式，用於評估節點的純度：$G = 1 - \\sum_{k=1}^{K} p_k^2$，適用於CART演算法的分割標準。",
+      "Fine-tune 用參數": "criterion='gini' (分割標準)。",
+      "範例代碼片段": "# Gini不純度計算\ndef gini_impurity(counts):\n    total = sum(counts)\n    return 1 - sum((count/total)**2 for count in counts)"
+    },
+    {
+      "關鍵概念": "樹結構訪問",
+      "重要函數": "tree_",
+      "功能簡介與應用場景": "訪問決策樹的內部結構，用於分析和調試：適用於檢查樹的屬性，如深度、節點數等。",
+      "Fine-tune 用參數": "tree_.node_count (節點數)；tree_.max_depth (最大深度)。",
+      "範例代碼片段": "tree = dt.tree_\nprint(f\"節點數: {tree.node_count}\")\nprint(f\"最大深度: {tree.max_depth}\")"
+    },
+    {
+      "關鍵概念": "超參數調優",
+      "重要函數": "GridSearchCV",
+      "功能簡介與應用場景": "網格搜索交叉驗證，用於決策樹超參數調優：適用於系統性地搜索最佳參數組合。",
+      "Fine-tune 用參數": "param_grid (參數網格)；cv (交叉驗證折數)。",
+      "範例代碼片段": "from sklearn.model_selection import GridSearchCV\nparam_grid = {'max_depth': [3, 5, 7]}\ngrid = GridSearchCV(dt, param_grid, cv=5).fit(X, y)"
+    },
+    {
+      "關鍵概念": "多數投票",
+      "重要函數": "mode (from scipy.stats)",
+      "功能簡介與應用場景": "多數投票聚合，用於集成決策樹的預測：適用於隨機森林等集成方法的實現。",
+      "Fine-tune 用參數": "axis (投票軸)。",
+      "範例代碼片段": "from scipy.stats import mode\ny_pred_ensemble = mode(y_pred_matrix, axis=0)[0]"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "export_graphviz",
+      "功能簡介與應用場景": "將決策樹導出為 GraphViz DOT 格式文件，用於可視化：適用於理解和展示決策樹的結構。",
+      "Fine-tune 用參數": "out_file (輸出文件路徑)；feature_names (特徵名稱列表)；class_names (類別名稱列表)；rounded (是否圓角)；filled (是否填充顏色)。",
+      "範例代碼片段": "from sklearn.tree import export_graphviz\nexport_graphviz(dt, out_file='tree.dot', feature_names=feature_names)"
+    },
+    {
+      "關鍵概念": "決策樹可視化",
+      "重要函數": "Source.from_file",
+      "功能簡介與應用場景": "從 DOT 文件讀取並顯示決策樹圖形，用於可視化 export_graphviz 導出的樹結構：適用於在 Jupyter Notebook 中展示決策樹的可視化圖形。",
+      "Fine-tune 用參數": "filepath (DOT 文件路徑)。",
+      "範例代碼片段": "from graphviz import Source\ngraph = Source.from_file('tree.dot')\ngraph.view()"
+    },
+    {
+      "關鍵概念": "數據生成",
+      "重要函數": "make_moons",
+      "功能簡介與應用場景": "生成月亮形數據集，用於測試非線性分類：適用於測試決策樹等非線性模型的性能。",
+      "Fine-tune 用參數": "n_samples (樣本數)；noise (噪聲標準差)；random_state (隨機種子)。",
+      "範例代碼片段": "from sklearn.datasets import make_moons\nX, y = make_moons(n_samples=1000, noise=0.1, random_state=42)"
+    },
+    {
+      "關鍵概念": "交叉驗證",
+      "重要函數": "ShuffleSplit",
+      "功能簡介與應用場景": "隨機分割數據集，用於交叉驗證：適用於隨機分割訓練和測試集，確保模型評估的可靠性。",
+      "Fine-tune 用參數": "n_splits (分割次數)；train_size (訓練集比例)；test_size (測試集比例)；random_state (隨機種子)。",
+      "範例代碼片段": "from sklearn.model_selection import ShuffleSplit\nss = ShuffleSplit(n_splits=5, test_size=0.2, random_state=42)"
+    }
+  ],
+  "第7章：集成學習和隨機森林": [
+    {
+      "關鍵概念": "決策樹與集成學習",
+      "重要函數": "RandomForestClassifier，BaggingClassifier，VotingClassifier",
+      "功能簡介與應用場景": "隨機森林：通過 Bagging 結合多棵決策樹，有效降低變異性。VotingClassifier 結合不同模型的預測結果。",
+      "Fine-tune 用參數": "n_estimators (樹的數量)；max_features (每次分割時隨機採樣的特徵數)；voting 類型 ('hard' 或 'soft')。",
+      "範例代碼片段": "from sklearn.ensemble import RandomForestClassifier\nrf = RandomForestClassifier(n_estimators=100).fit(X, y)"
+    },
+    {
+      "關鍵概念": "梯度提升",
+      "重要函數": "GradientBoostingRegressor/Classifier",
+      "功能簡介與應用場景": "梯度提升 (Boosting)：序列訓練，每一步都糾正前一個模型的殘差誤差，以降低偏差：適用於提高模型準確率，特別適合處理複雜的非線性關係。",
+      "Fine-tune 用參數": "learning_rate (學習率，控制每棵樹的貢獻)；n_estimators (樹的數量)；max_depth (每棵樹的最大深度)。",
+      "範例代碼片段": "from sklearn.ensemble import GradientBoostingClassifier\ngb = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1).fit(X, y)"
+    },
+    {
+      "關鍵概念": "AdaBoost",
+      "重要函數": "AdaBoostClassifier",
+      "功能簡介與應用場景": "AdaBoost 分類器：通過迭代訓練弱學習器並調整樣本權重來提高整體性能。",
+      "Fine-tune 用參數": "n_estimators (弱學習器的數量)；learning_rate (學習率)；algorithm (演算法類型，如 'SAMME')。",
+      "範例代碼片段": "from sklearn.ensemble import AdaBoostClassifier\nada = AdaBoostClassifier(n_estimators=50).fit(X, y)"
+    },
+    {
+      "關鍵概念": "極端隨機樹",
+      "重要函數": "ExtraTreesClassifier",
+      "功能簡介與應用場景": "極端隨機樹分類器：通過隨機選擇分割特徵來增加多樣性，提高泛化能力。",
+      "Fine-tune 用參數": "n_estimators (樹的數量)；criterion (分割標準，如 'gini')；max_depth (最大深度)。",
+      "範例代碼片段": "from sklearn.ensemble import ExtraTreesClassifier\net = ExtraTreesClassifier(n_estimators=100).fit(X, y)"
+    },
+    {
+      "關鍵概念": "直方圖梯度提升",
+      "重要函數": "HistGradientBoostingRegressor",
+      "功能簡介與應用場景": "基於直方圖的梯度提升迴歸樹：使用直方圖近似來加速訓練，適合大規模數據。",
+      "Fine-tune 用參數": "learning_rate (學習率)；max_iter (最大迭代次數)；max_leaf_nodes (葉節點的最大數量)。",
+      "範例代碼片段": "from sklearn.ensemble import HistGradientBoostingRegressor\nhgb = HistGradientBoostingRegressor(max_iter=100).fit(X, y)"
+    },
+    {
+      "關鍵概念": "堆疊",
+      "重要函數": "StackingClassifier",
+      "功能簡介與應用場景": "堆疊估計器：通過訓練元模型來組合多個基礎模型的預測結果。",
+      "Fine-tune 用參數": "estimators (基礎估計器列表)；final_estimator (最終估計器)；cv (交叉驗證折疊數)。",
+      "範例代碼片段": "from sklearn.ensemble import StackingClassifier\nfrom sklearn.linear_model import LogisticRegression\nstack = StackingClassifier(estimators=[('rf', RandomForestClassifier()), ('gb', GradientBoostingClassifier())], final_estimator=LogisticRegression())"
+    },
+    {
+      "關鍵概念": "包外評估",
+      "重要函數": "oob_score，oob_decision_function_",
+      "功能簡介與應用場景": "包外評估：使用未參與訓練的樣本評估Bagging模型性能，無需額外驗證集。",
+      "Fine-tune 用參數": "oob_score (是否啟用包外評估)。",
+      "範例代碼片段": "bag_clf = BaggingClassifier(DecisionTreeClassifier(), oob_score=True, random_state=42)\nbag_clf.fit(X_train, y_train)\nprint(bag_clf.oob_score_)\nprint(bag_clf.oob_decision_function_[:3])"
+    },
+    {
+      "關鍵概念": "特徵重要性",
+      "重要函數": "feature_importances_",
+      "功能簡介與應用場景": "特徵重要性：衡量每個特徵在隨機森林中的貢獻程度，用於特徵選擇。",
+      "Fine-tune 用參數": "無特定參數，屬性返回重要性分數數組。",
+      "範例代碼片段": "from sklearn.datasets import load_iris\nrnd_clf = RandomForestClassifier(n_estimators=500, random_state=42)\nrnd_clf.fit(iris.data, iris.target)\nfor score, name in zip(rnd_clf.feature_importances_, iris.data.columns):\n    print(f'importance: {round(score, 2)}, feature: {name}')"
+    },
+    {
+      "關鍵概念": "提前停止",
+      "重要函數": "n_iter_no_change",
+      "功能簡介與應用場景": "提前停止：當驗證分數在指定迭代次數內無改善時停止訓練，防止過擬合。",
+      "Fine-tune 用參數": "n_iter_no_change (無改善迭代次數閾值)。",
+      "範例代碼片段": "gbrt = GradientBoostingRegressor(max_depth=2, n_estimators=500,\n    n_iter_no_change=10, random_state=42)\ngbrt.fit(X, y)\nprint(gbrt.n_estimators_)  # 實際使用的估計器數量"
+    },
+    {
+      "關鍵概念": "分類特徵管道處理",
+      "重要函數": "make_pipeline，OrdinalEncoder",
+      "功能簡介與應用場景": "使用管道處理分類特徵：結合編碼器和HistGradientBoostingRegressor處理混合數據類型。",
+      "Fine-tune 用參數": "categorical_features (分類特徵位置)。",
+      "範例代碼片段": "from sklearn.pipeline import make_pipeline\nfrom sklearn.compose import make_column_transformer\nfrom sklearn.preprocessing import OrdinalEncoder\nhgb_reg = make_pipeline(\n    make_column_transformer((OrdinalEncoder(), [\"ocean_proximity\"]),\n                            remainder=\"passthrough\"),\n    HistGradientBoostingRegressor(categorical_features=[0], random_state=42)\n)"
+    }
+  ],
+  "第8章：降維": [
+    {
+      "關鍵概念": "降維與流形學習",
+      "重要函數": "PCA，RandomizedPCA，KernelPCA",
+      "功能簡介與應用場景": "主成分分析 (PCA)：最流行降維演算法。通過 SVD 找出保留最大變異數的超平面：適用於數據可視化、噪聲去除和特徵提取。",
+      "Fine-tune 用參數": "n_components (目標維度或變異數比例)；svd_solver (SVD求解器，如 'randomized' 用於加速)。",
+      "範例代碼片段": "from sklearn.decomposition import PCA\npca = PCA(n_components=2).fit(X)\nX_pca = pca.transform(X)"
+    },
+    {
+      "關鍵概念": "(Dimensionality Reduction)",
+      "重要函數": "LocallyLinearEmbedding (LLE)",
+      "功能簡介與應用場景": "流形學習：應用於處理非線性數據集（如 Swiss Roll）：適用於揭示數據的低維流形結構。",
+      "Fine-tune 用參數": "n_neighbors (近鄰數)；max_iter (最大迭代次數)。",
+      "範例代碼片段": "from sklearn.manifold import LocallyLinearEmbedding\nlle = LocallyLinearEmbedding(n_neighbors=10, n_components=2).fit_transform(X)"
+    },
+    {
+      "關鍵概念": "增量PCA",
+      "重要函數": "IncrementalPCA",
+      "功能簡介與應用場景": "增量主成分分析：適用於無法一次性載入全部數據的大規模數據集。",
+      "Fine-tune 用參數": "n_components (目標維度)；whiten (是否白化數據)。",
+      "範例代碼片段": "from sklearn.decomposition import IncrementalPCA\nipca = IncrementalPCA(n_components=2).fit(X)"
+    },
+    {
+      "關鍵概念": "線性判別分析",
+      "重要函數": "LinearDiscriminantAnalysis",
+      "功能簡介與應用場景": "線性判別分析：同時進行降維和分類的監督學習方法。",
+      "Fine-tune 用參數": "solver (求解器)；shrinkage (收縮參數)；n_components (目標維度)。",
+      "範例代碼片段": "from sklearn.discriminant_analysis import LinearDiscriminantAnalysis\nlda = LinearDiscriminantAnalysis(n_components=2).fit(X, y)"
+    },
+    {
+      "關鍵概念": "Isomap",
+      "重要函數": "Isomap",
+      "功能簡介與應用場景": "Isomap 嵌入：基於測地線距離的非線性降維方法。",
+      "Fine-tune 用參數": "n_neighbors (近鄰數)；n_components (目標維度)。",
+      "範例代碼片段": "from sklearn.manifold import Isomap\niso = Isomap(n_neighbors=10, n_components=2).fit_transform(X)"
+    },
+    {
+      "關鍵概念": "多維縮放",
+      "重要函數": "MDS",
+      "功能簡介與應用場景": "多維縮放：通過保留成對距離來進行降維。",
+      "Fine-tune 用參數": "n_components (目標維度)；metric (是否使用度量距離)。",
+      "範例代碼片段": "from sklearn.manifold import MDS\nmds = MDS(n_components=2).fit_transform(X)"
+    },
+    {
+      "關鍵概念": "t-SNE",
+      "重要函數": "TSNE",
+      "功能簡介與應用場景": "t-分佈隨機鄰域嵌入：適用於高維數據的可視化，特別適合聚類分析。",
+      "Fine-tune 用參數": "n_components (目標維度)；perplexity (困惑度)；learning_rate (學習率)。",
+      "範例代碼片段": "from sklearn.manifold import TSNE\ntsne = TSNE(n_components=2, perplexity=30).fit_transform(X)"
+    },
+    {
+      "關鍵概念": "隨機投影",
+      "重要函數": "GaussianRandomProjection, SparseRandomProjection",
+      "功能簡介與應用場景": "隨機投影：使用隨機矩陣進行快速降維，基於Johnson-Lindenstrauss引理。",
+      "Fine-tune 用參數": "n_components (目標維度)；eps (誤差容忍度)。",
+      "範例代碼片段": "from sklearn.random_projection import GaussianRandomProjection\ngrp = GaussianRandomProjection(n_components=2).fit_transform(X)"
+    },
+    {
+      "關鍵概念": "Johnson-Lindenstrauss引理",
+      "重要函數": "johnson_lindenstrauss_min_dim",
+      "功能簡介與應用場景": "找到安全的隨機投影維度：根據Johnson-Lindenstrauss引理計算最小維度。",
+      "Fine-tune 用參數": "n_samples (樣本數)；eps (誤差容忍度)。",
+      "範例代碼片段": "from sklearn.random_projection import johnson_lindenstrauss_min_dim\nmin_dim = johnson_lindenstrauss_min_dim(n_samples=1000, eps=0.1)"
+    }
+  ],
+  "第9章：無監督學習": [
+    {
+      "關鍵概念": "異常檢測",
+      "重要函數": "IsolationForest",
+      "功能簡介與應用場景": "異常檢測演算法：通過隔離森林來識別異常數據點。",
+      "Fine-tune 用參數": "n_estimators (樹的數量)；contamination (污染比例)；random_state (隨機種子)。",
+      "範例代碼片段": "from sklearn.ensemble import IsolationForest\nclf = IsolationForest(random_state=42).fit(X)"
+    },
+    {
+      "關鍵概念": "無監督學習核心演算法",
+      "重要函數": "KMeans，DBSCAN，GaussianMixture (GMM)",
+      "功能簡介與應用場景": "聚類分析 (Clustering)：用於客戶分群、異常偵測。DBSCAN 基於密度，GMM 基於概率分佈：適用於發現數據中的自然群組結構。",
+      "Fine-tune 用參數": "n_clusters (聚類數，適用於KMeans和GMM)；eps (密度半徑，適用於DBSCAN)；min_samples (最小樣本數，適用於DBSCAN)。",
+      "範例代碼片段": "from sklearn.cluster import KMeans\nkmeans = KMeans(n_clusters=3).fit(X)"
+    },
+    {
+      "關鍵概念": "層次聚類",
+      "重要函數": "AgglomerativeClustering",
+      "功能簡介與應用場景": "凝聚聚類：通過自下而上合併聚類來構建層次結構。",
+      "Fine-tune 用參數": "n_clusters (聚類數)；affinity (距離度量)；linkage (鏈接方法)。",
+      "範例代碼片段": "from sklearn.cluster import AgglomerativeClustering\nagg = AgglomerativeClustering(n_clusters=3).fit(X)"
+    },
+    {
+      "關鍵概念": "增量聚類",
+      "重要函數": "MiniBatchKMeans",
+      "功能簡介與應用場景": "小批量 K-Means 聚類：適用於大規模數據集的增量聚類。",
+      "Fine-tune 用參數": "n_clusters (聚類數)；batch_size (批次大小)。",
+      "範例代碼片段": "from sklearn.cluster import MiniBatchKMeans\nmbk = MiniBatchKMeans(n_clusters=3, batch_size=100).fit(X)"
+    },
+    {
+      "關鍵概念": "圖論聚類",
+      "重要函數": "SpectralClustering",
+      "功能簡介與應用場景": "譜聚類：使用圖論中的譜圖分割來進行聚類。",
+      "Fine-tune 用參數": "n_clusters (聚類數)；affinity (親和度矩陣構造方式)。",
+      "範例代碼片段": "from sklearn.cluster import SpectralClustering\nsc = SpectralClustering(n_clusters=3).fit(X)"
+    },
+    {
+      "關鍵概念": "聚類評估",
+      "重要函數": "silhouette_samples, silhouette_score",
+      "功能簡介與應用場景": "輪廓係數計算：評估聚類質量的指標，值越接近1表示聚類越好。",
+      "Fine-tune 用參數": "X (數據矩陣)；labels (聚類標籤)；metric (距離度量)。",
+      "範例代碼片段": "from sklearn.metrics import silhouette_score\nscore = silhouette_score(X, labels)"
+    },
+    {
+      "關鍵概念": "概率聚類",
+      "重要函數": "BayesianGaussianMixture",
+      "功能簡介與應用場景": "變分貝葉斯高斯混合：自動確定最佳組件數的概率聚類方法。",
+      "Fine-tune 用參數": "n_components (組件數)；covariance_type (協方差類型)。",
+      "範例代碼片段": "from sklearn.mixture import BayesianGaussianMixture\nbgm = BayesianGaussianMixture(n_components=3).fit(X)"
+    }
+  ],
+  "第10章：使用Keras的神經網路": [
+    {
+      "關鍵概念": "多層感知器",
+      "重要函數": "MLPClassifier",
+      "功能簡介與應用場景": "多層感知器分類器：使用反向傳播訓練的神經網路分類器。",
+      "Fine-tune 用參數": "hidden_layer_sizes (隱藏層大小)；activation (激活函數)；solver (優化器)。",
+      "範例代碼片段": "from sklearn.neural_network import MLPClassifier\nmlp = MLPClassifier(hidden_layer_sizes=(100,)).fit(X, y)"
+    },
+    {
+      "關鍵概念": "深度學習核心組件",
+      "重要函數": "tf.keras.models.Sequential，tf.keras.layers.Dense",
+      "功能簡介與應用場景": "序列模型 (Sequential API)：構建 MLP 網路。全連接層：適用於構建簡單的前饋神經網路。",
+      "Fine-tune 用參數": "units (神經元數量)；activation (激活函數)；kernel_initializer (權重初始化器)。",
+      "範例代碼片段": "import tensorflow as tf\nmodel = tf.keras.Sequential([tf.keras.layers.Dense(10, activation='relu')])"
+    },
+    {
+      "關鍵概念": "感知器和多層感知器",
+      "重要函數": "Perceptron, MLPClassifier, MLPRegressor",
+      "功能簡介與應用場景": "感知器和多層感知器：基本的線性分類器和多層神經網路。",
+      "Fine-tune 用參數": "hidden_layer_sizes (隱藏層大小)；activation (激活函數)；solver (優化器)。",
+      "範例代碼片段": "from sklearn.neural_network import MLPClassifier\nmlp = MLPClassifier(hidden_layer_sizes=(100,)).fit(X, y)"
+    }
+  ],
+  "第11章：訓練深度神經網路": [
+    {
+      "關鍵概念": "(Deep Learning Core Components)",
+      "重要函數": "tf.keras.layers.BatchNormalization",
+      "功能簡介與應用場景": "批次正規化 (BN)：加速訓練並緩解梯度不穩定性：適用於穩定訓練過程，提高收斂速度。",
+      "Fine-tune 用參數": "momentum (移動平均動量)；axis (正規化軸)。",
+      "範例代碼片段": "model.add(tf.keras.layers.BatchNormalization())"
+    },
+    {
+      "關鍵概念": "正則化技術",
+      "重要函數": "tf.keras.layers.Dropout，tf.keras.regularizers.l1/l2",
+      "功能簡介與應用場景": "正則化技術：Dropout 減少神經元共適應，提升泛化能力。L1/L2 懲罰項約束權重：適用於防止過擬合，提高模型泛化性能。",
+      "Fine-tune 用參數": "rate (丟棄率)；factor (正規化因子)。",
+      "範例代碼片段": "model.add(tf.keras.layers.Dropout(0.5))"
+    }
+  ],
+  "第12章：使用TensorFlow的自訂模型和訓練": [
+    {
+      "關鍵概念": "TensorFlow 底層與客製化",
+      "重要函數": "tf.GradientTape，@tf.function",
+      "功能簡介與應用場景": "自動微分 (Autodiff)：記錄計算過程以計算梯度。使用 @tf.function 將 Python 函數轉換為 TensorFlow Graph 進行優化：適用於自定義訓練循環和複雜的梯度計算。",
+      "Fine-tune 用參數": "無特定參數，主要用於梯度計算上下文。",
+      "範例代碼片段": "import tensorflow as tf\nwith tf.GradientTape() as tape:\n    loss = compute_loss()\n    grads = tape.gradient(loss, variables)"
+    },
+    {
+      "關鍵概念": "張量與操作",
+      "重要函數": "tf.Variable，tf.constant，tf.placeholder",
+      "功能簡介與應用場景": "張量與操作：Variable (可變參數)；constant (常量)；placeholder (外部輸入)：TensorFlow的基本數據結構和操作。",
+      "Fine-tune 用參數": "無特定參數，這些是基本張量類型。",
+      "範例代碼片段": "var = tf.Variable([1.0, 2.0])\nconst = tf.constant([3.0, 4.0])"
+    }
+  ],
+  "第13章：載入和預處理資料": [
+    {
+      "關鍵概念": "資料API",
+      "重要函數": "tf.data.Dataset",
+      "功能簡介與應用場景": "高效能的資料載入和預處理管道。應用於大規模資料集的批次處理和預取：適用於優化數據輸入管道，提高訓練效率。",
+      "Fine-tune 用參數": "buffer_size (緩衝區大小)；batch_size (批次大小)；prefetch (預取數量)。",
+      "範例代碼片段": "dataset = tf.data.Dataset.from_tensor_slices((X_train, y_train))\ndataset = dataset.shuffle(buffer_size=1000).batch(32).prefetch(1)"
+    },
+    {
+      "關鍵概念": "數據管道與特徵預處理",
+      "重要函數": "tf.data.Dataset，tf.data.TextLineDataset，interleave()",
+      "功能簡介與應用場景": "高效數據加載：處理大規模數據 (如 CSV, TFRecords)。使用 interleave() 進行並行讀取以提高效率 ：適用於處理多個文件和大規模數據集。",
+      "Fine-tune 用參數": "cycle_length (並行讀取的文件數)；batch_size (批次大小)。",
+      "範例代碼片段": "dataset = tf.data.Dataset.from_tensor_slices((X, y)).batch(32)"
+    },
+    {
+      "關鍵概念": "(Data Pipelines & Feature Prep)",
+      "重要函數": "tf.keras.layers.Embedding，TextVectorization，CategoryEncoding",
+      "功能簡介與應用場景": "特徵預處理層：將文本/類別特徵轉換為數值向量。詞嵌入 (Word Embeddings) 處理高維文本：適用於NLP和類別數據的自動預處理。",
+      "Fine-tune 用參數": "output_dim (嵌入維度)；output_mode (輸出模式，如\"tf_idf\")。",
+      "範例代碼片段": "embedding = tf.keras.layers.Embedding(input_dim=1000, output_dim=64)"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "tensorflow.train",
+      "功能簡介與應用場景": "用於創建 TFRecord 文件的工具：適用於高效存儲和讀取大規模數據。",
+      "Fine-tune 用參數": "無特定參數，用於TFRecord文件操作。",
+      "範例代碼片段": "writer = tf.io.TFRecordWriter('data.tfrecord')"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "tensorflow_datasets",
+      "功能簡介與應用場景": "數據集集合，可與 TensorFlow 一起使用：提供標準化的數據集加載接口。",
+      "Fine-tune 用參數": "無特定參數，提供標準數據集。",
+      "範例代碼片段": "import tensorflow_datasets as tfds\nds = tfds.load('mnist')"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "tensorflow_hub",
+      "功能簡介與應用場景": "訓練過的機器學習模型倉庫：適用於遷移學習和模型重用。",
+      "Fine-tune 用參數": "無特定參數，提供預訓練模型。",
+      "範例代碼片段": "import tensorflow_hub as hub\nmodel = hub.load('https://tfhub.dev/google/imagenet/mobilenet_v2_100_224/classification/4')"
+    },
+    {
+      "關鍵概念": "文字預處理",
+      "重要函數": "tf.strings",
+      "功能簡介與應用場景": "將原始文字轉換為數值特徵的預處理層。應用於NLP任務的文字向量化：適用於文本數據的自動處理和轉換。",
+      "Fine-tune 用參數": "output_mode (輸出模式)；max_tokens (最大詞彙數)。",
+      "範例代碼片段": "text_vec_layer = keras.layers.TextVectorization(\n    output_mode=\"tf_idf\", max_tokens=1000)\ntext_vec_layer.adapt(train_texts)"
+    },
+    {
+      "關鍵概念": "影像預處理",
+      "重要函數": "tf.image",
+      "功能簡介與應用場景": "常見的影像轉換和增強操作。應用於電腦視覺任務的資料預處理：適用於圖像數據的標準化處理。",
+      "Fine-tune 用參數": "size (目標大小)；method (插值方法)。",
+      "範例代碼片段": "def preprocess(image, label):\n    resized_image = tf.image.resize(image, [224, 224])\n    return resized_image, label\ndataset = dataset.map(preprocess)"
+    }
+  ],
+  "第14章：使用CNN的深度電腦視覺": [
+    {
+      "關鍵概念": "建立CNN",
+      "重要函數": "keras.layers.Conv2D",
+      "功能簡介與應用場景": "建立卷積神經網路進行影像特徵提取。應用於影像分類、物體檢測等電腦視覺任務：適用於處理圖像數據的特徵學習。",
+      "Fine-tune 用參數": "filters (濾波器數量)；kernel_size (卷積核大小)；strides (步長)；padding (填充方式)；activation (激活函數)。",
+      "範例代碼片段": "model = keras.models.Sequential([\n    keras.layers.Conv2D(64, 7, activation=\"relu\", padding=\"same\",\n                        input_shape=[28, 28, 1]),\n    keras.layers.MaxPooling2D(2),\n    keras.layers.Conv2D(128, 3, activation=\"relu\", padding=\"same\"),\n    keras.layers.Conv2D(128, 3, activation=\"relu\", padding=\"same\"),\n    keras.layers.MaxPooling2D(2),\n    keras.layers.Flatten(),\n    keras.layers.Dense(64, activation=\"relu\"),\n    keras.layers.Dense(10, activation=\"softmax\")\n])"
+    },
+    {
+      "關鍵概念": "使用預訓練模型進行遷移學習",
+      "重要函數": "keras.applications.ResNet50",
+      "功能簡介與應用場景": "利用預訓練的深度網路進行遷移學習。應用於小資料集上的高效能模型訓練：適用於利用現有知識快速適應新任務。",
+      "Fine-tune 用參數": "weights (權重類型)；include_top (是否包含分類頭)；input_shape (輸入形狀)。",
+      "範例代碼片段": "base_model = keras.applications.ResNet50(weights=\"imagenet\",\n                                         include_top=False)\nbase_model.trainable = False\nmodel = keras.models.Sequential([\n    base_model,\n    keras.layers.GlobalAveragePooling2D(),\n    keras.layers.Dense(10, activation=\"softmax\")\n])"
+    }
+  ],
+  "第15章：使用RNN和CNN處理序列": [
+    {
+      "關鍵概念": "建立RNN",
+      "重要函數": "keras.layers.SimpleRNN",
+      "功能簡介與應用場景": "建立簡單的遞歸神經網路處理序列資料。應用於時間序列預測和序列分類：適用於基本的序列建模任務。",
+      "Fine-tune 用參數": "units (神經元數量)；return_sequences (是否返回所有時間步)；input_shape (輸入形狀)。",
+      "範例代碼片段": "model = keras.models.Sequential([\n    keras.layers.SimpleRNN(20, return_sequences=True, input_shape=[None, 1]),\n    keras.layers.SimpleRNN(20),\n    keras.layers.Dense(1)\n])"
+    },
+    {
+      "關鍵概念": "使用LSTM",
+      "重要函數": "keras.layers.LSTM",
+      "功能簡介與應用場景": "使用長短期記憶網路處理長序列。應用於需要記憶長期依賴的序列任務：適用於處理長距離依賴關係。",
+      "Fine-tune 用參數": "units (神經元數量)；return_sequences (是否返回所有時間步)；input_shape (輸入形狀)。",
+      "範例代碼片段": "model = keras.models.Sequential([\n    keras.layers.LSTM(20, return_sequences=True, input_shape=[None, 1]),\n    keras.layers.LSTM(20),\n    keras.layers.Dense(1)\n])"
+    },
+    {
+      "關鍵概念": "使用GRU",
+      "重要函數": "keras.layers.GRU",
+      "功能簡介與應用場景": "使用門控遞歸單元處理序列資料。應用於計算效率和效能平衡的序列任務：適用於需要平衡性能和效率的序列處理。",
+      "Fine-tune 用參數": "units (神經元數量)；return_sequences (是否返回所有時間步)；input_shape (輸入形狀)。",
+      "範例代碼片段": "model = keras.models.Sequential([\n    keras.layers.GRU(20, return_sequences=True, input_shape=[None, 1]),\n    keras.layers.GRU(20),\n    keras.layers.Dense(1)\n])"
+    }
+  ],
+  "第16章：使用RNN和注意力進行NLP": [
+    {
+      "關鍵概念": "字元級RNN模型",
+      "重要函數": "keras.layers.GRU",
+      "功能簡介與應用場景": "建立字元級的文字生成模型。應用於文字生成和語言模型任務：適用於生成連續文本和語言建模。",
+      "Fine-tune 用參數": "units (神經元數量)；return_sequences (是否返回所有時間步)；input_shape (輸入形狀)。",
+      "範例代碼片段": "model = keras.models.Sequential([\n    keras.layers.GRU(128, return_sequences=True, input_shape=[None, max_id]),\n    keras.layers.GRU(128),\n    keras.layers.Dense(max_id, activation=\"softmax\")\n])"
+    },
+    {
+      "關鍵概念": "使用遮罩",
+      "重要函數": "keras.layers.Masking",
+      "功能簡介與應用場景": "處理可變長度序列的遮罩層。應用於處理填充序列時忽略填充值：適用於處理不等長序列數據。",
+      "Fine-tune 用參數": "mask_value (遮罩值)；input_shape (輸入形狀)。",
+      "範例代碼片段": "model = keras.models.Sequential([\n    keras.layers.Masking(mask_value=0., input_shape=[None, 1]),\n    keras.layers.GRU(20),\n    keras.layers.Dense(1)\n])"
+    },
+    {
+      "關鍵概念": "使用預訓練的詞嵌入",
+      "重要函數": "keras.layers.Embedding",
+      "功能簡介與應用場景": "將詞彙轉換為密集向量表示。應用於捕捉詞語語義關係的NLP任務：適用於學習詞語的語義嵌入。",
+      "Fine-tune 用參數": "input_dim (詞彙大小)；output_dim (嵌入維度)；input_length (輸入序列長度)。",
+      "範例代碼片段": "model = keras.models.Sequential([\n    keras.layers.Embedding(vocab_size, embed_size, input_length=max_length),\n    keras.layers.GRU(128),\n    keras.layers.Dense(1, activation=\"sigmoid\")\n])"
+    }
+  ],
+  "第17章：自動編碼器、GAN和擴散模型": [
+    {
+      "關鍵概念": "線性自動編碼器",
+      "重要函數": "keras.models.Sequential",
+      "功能簡介與應用場景": "學習資料壓縮和重建的無監督模型。應用於降維和特徵學習：適用於學習數據的緊湑表示。",
+      "Fine-tune 用參數": "input_shape (輸入形狀)；units (編碼器神經元數量)。",
+      "範例代碼片段": "encoder = keras.models.Sequential([keras.layers.Dense(2, input_shape=[784])])\ndecoder = keras.models.Sequential([keras.layers.Dense(784, input_shape=[2])])\nautoencoder = keras.models.Sequential([encoder, decoder])"
+    },
+    {
+      "關鍵概念": "卷積自動編碼器",
+      "重要函數": "keras.layers.Conv2D",
+      "功能簡介與應用場景": "使用卷積層的自動編碼器。應用於影像壓縮和生成任務：適用於圖像數據的壓縮和重建。",
+      "Fine-tune 用參數": "filters (濾波器數量)；kernel_size (卷積核大小)；strides (步長)；padding (填充方式)。",
+      "範例代碼片段": "conv_encoder = keras.models.Sequential([\n    keras.layers.Reshape([28, 28, 1], input_shape=[28, 28]),\n    keras.layers.Conv2D(16, kernel_size=3, padding=\"same\", activation=\"relu\"),\n    keras.layers.MaxPool2D(pool_size=2),\n    keras.layers.Flatten()\n])\nconv_decoder = keras.models.Sequential([\n    keras.layers.Reshape([7, 7, 16], input_shape=[49*16]),\n    keras.layers.Conv2DTranspose(16, kernel_size=3, strides=2, padding=\"same\", activation=\"relu\"),\n    keras.layers.Reshape([28, 28, 1])\n])"
+    },
+    {
+      "關鍵概念": "GAN",
+      "重要函數": "keras.models.Sequential",
+      "功能簡介與應用場景": "生成對抗網路學習資料分佈。應用於影像生成和風格轉換：適用於生成逼真的新數據樣本。",
+      "Fine-tune 用參數": "units (神經元數量)；activation (激活函數)；input_shape (輸入形狀)。",
+      "範例代碼片段": "codings_size = 30\ngenerator = keras.models.Sequential([\n    keras.layers.Dense(100, activation=\"relu\", input_shape=[codings_size]),\n    keras.layers.Dense(150, activation=\"relu\"),\n    keras.layers.Dense(28 * 28, activation=\"sigmoid\"),\n    keras.layers.Reshape([28, 28])\n])\ndiscriminator = keras.models.Sequential([\n    keras.layers.Flatten(input_shape=[28, 28]),\n    keras.layers.Dense(150, activation=\"relu\"),\n    keras.layers.Dense(100, activation=\"relu\"),\n    keras.layers.Dense(1, activation=\"sigmoid\")\n])"
+    }
+  ],
+  "第18章：強化學習": [
+    {
+      "關鍵概念": "OpenAI Gym",
+      "重要函數": "gym.make()",
+      "功能簡介與應用場景": "強化學習的標準環境介面。應用於測試和開發RL演算法：適用於標準化RL環境的交互。",
+      "Fine-tune 用參數": "env_name (環境名稱)。",
+      "範例代碼片段": "import gym\nenv = gym.make(\"CartPole-v1\")\nobs = env.reset()\nfor step in range(1000):\n    action = env.action_space.sample()\n    obs, reward, done, info = env.step(action)\n    if done:\n        break"
+    },
+    {
+      "關鍵概念": "神經網路策略",
+      "重要函數": "keras.models.Sequential",
+      "功能簡介與應用場景": "使用神經網路學習策略函數。應用於複雜環境的策略梯度方法：適用於學習最優行動策略。",
+      "Fine-tune 用參數": "units (神經元數量)；activation (激活函數)；input_shape (輸入形狀)。",
+      "範例代碼片段": "n_inputs = 4  # 環境觀測\nmodel = keras.models.Sequential([\n    keras.layers.Dense(5, activation=\"elu\", input_shape=[n_inputs]),\n    keras.layers.Dense(1, activation=\"sigmoid\")\n])"
+    }
+  ],
+  "第19章：大規模訓練和部署": [
+    {
+      "關鍵概念": "規模化與部署",
+      "重要函數": "tf.distribute.MirroredStrategy，MultiWorkerMirroredStrategy",
+      "功能簡介與應用場景": "分散式訓練：在多 GPU 或多台機器上進行數據并行化 (Data Parallelism)，以加速大規模模型的訓練：適用於大規模深度學習模型的訓練加速。",
+      "Fine-tune 用參數": "batch_size (批次大小，需被副本數整除)。",
+      "範例代碼片段": "strategy = tf.distribute.MirroredStrategy()\nwith strategy.scope():\n    model = create_model()"
+    },
+    {
+      "關鍵概念": "(Scaling & Deployment)",
+      "重要函數": "TFLiteConverter，tf.saved_model.save，Keras Tuner",
+      "功能簡介與應用場景": "部署與優化：將模型轉換為 TFLite 格式以部署到行動/嵌入式設備；使用 Keras Tuner 進行超參數自動優化：適用於模型壓縮和自動超參數調優。",
+      "Fine-tune 用參數": "max_trial_count (最大嘗試次數)；搜索範圍 (超參數搜索空間)。",
+      "範例代碼片段": "converter = tf.lite.TFLiteConverter.from_saved_model('saved_model_path')\ntflite_model = converter.convert()"
+    },
+    {
+      "關鍵概念": "使用TensorFlow Serving進行服務",
+      "重要函數": "tf.saved_model.save()",
+      "功能簡介與應用場景": "將訓練好的模型儲存為SavedModel格式。應用於生產環境的模型部署：適用於TensorFlow Serving等服務框架。",
+      "Fine-tune 用參數": "model (要保存的模型)；export_dir (導出目錄)。",
+      "範例代碼片段": "tf.saved_model.save(model, \"/tmp/my_mnist_model/1/\")"
+    },
+    {
+      "關鍵概念": "使用Google Cloud AI Platform進行預測",
+      "重要函數": "googleapiclient.discovery.build",
+      "功能簡介與應用場景": "在雲端平台部署和服務機器學習模型。應用於大規模的模型推論服務：適用於雲端AI服務的模型部署。",
+      "Fine-tune 用參數": "service_name (服務名稱)；version (版本)；credentials (憑證)。",
+      "範例代碼片段": "from googleapiclient import discovery\nai_platform = discovery.build('ml', 'v1')\nresponse = ai_platform.projects().predict(\n    name=project_name,\n    body={'instances': instances}\n).execute()"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "google.cloud.aiplatform",
+      "功能簡介與應用場景": "Vertex AI 用於機器學習：適用於Google Cloud的端到端ML平台。",
+      "Fine-tune 用參數": "無特定參數，Vertex AI 服務接口。",
+      "範例代碼片段": "from google.cloud import aiplatform\naiplatform.init(project='my-project')"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "hypertune",
+      "功能簡介與應用場景": "超參數調優庫。",
+      "Fine-tune 用參數": "N/A。",
+      "範例代碼片段": "import hypertune\nhpt = hypertune.HyperTune()"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "keras_tuner",
+      "功能簡介與應用場景": "Keras 模型的超參數調優。",
+      "Fine-tune 用參數": "N/A。",
+      "範例代碼片段": "import keras_tuner as kt\ntuner = kt.Hyperband(build_model, objective='val_accuracy')"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "tensorboard",
+      "功能簡介與應用場景": "TensorFlow 可視化工具包。",
+      "Fine-tune 用參數": "N/A。",
+      "範例代碼片段": "import tensorboard\n%tensorboard --logdir logs"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "tqdm",
+      "功能簡介與應用場景": "進度條庫。",
+      "Fine-tune 用參數": "N/A。",
+      "範例代碼片段": "from tqdm import tqdm\nfor i in tqdm(range(100)): pass"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "transformers",
+      "功能簡介與應用場景": "最新的自然語言處理庫。",
+      "Fine-tune 用參數": "N/A。",
+      "範例代碼片段": "from transformers import pipeline\nclassifier = pipeline('sentiment-analysis')"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "",
+      "功能簡介與應用場景": "Python 圖像處理庫。",
+      "Fine-tune 用參數": "N/A。",
+      "範例代碼片段": "from PIL import Image\nimg = Image.open('image.jpg')"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "nltk",
+      "功能簡介與應用場景": "自然語言處理工具包。",
+      "Fine-tune 用參數": "N/A。",
+      "範例代碼片段": "import nltk\nnltk.download('punkt')"
+    },
+    {
+      "關鍵概念": "",
+      "重要函數": "graphviz",
+      "功能簡介與應用場景": "圖形可視化軟體。",
+      "Fine-tune 用參數": "N/A。",
+      "範例代碼片段": "import graphviz\ndot = graphviz.Digraph()"
+    }
+  ]
+}
