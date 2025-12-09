@@ -3,28 +3,29 @@
 <!-- meta-keywords: 機器學習, 集成學習, 隨機森林, 投票分類器, 裝袋, 提升, 堆疊, Python, Scikit-Learn -->
 <!-- meta-hashtags: #Python #機器學習 #集成學習 #隨機森林 #教學 #編程 #開發 #技術分享 #學習筆記 -->
 
-# 🐍 第7章 – 集成學習與隨機森林
+# 🐍 第7章 – 集成學習與隨機森林 (Ensemble Learning and Random Forests)
 
-本章探討集成學習技術，結合多個機器學習模型以提升預測效能與穩健性。我們將涵蓋投票分類器、裝袋與粘貼、隨機森林、提升方法如AdaBoost與梯度提升，以及堆疊。這些方法利用群眾智慧來減少過擬合並提升準確度。
-
-_此筆記本包含第7章所有範例程式碼與練習解答。_
+本章探討集成學習 (Ensemble Learning) 技術，結合多個機器學習模型以提升預測效能與穩健性。我們將涵蓋投票分類器、裝袋與粘貼、隨機森林、提升方法如AdaBoost與梯度提升，以及堆疊。這些方法利用群眾智慧來減少過擬合並提升準確度。
 
 ## 📝 本文目錄
+
 - [設定](#設定)
 - [投票分類器](#投票分類器)
 - [裝袋與粘貼](#裝袋與粘貼)
 - [隨機森林](#隨機森林)
 - [提升](#提升)
 - [堆疊](#堆疊)
-- [練習解答](#練習解答)
 
 ## 🎯 關鍵重點 (Key Takeaways)
+
 - 集成學習結合多個模型以提升效能與穩健性。
 - 投票分類器使用硬投票或軟投票來聚合預測。
 - 裝袋與粘貼通過隨機子集訓練減少過擬合。
 - 隨機森林是裝袋決策樹的擴展，具有特徵重要性。
 - 提升方法如AdaBoost與梯度提升依次修正錯誤。
 - 堆疊使用元學習器組合多個模型的預測。
+
+---
 
 ## <a id="設定"></a>設定
 
@@ -126,7 +127,9 @@ def save_fig(fig_id, tight_layout=True, fig_extension="png", resolution=300):
 - **潛在問題**: 檔案覆蓋。
 - **最佳使用情境**: 批次儲存圖表。
 
-## <a id="投票分類器"></a>投票分類器
+---
+
+## <a id="投票分類器"></a>投票分類器 (Voting Classifier)
 
 投票分類器是集成方法，結合多個個別分類器的預測以提升整體準確度和穩健性。通過聚合不同模型（如邏輯回歸、隨機森林和支援向量機）的輸出，它們利用「群眾智慧」來減少過擬合並提升未見資料的效能。本節示範如何在Scikit-Learn中實作硬投票和軟投票。
 
@@ -351,11 +354,13 @@ voting_clf
 - **潛在問題**: 無。
 - **最佳使用情境**: 除錯。
 
-## <a id="裝袋與粘貼"></a>裝袋與粘貼
+---
 
-裝袋與粘貼是集成學習技術，通過在訓練資料的隨機子集上訓練相同基礎估計器的多個實例來提升模型穩定性和準確性。裝袋（Bootstrap Aggregating）使用替換抽樣，允許實例重複，而粘貼使用不替換抽樣。這隨機性減少過擬合和變異，使集成比個別模型更穩健。在Scikit-Learn中，這些方法通過`BaggingClassifier`和`BaggingRegressor`類實作。
+## <a id="裝袋與粘貼"></a>裝袋與粘貼 (Bagging and Pasting)
 
-## Scikit-Learn中的裝袋與粘貼
+裝袋(Bootstrap Aggregating,簡稱Bagging)與粘貼(Pasting)是集成學習技術，通過在訓練資料的隨機子集上訓練相同基礎估計器的多個實例來提升模型穩定性和準確性。裝袋使用替換抽樣(replacement sampling)，允許實例重複，而粘貼使用不替換抽樣。這隨機性減少過擬合和變異，使集成比個別模型更穩健。在Scikit-Learn中，這些方法通過`BaggingClassifier`和`BaggingRegressor`類實作。
+
+### Scikit-Learn中的裝袋與粘貼
 
 ```python
 from sklearn.ensemble import BaggingClassifier
@@ -460,7 +465,7 @@ plt.show()
 - **潛在問題**: 計算密集。
 - **最佳使用情境**: 比較模型差異。
 
-## 袋外評估
+### 袋外評估
 
 袋外（Out-of-Bag）評估是裝袋集成中的技術，用於在沒有單獨驗證集的情況下評估模型效能。通過利用每個引導樣本中留出的實例，它提供對泛化誤差的無偏估計。
 
@@ -518,7 +523,9 @@ accuracy_score(y_test, y_pred)
 - **潛在問題**: 過擬合。
 - **最佳使用情境**: 最終模型評估。
 
-## <a id="隨機森林"></a>隨機森林
+---
+
+## <a id="隨機森林"></a>隨機森林 (Random Forests)
 
 隨機森林是集成學習技術，通過建構多個決策樹並組合其預測來建立更穩健和準確的模型。通過在特徵選擇和引導樣本中引入隨機性，它們減少過擬合並提升泛化優於單一決策樹。本節示範如何在Scikit-Learn中實作和使用隨機森林。
 
@@ -582,7 +589,7 @@ np.all(y_pred_bag == y_pred_rf)  # same predictions
 - **潛在問題**: 無。
 - **最佳使用情境**: 測試配置。
 
-## 特徵重要性
+### 特徵重要性
 
 機器學習模型中的特徵重要性，特別是在集成方法如隨機森林中，量化每個特徵對模型預測的貢獻程度。通過分析特徵如何在決策樹中減少雜質（如基尼雜質），我們可以識別最有影響力的變數，有助於特徵選擇、模型解釋和資料理解。本節示範如何使用Scikit-Learn計算和可視化特徵重要性。
 
@@ -671,11 +678,13 @@ plt.show()
 - **潛在問題**: 高維資料。
 - **最佳使用情境**: 影像特徵分析。
 
-## <a id="提升"></a>提升
+---
+
+## <a id="提升"></a>提升 (Boosting)
 
 提升是集成學習技術，依次訓練弱學習器，其中每個後續模型關注前一個的錯誤。這方法通常導致強預測效能，因為它結合簡單模型成為強集成。常見提升演算法包括AdaBoost和梯度提升。
 
-## AdaBoost
+### AdaBoost
 
 **AdaBoost（Adaptive Boosting）**是集成學習技術，結合多個弱分類器以建立強分類器。它通過依次訓練弱學習器運作，其中每個學習器*更關注前一個誤分類的實例*。最終預測通過結合所有弱學習器的加權輸出進行，導致提升準確度和穩健性。
 
@@ -828,7 +837,7 @@ plot_decision_boundary(svm_ada_clf, X_train, y_train)
 
 使用SVM作為AdaBoost中的基礎估計器時，重要的是設定`probability=True`以啟用機率估計，這在提升過程中使用。
 
-## 梯度提升
+### 梯度提升 (Gradient Boosting)
 
 梯度提升是集成學習技術，依次建構模型，其中*每個新模型修正前一個集成的錯誤（殘差）*。通過迭代擬合弱學習器到殘差，它最小化可微損失函數，通常導致高度準確的預測。本節示範手動實作和使用Scikit-Learn的GradientBoostingRegressor。
 
@@ -1025,11 +1034,11 @@ plt.show()
 - **潛在問題**: 圖表複雜。
 - **最佳使用情境**: 教育目的。
 
-### 梯度提升中的殘差錯誤解釋
+#### 梯度提升中的殘差錯誤解釋
 
 在梯度提升中，每個新模型被訓練來預測*前一個集成錯誤的殘差（差異）*。這個迭代過程通過專注於先前模型的錯誤來最小化整體錯誤。
 
-#### 範例中的關鍵步驟：
+##### 範例中的關鍵步驟：
 - **資料集建立**：生成二次資料集與`y = 3x² + 高斯雜訊`以模擬非線性關係。
 - **第一棵樹（`tree_reg1`）**：擬合原始資料`(X, y)`，擷取初始近似。
 - **殘差計算**：`y2 = y - tree_reg1.predict(X)`計算第一棵樹的錯誤（殘差）。
@@ -1037,7 +1046,7 @@ plt.show()
 - **第三棵樹（`tree_reg3`）**：進一步精煉通過計算`y3 = y2 - tree_reg2.predict(X)`並擬合於`(X, y3)`。
 - **集成預測**：最終預測總和所有樹：`tree_reg1.predict(X_new) + tree_reg2.predict(X_new) + tree_reg3.predict(X_new)`，近似真實二次函數。
 
-#### 圖7–9的解釋：
+##### 圖7–9的解釋：
 圖表使用3×2網格可視化梯度提升過程：
 - **頂列**：顯示個別樹於殘差的預測（左：`tree_reg1`於原始資料；右：前兩棵樹集成）。
 - **中列**：`tree_reg2`於`y2`殘差（左），以及前三棵樹集成（右）。
@@ -1070,22 +1079,22 @@ gbrt.fit(X, y)
 
 然後，以下程式碼片段示範另一個Gradient Boosting Regressor模型的實例化和訓練以供比較，具有不同的超參數：
 
-#### 程式碼分解
+##### 程式碼分解
 - **實例化**：建立名為`gbrt_best`的實例，具有調校的超參數以提升效能。
 - **訓練**：`gbrt_best.fit(X, y)`在特徵矩陣`X`和目標向量`y`上訓練模型。這個方法迭代建構集成，擬合每個樹於先前預測的殘差（錯誤）。
 
-#### 關鍵參數
+##### 關鍵參數
 - `max_depth=2`：限制每個決策樹深度為2，防止過擬合通過保持樹淺且訓練快（儘管這可能低估複雜資料）。
 - `learning_rate=0.05`：控制每個新樹對集成的貢獻；較低率需要更多樹以收斂但通常導致更好泛化。
 - `n_estimators=500`：設定提升階段（樹）數量為500，高於先前範例，允許模型學習更複雜模式但增加計算時間。
 - `n_iter_no_change=10`：啟用早期停止；如果驗證分數在10個連續迭代中沒有改善，訓練提前停止以節省時間並防止過擬合。
 - `random_state=42`：通過植入隨機數生成器確保可重複結果。
 
-#### 運作方式
+##### 運作方式
 - 內部使用指定損失函數（預設平方誤差）計算梯度並更新模型。
 - 每個新樹訓練於當前集成的殘差，逐步改善預測。
 
-#### 陷阱
+##### 陷阱
 - `n_iter_no_change`需要驗證集，自動分割10%訓練資料（透過`validation_fraction=0.1`在類別預設）除非覆蓋，這可能影響小資料集效能。
 - 確保資料預處理（例如，處理缺失值或縮放特徵）事先進行，因為`X`或`y`格式不當（例如，非數值型別）可能引發內部驗證錯誤。
 - 對於較大資料集（n_samples >= 10,000），考慮更快的`HistGradientBoostingRegressor`變體在類別文件提及。
@@ -1283,7 +1292,7 @@ pd.Series(hgb_rmses).describe()
 - **潛在問題**: 負分數處理。
 - **最佳使用情境**: 模型驗證。
 
-## 直方圖基礎梯度提升（HistGradientBoostingRegressor）
+### 直方圖基礎梯度提升（HistGradientBoostingRegressor）
 
 `HistGradientBoostingRegressor`是梯度提升的高效實作，適用於大型資料集。與傳統梯度提升不同，它將連續特徵離散化為區間（直方圖），顯著加速訓練並減少記憶體使用。這個方法特別適用於具有數萬或更多樣本的資料集。
 
@@ -1295,7 +1304,9 @@ pd.Series(hgb_rmses).describe()
 
 在Scikit-Learn中，`HistGradientBoostingRegressor`可用作`GradientBoostingRegressor`的即插即用替代品，提供更好可擴充性和效能以進行真實世界機器學習任務。
 
-## <a id="堆疊"></a>堆疊
+---
+
+## <a id="堆疊"></a>堆疊 (Stacking)
 
 **堆疊（Stacked Generalization）**是集成學習技術，結合多個模型通過訓練元學習器（混成器）於其預測上。這方法可以提升效能，因為它利用不同模型的優勢並通常優於簡單集成方法如投票或裝袋。本節示範如何在Scikit-Learn中實作堆疊。
 
@@ -1369,609 +1380,6 @@ stacking_clf.final_estimator_.n_features_in_ # number of features used by the fi
 - **核心功能**: 檢查元學習器輸入。
 - **潛在問題**: 無。
 - **最佳使用情境**: 除錯。
-
-## <a id="練習解答"></a>練習解答
-
-## 1. 到 7.
-
-1. 如果您訓練了五個不同的模型，每個都達到95%準確度，您可以嘗試將它們結合到投票集成中，這通常會給您更好的結果。它在模型非常不同時效果更好（例如，SVM分類器、決策樹分類器、邏輯回歸分類器等）。如果它們在不同訓練實例上訓練甚至更好（這是裝袋和粘貼集成的全部要點），但如果不是這仍然有效只要模型非常不同。
-2. 硬投票分類器只計算集成中每個分類器的投票，並選取獲得最多投票的類別。軟投票分類器計算每個類別的平均估計類別機率，並選取具有最高機率的類別。這給予高信心投票更多權重，通常表現更好，但只在每個分類器能夠估計類別機率時運作（例如，Scikit-Learn中的SVM分類器您必須設定`probability=True`）。
-3. 相當可能通過將裝袋集成分散到多個伺服器來加速訓練，因為集成中的每個預測器獨立於其他預測器。同樣適用於粘貼集成和隨機森林，基於相同原因。然而，提升集成中的每個預測器基於前一個預測器建構，所以訓練必然是順序的，您不會通過將訓練分散到多個伺服器獲得任何東西。關於堆疊集成，一層中的所有預測器彼此獨立，所以它們可以在多個伺服器上平行訓練。然而，一層中的預測器只能在前一層的所有預測器訓練後訓練。
-4. 使用袋外評估，裝袋集成中的每個預測器使用未訓練它的實例評估（它們被留出）。這使得可能在沒有額外驗證集需求的情況下對集成有相當無偏評估。因此，您有更多實例可用於訓練，您的集成可以稍微表現更好。
-5. 在隨機森林中生長樹時，只考慮每個節點分裂的隨機特徵子集。這也適用於極端隨機樹，但它們更進一步：而不是像常規決策樹那樣尋找最佳可能門檻，它們對每個特徵使用隨機門檻。這額外隨機性作為正規化形式：如果隨機森林過擬合訓練資料，極端隨機樹可能表現更好。此外，由於極端隨機樹不尋找最佳可能門檻，它們訓練快得多。然而，它們既不比隨機森林快也不慢用於預測。
-6. 如果您的AdaBoost集成低擬合訓練資料，您可以嘗試增加估計器數量或減少基礎估計器的正規化超參數。您也可以稍微增加學習率嘗試。
-7. 如果您的梯度提升集成過擬合訓練集，您應該嘗試減少學習率。您可以使用早期停止來找到正確的預測器數量（您可能有太多）。
-
-## 8. 投票分類器
-
-練習：_載入MNIST資料並分割成訓練集、驗證集和測試集（例如，使用50,000個實例訓練、10,000驗證、10,000測試）。_
-
-MNIST資料集之前已載入。資料集已經分割成訓練集（前60,000個實例）和測試集（最後10,000個實例），訓練集已經洗牌。所以我們只需要從新訓練集中取前50,000個實例，下一個10,000驗證，最後10,000測試：
-
-```python
-X_train, y_train = X_mnist[:50_000], y_mnist[:50_000]
-X_valid, y_valid = X_mnist[50_000:60_000], y_mnist[50_000:60_000]
-X_test, y_test = X_mnist[60_000:], y_mnist[60_000:]
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `X_train, y_train = X_mnist[:50_000], y_mnist[:50_000]`: 設定訓練集。
-2. `X_valid, y_valid = X_mnist[50_000:60_000], y_mnist[50_000:60_000]`: 設定驗證集。
-3. `X_test, y_test = X_mnist[60_000:], y_mnist[60_000:]`: 設定測試集。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 分割MNIST資料。
-- **潛在問題**: 資料順序。
-- **最佳使用情境**: 標準分割。
-
-練習：_然後訓練各種分類器，例如隨機森林分類器、極端隨機樹分類器和SVM。_
-
-```python
-from sklearn.ensemble import ExtraTreesClassifier
-from sklearn.svm import LinearSVC
-from sklearn.neural_network import MLPClassifier
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `from sklearn.ensemble import ExtraTreesClassifier`: 匯入極端隨機樹。
-2. `from sklearn.svm import LinearSVC`: 匯入線性SVM。
-3. `from sklearn.neural_network import MLPClassifier`: 匯入多層感知器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 匯入分類器。
-- **潛在問題**: 無。
-- **最佳使用情境**: 多樣分類器。
-
-注意：`LinearSVC`有`dual`超參數，其預設值將從Scikit-Learn 1.5中的`True`變更為`"auto"`。為了確保此筆記本繼續產生相同輸出，我明確設定它為`True`。請參閱[文件](https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html)以取得更多詳細資訊。
-
-```python
-random_forest_clf = RandomForestClassifier(n_estimators=100, random_state=42)
-extra_trees_clf = ExtraTreesClassifier(n_estimators=100, random_state=42)
-svm_clf = LinearSVC(max_iter=100, tol=20, dual=True, random_state=42)
-mlp_clf = MLPClassifier(random_state=42)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `random_forest_clf = RandomForestClassifier(...)`: 建立隨機森林。
-2. `extra_trees_clf = ExtraTreesClassifier(...)`: 建立極端隨機樹。
-3. `svm_clf = LinearSVC(...)`: 建立線性SVM。
-4. `mlp_clf = MLPClassifier(...)`: 建立MLP。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 實例化分類器。
-- **潛在問題**: 收斂問題。
-- **最佳使用情境**: 比較模型。
-
-```python
-estimators = [random_forest_clf, extra_trees_clf, svm_clf, mlp_clf]
-for estimator in estimators:
-    print("Training the", estimator)
-    estimator.fit(X_train, y_train)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `estimators = [...]`: 建立估計器列表。
-2. `for estimator in estimators`: 遍歷估計器。
-3. `print("Training the", estimator)`: 列印訓練訊息。
-4. `estimator.fit(X_train, y_train)`: 訓練估計器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 訓練所有分類器。
-- **潛在問題**: 時間成本。
-- **最佳使用情境**: 批次訓練。
-
-```python
-[estimator.score(X_valid, y_valid) for estimator in estimators]
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `[estimator.score(X_valid, y_valid) for estimator in estimators]`: 計算驗證準確度。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 評估驗證效能。
-- **潛在問題**: 無。
-- **最佳使用情境**: 模型選擇。
-
-線性SVM遠遠落後其他分類器。然而，讓我們暫時保留它因為它可能改善投票分類器的效能。
-
-練習：_接下來，嘗試將\[分類器\]結合到優於它們全部的集成，使用硬或軟投票分類器。_
-
-```python
-from sklearn.ensemble import VotingClassifier
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `from sklearn.ensemble import VotingClassifier`: 匯入投票分類器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 匯入投票分類器。
-- **潛在問題**: 無。
-- **最佳使用情境**: 集成建構。
-
-```python
-named_estimators = [
-    ("random_forest_clf", random_forest_clf),
-    ("extra_trees_clf", extra_trees_clf),
-    ("svm_clf", svm_clf),
-    ("mlp_clf", mlp_clf),
-]
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `named_estimators = [...]`: 建立具名估計器列表。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 準備具名估計器。
-- **潛在問題**: 無。
-- **最佳使用情境**: 堆疊準備。
-
-```python
-voting_clf = VotingClassifier(named_estimators)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf = VotingClassifier(named_estimators)`: 建立投票分類器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 實例化投票分類器。
-- **潛在問題**: 無。
-- **最佳使用情境**: 集成。
-
-```python
-voting_clf.fit(X_train, y_train)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf.fit(X_train, y_train)`: 訓練投票分類器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 訓練集成。
-- **潛在問題**: 時間成本。
-- **最佳使用情境**: 最終訓練。
-
-```python
-voting_clf.score(X_valid, y_valid)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf.score(X_valid, y_valid)`: 評估驗證準確度。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 檢查集成效能。
-- **潛在問題**: 無。
-- **最佳使用情境**: 驗證。
-
-`VotingClassifier`複製了每個分類器，並使用類別索引作為標籤訓練複製品，而不是原始類別名稱。因此，要評估這些複製品我們需要提供類別索引以及。為了將類別轉換為類別索引，我們可以使用`LabelEncoder`：
-
-```python
-from sklearn.preprocessing import LabelEncoder
-
-encoder = LabelEncoder()
-y_valid_encoded = encoder.fit_transform(y_valid)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `from sklearn.preprocessing import LabelEncoder`: 匯入標籤編碼器。
-2. `encoder = LabelEncoder()`: 建立編碼器。
-3. `y_valid_encoded = encoder.fit_transform(y_valid)`: 編碼標籤。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 編碼類別標籤。
-- **潛在問題**: 順序問題。
-- **最佳使用情境**: 分類準備。
-
-然而，在MNIST案例中，更簡單地將類別名稱轉換為整數，因為數字匹配類別id：
-
-```python
-y_valid_encoded = y_valid.astype(np.int64)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `y_valid_encoded = y_valid.astype(np.int64)`: 轉換為整數。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 簡單類別轉換。
-- **潛在問題**: 無。
-- **最佳使用情境**: MNIST特有。
-
-現在讓我們評估分類器複製品：
-
-```python
-[estimator.score(X_valid, y_valid_encoded)
- for estimator in voting_clf.estimators_]
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `[estimator.score(X_valid, y_valid_encoded) for estimator in voting_clf.estimators_]`: 評估複製品。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 檢查個別效能。
-- **潛在問題**: 無。
-- **最佳使用情境**: 比較。
-
-讓我們移除SVM看看效能是否改善。它是可能的移除估計器通過設定它為`"drop"`使用`set_params()`像這樣：
-
-```python
-voting_clf.set_params(svm_clf="drop")
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf.set_params(svm_clf="drop")`: 移除SVM。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 動態移除估計器。
-- **潛在問題**: 無。
-- **最佳使用情境**: 調校集成。
-
-這更新了估計器列表：
-
-```python
-voting_clf.estimators
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf.estimators`: 檢查估計器列表。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 驗證變更。
-- **潛在問題**: 無。
-- **最佳使用情境**: 除錯。
-
-然而，它沒有更新_訓練_估計器列表：
-
-```python
-voting_clf.estimators_
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf.estimators_`: 檢查訓練估計器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 檢查訓練狀態。
-- **潛在問題**: 不一致。
-- **最佳使用情境**: 除錯。
-
-```python
-voting_clf.named_estimators_
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf.named_estimators_`: 檢查具名估計器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 檢查具名估計器。
-- **潛在問題**: 無。
-- **最佳使用情境**: 除錯。
-
-所以我們可以重新擬合`VotingClassifier`，或只是從列表移除SVM，在`estimators_`和`named_estimators_`中：
-
-```python
-svm_clf_trained = voting_clf.named_estimators_.pop("svm_clf")
-voting_clf.estimators_.remove(svm_clf_trained)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `svm_clf_trained = voting_clf.named_estimators_.pop("svm_clf")`: 移除具名估計器。
-2. `voting_clf.estimators_.remove(svm_clf_trained)`: 移除估計器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 手動移除訓練估計器。
-- **潛在問題**: 無。
-- **最佳使用情境**: 調校。
-
-現在讓我們再次評估`VotingClassifier`：
-
-```python
-voting_clf.score(X_valid, y_valid)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf.score(X_valid, y_valid)`: 重新評估。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 檢查改善。
-- **潛在問題**: 無。
-- **最佳使用情境**: 驗證調校。
-
-稍微更好！SVM正在傷害效能。現在讓我們嘗試使用軟投票分類器。我們實際上不需要重新訓練分類器，我們可以只是設定`voting`為`"soft"`：
-
-```python
-voting_clf.voting = "soft"
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf.voting = "soft"`: 切換到軟投票。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 變更投票策略。
-- **潛在問題**: 無。
-- **最佳使用情境**: 比較策略。
-
-```python
-voting_clf.score(X_valid, y_valid)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf.score(X_valid, y_valid)`: 評估軟投票。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 比較軟投票效能。
-- **潛在問題**: 無。
-- **最佳使用情境**: 策略選擇。
-
-不，硬投票在這種情況贏得。
-
-_一旦您找到\[優於個別預測器的集成\]，在測試集上嘗試它。與個別分類器比較，它改善多少？_
-
-```python
-voting_clf.voting = "hard"
-voting_clf.score(X_test, y_test)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `voting_clf.voting = "hard"`: 切回硬投票。
-2. `voting_clf.score(X_test, y_test)`: 測試集評估。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 最終測試評估。
-- **潛在問題**: 無。
-- **最佳使用情境**: 最終效能。
-
-```python
-[estimator.score(X_test, y_test.astype(np.int64))
- for estimator in voting_clf.estimators_]
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `[estimator.score(X_test, y_test.astype(np.int64)) for estimator in voting_clf.estimators_]`: 個別測試準確度。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 比較個別與集成。
-- **潛在問題**: 無。
-- **最佳使用情境**: 效能分析。
-
-投票分類器將最佳模型的錯誤率從約3%減少到2.7%，意味著10%更少錯誤。
-
-## 9. 堆疊集成
-
-練習：_執行前一個練習中的個別分類器以在驗證集上進行預測，並建立新訓練集與所有分類器對影像的預測集合：每個訓練實例是向量，包含來自所有分類器的影像類別預測集合，目標是影像的類別。訓練分類器在此新訓練集上。_
-
-```python
-X_valid_predictions = np.empty((len(X_valid), len(estimators)), dtype=object)
-
-for index, estimator in enumerate(estimators):
-    X_valid_predictions[:, index] = estimator.predict(X_valid)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `X_valid_predictions = np.empty((len(X_valid), len(estimators)), dtype=object)`: 建立預測陣列。
-2. `for index, estimator in enumerate(estimators)`: 遍歷估計器。
-3. `X_valid_predictions[:, index] = estimator.predict(X_valid)`: 收集預測。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 建立堆疊訓練資料。
-- **潛在問題**: 記憶體使用。
-- **最佳使用情境**: 堆疊準備。
-
-```python
-X_valid_predictions
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `X_valid_predictions`: 顯示預測陣列。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 檢查預測資料。
-- **潛在問題**: 無。
-- **最佳使用情境**: 驗證。
-
-```python
-rnd_forest_blender = RandomForestClassifier(n_estimators=200, oob_score=True,
-                                            random_state=42)
-rnd_forest_blender.fit(X_valid_predictions, y_valid)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `rnd_forest_blender = RandomForestClassifier(...)`: 建立混成器。
-2. `rnd_forest_blender.fit(X_valid_predictions, y_valid)`: 訓練混成器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 訓練元學習器。
-- **潛在問題**: 過擬合。
-- **最佳使用情境**: 堆疊。
-
-```python
-rnd_forest_blender.oob_score_
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `rnd_forest_blender.oob_score_`: 取得OOB分數。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 評估混成器。
-- **潛在問題**: 無。
-- **最佳使用情境**: 驗證。
-
-您可以微調這個混成器或嘗試其他型別混成器（例如，`MLPClassifier`），然後使用交叉驗證選擇最佳一個，一如往常。
-
-練習：_恭喜，您現在訓練了混成器，並與分類器一起形成堆疊集成！現在在測試集上評估集成。對於測試集中的每個影像，使用所有分類器進行預測，然後餵給混成器以取得集成的預測。與您之前訓練的投票分類器比較如何？_
-
-```python
-X_test_predictions = np.empty((len(X_test), len(estimators)), dtype=object)
-
-for index, estimator in enumerate(estimators):
-    X_test_predictions[:, index] = estimator.predict(X_test)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `X_test_predictions = np.empty((len(X_test), len(estimators)), dtype=object)`: 建立測試預測陣列。
-2. `for index, estimator in enumerate(estimators)`: 遍歷估計器。
-3. `X_test_predictions[:, index] = estimator.predict(X_test)`: 收集測試預測。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 準備測試預測。
-- **潛在問題**: 無。
-- **最佳使用情境**: 最終評估。
-
-```python
-y_pred = rnd_forest_blender.predict(X_test_predictions)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `y_pred = rnd_forest_blender.predict(X_test_predictions)`: 堆疊預測。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 產生堆疊預測。
-- **潛在問題**: 無。
-- **最佳使用情境**: 測試。
-
-```python
-accuracy_score(y_test, y_pred)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `accuracy_score(y_test, y_pred)`: 計算堆疊準確度。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 評估堆疊效能。
-- **潛在問題**: 無。
-- **最佳使用情境**: 比較。
-
-這個堆疊集成不如我們之前嘗試的自訂堆疊表現得好。
-
-練習：_現在嘗試再次使用`StackingClassifier`代替：您得到更好效能嗎？如果是的，為什麼？_
-
-因為`StackingClassifier`使用K-Fold交叉驗證，我們不需要單獨驗證集，所以讓我們將訓練集和驗證集合併成更大的訓練集：
-
-```python
-X_train_full, y_train_full = X_mnist[:60_000], y_mnist[:60_000]
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `X_train_full, y_train_full = X_mnist[:60_000], y_mnist[:60_000]`: 合併訓練資料。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 建立完整訓練集。
-- **潛在問題**: 無。
-- **最佳使用情境**: 交叉驗證堆疊。
-
-現在讓我們建立並訓練完整訓練集上的堆疊分類器：
-
-**警告**：以下單元將花費相當長時間執行（15-30分鐘取決於您的硬體），因為它使用預設5折交叉驗證。對於每個基礎分類器，它將訓練5次在完整訓練集的80%上以進行預測，加上完整訓練集上的一次，最後在預測上訓練最終模型。總共25個模型訓練！
-
-```python
-stack_clf = StackingClassifier(named_estimators,
-                               final_estimator=rnd_forest_blender)
-stack_clf.fit(X_train_full, y_train_full)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `stack_clf = StackingClassifier(named_estimators, final_estimator=rnd_forest_blender)`: 建立堆疊分類器。
-2. `stack_clf.fit(X_train_full, y_train_full)`: 訓練堆疊分類器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 訓練完整堆疊。
-- **潛在問題**: 計算密集。
-- **最佳使用情境**: 最佳堆疊。
-
-```python
-stack_clf.score(X_test, y_test)
-```
-
-**✅ 程式碼逐行解析：**
-
-1. `stack_clf.score(X_test, y_test)`: 評估堆疊分類器。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 最終堆疊效能。
-- **潛在問題**: 無。
-- **最佳使用情境**: 比較。
-
-`StackingClassifier`顯著優於我們之前嘗試的自訂堆疊實作！這主要是兩個原因：
-
-* 因為我們能夠回收驗證集，`StackingClassifier`在更大資料集上訓練。
-* 它使用了`predict_proba()`如果可用，或`decision_function()`如果可用，或`predict()`。這給混成器更細緻輸入以運作。
-
-這就是今天的一切，恭喜完成章節和練習！
-
-```python
-
-```
-
-**✅ 程式碼逐行解析：**
-
-1. 空單元。
-
-**🎯 重點摘要:**
-
-- **核心功能**: 結束筆記本。
-- **潛在問題**: 無。
-- **最佳使用情境**: 完成。
 
 ## 💡 總結與最佳實踐
 
