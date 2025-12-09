@@ -367,7 +367,7 @@ print("a24.shape =", a24.shape)
 - **潛在問題**：形狀乘積不等於元素數會引發錯誤。
 - **最佳使用情境**：需要改變陣列維度結構但保持資料不變的情況。
 
-### 使用 reshape
+### 使用 reshape函數
 
 💡實際應用情境： 在資料分析和機器學習中，經常需要將一維資料重塑為多維結構以符合模型輸入需求。使用 reshape 函數可以方便地創建新的視圖，適應不同的形狀要求。
 
@@ -558,19 +558,18 @@ print("Broadcast result =\n", result)
 
 ```python
 b = np.arange(6).reshape(2, 3)
-print("b =", b)
+print("b =\n", b,"\n")
 
 # Column vector broadcasting (shape: (2, 1))
 result2 = b + [[10], [20]]
-print("b + [[10], [20]] =", result2)
+print("b + [[10], [20]] =\n", result2,"\n")
 
 # Row vector broadcasting (shape: (3,))
 result3 = b + [100, 200, 300]
-print("b + [100, 200, 300] =", result3)
-
+print("b + [100, 200, 300] =\n", result3,"\n")
 # Scalar broadcasting
 result4 = b + 10000
-print("b + 10000 =", result4)
+print("b + 10000 =\n", result4)
 ```
 
 **✅ 程式碼逐行解析：**
