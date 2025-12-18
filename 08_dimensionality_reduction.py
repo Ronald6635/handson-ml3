@@ -1,20 +1,21 @@
+
 """
-Dimensionality Reduction Module
+降維技術模組 (Dimensionality Reduction Module)
 
-This module demonstrates dimensionality reduction techniques using Scikit-Learn.
+本模組示範如何使用 Scikit-Learn 進行各種降維技術。
 
-Key features:
-- Principal Component Analysis (PCA)
-- Randomized PCA
-- Incremental PCA
-- Random Projection
-- Locally Linear Embedding (LLE)
-- Multidimensional Scaling (MDS)
+主要功能：
+- 主成分分析（PCA）
+- 隨機PCA
+- 增量PCA
+- 隨機投影
+- 局部線性嵌入（LLE）
+- 多維尺度分析（MDS）
 - Isomap
 - t-SNE
-- Kernel PCA
+- 核PCA
 
-Examples are based on the markdown documentation 08_dimensionality_reduction.md
+本程式碼依據 08_dimensionality_reduction.md 文件內容設計，並依照 Python 註解與型別標註規範撰寫。
 """
 
 import sys
@@ -28,6 +29,11 @@ assert version.parse(sklearn.__version__) >= version.parse("1.0.1")
 
 import matplotlib.pyplot as plt
 
+
+# =============================================================================
+# 圖表設定 (Matplotlib Settings)
+# =============================================================================
+
 plt.rc('font', size=14)
 plt.rc('axes', labelsize=14, titlesize=14)
 plt.rc('legend', fontsize=14)
@@ -39,29 +45,38 @@ from pathlib import Path
 IMAGES_PATH = Path() / "images" / "dim_reduction"
 IMAGES_PATH.mkdir(parents=True, exist_ok=True)
 
-def save_fig(fig_id, tight_layout=True, fig_extension="png", resolution=300):
+def save_fig(fig_id: str, tight_layout: bool = True, fig_extension: str = "png", resolution: int = 300) -> None:
+    """
+    儲存圖表至指定目錄。
+    
+    參數：
+        fig_id (str): 圖片檔名（不含副檔名）
+        tight_layout (bool): 是否自動調整圖表布局
+        fig_extension (str): 檔案格式（預設 png）
+        resolution (int): 解析度 dpi
+    """
     path = IMAGES_PATH / f"{fig_id}.{fig_extension}"
     if tight_layout:
         plt.tight_layout()
     plt.savefig(path, format=fig_extension, dpi=resolution)
 
-# =============================================================================
-# DATASET CREATION
-# =============================================================================
+m = 60
 
-# extra code
+# =============================================================================
+# 產生3D資料集 (Create 3D Dataset)
+# =============================================================================
 
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-m = 60
-X = np.zeros((m, 3))  # initialize 3D dataset
-np.random.seed(42)
-angles = (np.random.rand(m) ** 3 + 0.5) * 2 * np.pi  # uneven distribution
-X[:, 0], X[:, 1] = np.cos(angles), np.sin(angles) * 0.5  # oval
-X += 0.28 * np.random.randn(m, 3)  # add more noise
-X = Rotation.from_rotvec([np.pi / 29, -np.pi / 20, np.pi / 4]).apply(X)
-X += [0.2, 0, 0.2]  # shift a bit
+m: int = 60  # 樣本數量
+X: np.ndarray = np.zeros((m, 3))  # 初始化3D資料集
+np.random.seed(42)  # 設定隨機種子，確保重現性
+angles: np.ndarray = (np.random.rand(m) ** 3 + 0.5) * 2 * np.pi  # 產生不均勻分佈的角度
+X[:, 0], X[:, 1] = np.cos(angles), np.sin(angles) * 0.5  # 橢圓形座標
+X += 0.28 * np.random.randn(m, 3)  # 加入雜訊
+X = Rotation.from_rotvec([np.pi / 29, -np.pi / 20, np.pi / 4]).apply(X)  # 旋轉
+X += [0.2, 0, 0.2]  # 平移
 
 from matplotlib.colors import ListedColormap
 

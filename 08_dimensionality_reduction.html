@@ -1,36 +1,18 @@
-<!--
-[Module Name] HTML Documentation
-
-This document is the HTML version of the tutorial, optimized for web viewing with mathematical equation rendering.
-
-Key features:
-- Detailed explanation of concepts with examples.
-- Mathematical derivations using MathJax.
-- Responsive design with dark mode support.
-- Clear, organized sections for easy navigation.
-
-Dependencies:
-- Google Fonts (Noto Sans TC)
-- MathJax for LaTeX rendering.
-- ES6 Polyfill for older browser compatibility.
-
-Template Context:
-- This is a static HTML file with no server-side template variables.
-
-Browser Support:
-- Modern browsers (Chrome, Firefox, Safari, Edge).
-
-Last Updated: December 9, 2025
-Author: HowToolHelp.com powered by GitHub Copilot
--->
+<!-- =============================================================================
+  SEO META TAGS & THREADS-OPTIMIZED CONTENT
+  ============================================================================= -->
+<!-- meta-title: 第8章 – 降維技術完整指南：主成分分析與其他演算法實戰應用 | 機器學習全書 -->
+<!-- meta-description: 本章節深入解析降維技術，包括主成分分析（PCA）、隨機投影、局部線性嵌入（LLE）、t-SNE 等，並以MNIST資料集實戰。適用於資料科學、AI、Threads社群分享。 -->
+<!-- meta-keywords: Python, 機器學習, Scikit-Learn, 降維, PCA, t-SNE, LLE, 資料視覺化, 維度縮減, Threads, AI, 資料科學, 教學, 深度學習 -->
+<!-- meta-hashtags: #Python #機器學習 #降維 #PCA #tSNE #ScikitLearn #資料科學 #Threads教學 #AI #視覺化 #深度學習 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>第8章 – 降維技術完整指南：主成分分析與其他演算法實戰應用</title>
-  <meta name="description" content="本章節將深入探討降維技術的核心概念與實戰應用，包括主成分分析（PCA）、隨機投影、局部線性嵌入（LLE）、t-SNE 等演算法。我們將學習如何使用 Scikit-Learn 實作這些技術，並通過 MNIST 資料集進行實際應用。"/>
-  <meta name="keywords" content="Python, 機器學習, Scikit-Learn, 降維, PCA, t-SNE, LLE, 資料視覺化, 維度縮減"/>
+  <title>第8章 – 降維技術完整指南：主成分分析與其他演算法實戰應用 | 機器學習全書</title>
+  <meta name="description" content="本章節深入解析降維技術，包括主成分分析（PCA）、隨機投影、局部線性嵌入（LLE）、t-SNE 等，並以MNIST資料集實戰。適用於資料科學、AI、Threads社群分享。"/>
+  <meta name="keywords" content="Python, 機器學習, Scikit-Learn, 降維, PCA, t-SNE, LLE, 資料視覺化, 維度縮減, Threads, AI, 資料科學, 教學, 深度學習"/>
   
   <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
   <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
@@ -118,8 +100,8 @@ Author: HowToolHelp.com powered by GitHub Copilot
        HEADER AND TABLE OF CONTENTS
        ============================================================================= -->
   <header>
-    <h1>第8章 – 降維技術完整指南</h1>
-    <p class="meta">歡迎來到第8章！本章將探討降維技術，這是機器學習中處理高維資料的重要工具。我們將學習如何使用主成分分析（PCA）和其他演算法來降低資料維度，同時保留最重要的資訊。</p>
+    <h1>🐍 第8章 – 降維技術完整指南</h1>
+    <p class="meta">📢 <strong>Threads專屬精華</strong>：本章內容特別優化，適合Threads社群分享與討論，歡迎標註 #Threads教學 #AI #資料科學！<br>歡迎來到第8章！本章將探討降維技術，這是機器學習中處理高維資料的重要工具。我們將學習如何使用主成分分析（PCA）和其他演算法來降低資料維度，同時保留最重要的資訊。</p>
   </header>
 
   <!--====================================
@@ -128,20 +110,20 @@ Author: HowToolHelp.com powered by GitHub Copilot
   <nav class="toc" aria-label="本文目錄">
     <h2>📝 本文目錄</h2>
     <ul>
-      <li><a href="#設定">設定</a></li>
-      <li><a href="#PCA">PCA</a></li>
-      <li><a href="#主成分">主成分</a></li>
-      <li><a href="#投影到d維度">投影到d維度</a></li>
-      <li><a href="#使用Scikit-Learn">使用Scikit-Learn</a></li>
-      <li><a href="#解釋變異比率">解釋變異比率</a></li>
-      <li><a href="#選擇正確的維度數量">選擇正確的維度數量</a></li>
-      <li><a href="#PCA用於壓縮">PCA用於壓縮</a></li>
-      <li><a href="#隨機PCA">隨機PCA</a></li>
-      <li><a href="#增量PCA">增量PCA</a></li>
-      <li><a href="#隨機投影">隨機投影</a></li>
-      <li><a href="#LLE">LLE</a></li>
-      <li><a href="#核PCA">核PCA</a></li>
-      <li><a href="#練習解答">練習解答</a></li>
+      <li><a href="#設定">🚀 設定</a></li>
+      <li><a href="#PCA">🐍 PCA</a></li>
+      <li><a href="#主成分">🎯 主成分</a></li>
+      <li><a href="#投影到d維度">📐 投影到d維度</a></li>
+      <li><a href="#使用Scikit-Learn">🔧 使用Scikit-Learn</a></li>
+      <li><a href="#解釋變異比率">📊 解釋變異比率</a></li>
+      <li><a href="#選擇正確的維度數量">🎛️ 選擇正確的維度數量</a></li>
+      <li><a href="#PCA用於壓縮">🗜️ PCA用於壓縮</a></li>
+      <li><a href="#隨機PCA">🎲 隨機PCA</a></li>
+      <li><a href="#增量PCA">📈 增量PCA</a></li>
+      <li><a href="#隨機投影">🎯 隨機投影</a></li>
+      <li><a href="#LLE">🌀 LLE</a></li>
+      <li><a href="#核PCA">🌰 核PCA</a></li>
+      <li><a href="#練習解答">📚 練習解答</a></li>
     </ul>
   </nav>
 
@@ -171,7 +153,7 @@ assert sys.version_info >= (3, 7)</code></pre>
     </section>
 
     <section class="section" id="PCA">
-      <h2>🐍 PCA</h2>
+      <h2>� PCA</h2>
       <p>主成分分析（Principal Component Analysis）是降維最常用的技術之一。它通過找到資料的最大變異方向來降低維度，同時保留最多的資訊。</p>
       
       <h3>範例 5: 產生3D資料集</h3>
@@ -195,10 +177,326 @@ X += [0.2, 0, 0.2]</code></pre>
         5. 第8-10行: 加入雜訊、旋轉和平移
       </div>
       <div class="summary-box">
-        <strong>🎯 重點摘要:</strong><br>
+        <strong>� 重點摘要:</strong><br>
         <strong>核心功能</strong>: 產生複雜的3D測試資料集<br>
         <strong>潛在問題</strong>: 隨機種子確保重現性<br>
         <strong>最佳使用情境</strong>: PCA演算法的示範資料
+      </div>
+    </section>
+
+    <section class="section" id="主成分">
+      <h2>🎯 主成分</h2>
+      <p>💡 <strong>實際應用情境：</strong> 主成分是資料變異最大的方向。通過SVD分解，我們可以找到這些方向並用於降維。</p>
+      
+      <h3>範例 6: 計算主成分</h3>
+      <pre><code>X_centered = X - X.mean(axis=0)
+U, s, Vt = np.linalg.svd(X_centered)
+c1 = Vt[0]
+c2 = Vt[1]</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 將資料中心化（減去均值）<br>
+        2. 第2行: 進行SVD分解<br>
+        3. 第3-4行: 提取前兩個主成分
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 使用SVD找到主成分<br>
+        <strong>潛在問題</strong>: 資料必須先中心化<br>
+        <strong>最佳使用情境</strong>: 手動實作PCA
+      </div>
+    </section>
+
+    <section class="section" id="投影到d維度">
+      <h2>📐 投影到d維度</h2>
+      <p>💡 <strong>實際應用情境：</strong> 將高維資料投影到低維空間，保留最重要的特徵。</p>
+      
+      <h3>範例 7: 投影到2D</h3>
+      <pre><code>W2 = Vt[:2].T
+X2D = X_centered @ W2</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 建立投影矩陣<br>
+        2. 第2行: 將資料投影到2D
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 將3D資料降維到2D<br>
+        <strong>潛在問題</strong>: 維度選擇影響資訊保留<br>
+        <strong>最佳使用情境</strong>: 資料視覺化
+      </div>
+    </section>
+
+    <section class="section" id="使用Scikit-Learn">
+      <h2>🔧 使用Scikit-Learn</h2>
+      <p>💡 <strong>實際應用情境：</strong> Scikit-Learn提供了方便的PCA類別，自動處理中心化和投影。</p>
+      
+      <h3>範例 8: Scikit-Learn PCA</h3>
+      <pre><code>from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+X2D = pca.fit_transform(X)</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 匯入PCA類別<br>
+        2. 第3-4行: 建立PCA實例並轉換資料
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 簡單易用的PCA實作<br>
+        <strong>潛在問題</strong>: 自動中心化處理<br>
+        <strong>最佳使用情境</strong>: 大多數降維任務
+      </div>
+      
+      <h3>範例 9: 檢查主成分</h3>
+      <pre><code>pca.components_</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 存取主成分向量
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 查看主成分的方向<br>
+        <strong>潛在問題</strong>: 解釋主成分的物理意義<br>
+        <strong>最佳使用情境</strong>: 特徵重要性分析
+      </div>
+    </section>
+
+    <section class="section" id="解釋變異比率">
+      <h2>📊 解釋變異比率</h2>
+      <p>💡 <strong>實際應用情境：</strong> 解釋變異比率告訴我們每個主成分保留了多少原始資料的變異。</p>
+      
+      <h3>範例 10: 變異比率</h3>
+      <pre><code>pca.explained_variance_ratio_</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 取得各主成分的解釋變異比率
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 評估各維度的重要性<br>
+        <strong>潛在問題</strong>: 累計比率決定保留維度<br>
+        <strong>最佳使用情境</strong>: 選擇最佳降維數量
+      </div>
+    </section>
+
+    <section class="section" id="選擇正確的維度數量">
+      <h2>🎛️ 選擇正確的維度數量</h2>
+      <p>💡 <strong>實際應用情境：</strong> 選擇合適的維度數量需要在壓縮和資訊保留之間取得平衡。</p>
+      
+      <h3>範例 11: MNIST資料集載入</h3>
+      <pre><code>from sklearn.datasets import fetch_openml
+
+mnist = fetch_openml('mnist_784', as_frame=False, parser="auto")
+X_train, y_train = mnist.data[:60_000], mnist.target[:60_000]
+X_test, y_test = mnist.data[60_000:], mnist.target[60_000:]</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 匯入資料集載入函數<br>
+        2. 第3行: 載入MNIST資料集<br>
+        3. 第4-5行: 分割訓練和測試集
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 載入標準機器學習資料集<br>
+        <strong>潛在問題</strong>: 大型資料集需要大量記憶體<br>
+        <strong>最佳使用情境</strong>: 分類任務的基準資料
+      </div>
+      
+      <h3>範例 12: 自動維度選擇</h3>
+      <pre><code>pca = PCA()
+pca.fit(X_train)
+cumsum = np.cumsum(pca.explained_variance_ratio_)
+d = np.argmax(cumsum >= 0.95) + 1</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 對所有資料擬合PCA<br>
+        2. 第2行: 計算累計解釋變異<br>
+        3. 第3行: 找到保留95%變異的最小維度
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 自動確定最佳降維數量<br>
+        <strong>潛在問題</strong>: 計算成本高<br>
+        <strong>最佳使用情境</strong>: 大型高維資料集
+      </div>
+    </section>
+
+    <section class="section" id="PCA用於壓縮">
+      <h2>🗜️ PCA用於壓縮</h2>
+      <p>💡 <strong>實際應用情境：</strong> PCA可以用於資料壓縮，減少儲存空間同時保留重要資訊。</p>
+      
+      <h3>範例 13: 資料壓縮</h3>
+      <pre><code>pca = PCA(0.95)
+X_reduced = pca.fit_transform(X_train)
+X_recovered = pca.inverse_transform(X_reduced)</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 建立保留95%變異的PCA<br>
+        2. 第2行: 壓縮資料<br>
+        3. 第3行: 重建原始資料
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 可逆的資料壓縮<br>
+        <strong>潛在問題</strong>: 資訊損失不可避免<br>
+        <strong>最佳使用情境</strong>: 儲存空間有限的應用
+      </div>
+    </section>
+
+    <section class="section" id="隨機PCA">
+      <h2>🎲 隨機PCA</h2>
+      <p>💡 <strong>實際應用情境：</strong> 當資料集很大時，隨機PCA提供更快的近似解。</p>
+      
+      <h3>範例 14: 隨機PCA</h3>
+      <pre><code>rnd_pca = PCA(n_components=154, svd_solver="randomized", random_state=42)
+X_reduced = rnd_pca.fit_transform(X_train)</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 使用隨機SVD求解器<br>
+        2. 第2行: 快速降維
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 近似但更快的PCA<br>
+        <strong>潛在問題</strong>: 結果的準確性略低<br>
+        <strong>最佳使用情境</strong>: 大型資料集的快速處理
+      </div>
+    </section>
+
+    <section class="section" id="增量PCA">
+      <h2>📈 增量PCA</h2>
+      <p>💡 <strong>實際應用情境：</strong> 當資料集太大無法放入記憶體時，增量PCA可以分批處理。</p>
+      
+      <h3>範例 15: 增量PCA</h3>
+      <pre><code>from sklearn.decomposition import IncrementalPCA
+
+n_batches = 100
+inc_pca = IncrementalPCA(n_components=154)
+for X_batch in np.array_split(X_train, n_batches):
+    inc_pca.partial_fit(X_batch)
+
+X_reduced = inc_pca.transform(X_train)</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第3行: 建立增量PCA實例<br>
+        2. 第4-5行: 分批擬合資料<br>
+        3. 第7行: 轉換整個資料集
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 記憶體高效的PCA<br>
+        <strong>潛在問題</strong>: 需要多次通過資料<br>
+        <strong>最佳使用情境</strong>: 超大型資料集
+      </div>
+    </section>
+
+    <section class="section" id="隨機投影">
+      <h2>🎯 隨機投影</h2>
+      <p>💡 <strong>實際應用情境：</strong> 隨機投影是一種簡單的降維技術，通過隨機矩陣將資料投影到低維空間。</p>
+      
+      <h3>範例 16: 高斯隨機投影</h3>
+      <pre><code>from sklearn.random_projection import GaussianRandomProjection
+
+gaussian_rnd_proj = GaussianRandomProjection(eps=ε, random_state=42)
+X_reduced = gaussian_rnd_proj.fit_transform(X)</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 匯入高斯隨機投影<br>
+        2. 第3-4行: 應用隨機投影
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 快速近似降維<br>
+        <strong>潛在問題</strong>: 理論保證的維度選擇<br>
+        <strong>最佳使用情境</strong>: 非常高維資料
+      </div>
+    </section>
+
+    <section class="section" id="LLE">
+      <h2>🌀 LLE</h2>
+      <p>💡 <strong>實際應用情境：</strong> 局部線性嵌入（Locally Linear Embedding）是一種流形學習技術，適合非線性降維。</p>
+      
+      <h3>範例 17: LLE應用</h3>
+      <pre><code>from sklearn.datasets import make_swiss_roll
+from sklearn.manifold import LocallyLinearEmbedding
+
+X_swiss, t = make_swiss_roll(n_samples=1000, noise=0.2, random_state=42)
+lle = LocallyLinearEmbedding(n_components=2, n_neighbors=10, random_state=42)
+X_unrolled = lle.fit_transform(X_swiss)</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 產生瑞士捲資料集<br>
+        2. 第4-5行: 應用LLE降維
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 非線性流形降維<br>
+        <strong>潛在問題</strong>: 參數選擇敏感<br>
+        <strong>最佳使用情境</strong>: 流形結構資料
+      </div>
+    </section>
+
+    <section class="section" id="核PCA">
+      <h2>🌰 核PCA</h2>
+      <p>💡 <strong>實際應用情境：</strong> 核PCA使用核技巧處理非線性可分的資料。</p>
+      
+      <h3>範例 18: 核PCA</h3>
+      <pre><code>from sklearn.decomposition import KernelPCA
+
+rbf_pca = KernelPCA(n_components=2, kernel="rbf", gamma=0.04, random_state=42)
+X_reduced = rbf_pca.fit_transform(X_swiss)</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 匯入核PCA<br>
+        2. 第3-4行: 使用RBF核進行降維
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 非線性PCA變體<br>
+        <strong>潛在問題</strong>: 計算成本高<br>
+        <strong>最佳使用情境</strong>: 非線性資料結構
+      </div>
+    </section>
+
+    <section class="section" id="練習解答">
+      <h2>📚 練習解答</h2>
+      <p>💡 <strong>實際應用情境：</strong> 通過實際練習來鞏固降維技術的理解和應用。</p>
+      
+      <h3>練習9: MNIST分類比較</h3>
+      <pre><code>rnd_clf = RandomForestClassifier(n_estimators=100, random_state=42)
+rnd_clf.fit(X_train, y_train)
+y_pred = rnd_clf.predict(X_test)
+accuracy_score(y_test, y_pred)</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第1行: 建立隨機森林分類器<br>
+        2. 第2行: 在完整資料上訓練<br>
+        3. 第3-4行: 預測和評估
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 基準模型訓練<br>
+        <strong>潛在問題</strong>: 高維資料訓練慢<br>
+        <strong>最佳使用情境</strong>: 比較降維效果
+      </div>
+      
+      <h3>練習10: t-SNE視覺化</h3>
+      <pre><code>from sklearn.manifold import TSNE
+
+X_sample, y_sample = X_train[:5000], y_train[:5000]
+tsne = TSNE(n_components=2, init="random", learning_rate="auto", random_state=42)
+X_reduced = tsne.fit_transform(X_sample)</code></pre>
+      <div class="summary-box">
+        <strong>✅ 程式碼逐行解析：</strong><br>
+        1. 第3行: 取樣資料子集<br>
+        2. 第4-5行: 應用t-SNE降維
+      </div>
+      <div class="summary-box">
+        <strong>🎯 重點摘要:</strong><br>
+        <strong>核心功能</strong>: 高品質資料視覺化<br>
+        <strong>潛在問題</strong>: 計算時間長<br>
+        <strong>最佳使用情境</strong>: 探索性資料分析
       </div>
     </section>
 
@@ -214,13 +512,23 @@ X += [0.2, 0, 0.2]</code></pre>
         <li><strong>實戰建議</strong>: 先嘗試PCA，如效果不佳再考慮其他方法</li>
       </ul>
     </section>
+
+    <section class="section" id="FAQ">
+      <h2>❓ 常見問答 (FAQ)</h2>
+      <div class="faq">
+        <p><strong>Q: 降維會不會丟失重要資訊？</strong><br>
+        A: 會，但可以通過選擇合適的維度數量來最小化損失。</p>
+        <p><strong>Q: 如何選擇降維演算法？</strong><br>
+        A: 從PCA開始，如果資料有非線性結構，考慮t-SNE或LLE。</p>
+      </div>
+    </section>
   </main>
 
   <!-- =============================================================================
        FOOTER
        ============================================================================= -->
   <footer class="hashtags" id="hashtags">
-    #Python #機器學習 #降維 #PCA #tSNE #ScikitLearn #資料科學 #視覺化
+    #Python #機器學習 #降維 #PCA #tSNE #ScikitLearn #資料科學 #視覺化 #Threads教學 #AI #深度學習
   </footer>
 </body>
 </html>
