@@ -1,0 +1,276 @@
+<!--
+無監督學習 HTML 文件
+
+此文件是無監督學習教學的 HTML 版本，針對網頁瀏覽進行優化，並包含數學方程式渲染功能。
+
+主要特色：
+- 概念詳細解釋與範例。
+- 使用 MathJax 進行 LaTeX 數學渲染。
+- 響應式設計，支援深色模式。
+- 清晰的章節組織，便於導航。
+
+依賴項：
+- Google Fonts (Noto Sans TC)
+- MathJax 用於 LaTeX 渲染。
+- ES6 Polyfill 用於舊版瀏覽器相容性。
+
+模板上下文：
+- 這是一個靜態 HTML 文件，無伺服器端模板變數。
+
+瀏覽器支援：
+- 現代瀏覽器 (Chrome, Firefox, Safari, Edge)。
+
+最後更新：2024-01-15
+作者：HowToolHelp.com powered by GitHub Copilot
+-->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>無監督學習：聚類與降維技術完全指南 | 機器學習實戰</title>
+  <meta name="description" content="掌握無監督學習核心技術：K-Means、DBSCAN 聚類算法，PCA、t-SNE 降維方法。包含完整 Python 程式碼範例、數學推導與實務應用。"/>
+  <meta name="keywords" content="無監督學習, 機器學習, K-Means, DBSCAN, PCA, t-SNE, 聚類算法, 降維, Python, Scikit-Learn, 資料科學"/>
+
+  <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
+  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+
+  <!-- MathJax -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --heading-color: #265D94;
+      --link-color: #0056b3;
+      --border-color: #dddddd;
+      --code-bg-color: #f5f5f5;
+      --summary-bg-color: #eef3f8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #cccccc;
+        --heading-color: #87b5e1;
+        --link-color: #6caeef;
+        --border-color: #444444;
+        --code-bg-color: #2c2c2c;
+        --summary-bg-color: #252a30;
+      }
+    }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      line-height: 1.8;
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 900px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    h1, h2, h3, h4 {
+      color: var(--heading-color);
+      font-weight: 700;
+      margin-top: 1.5em;
+    }
+    h1 { font-size: 2.2em; text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+    h2 { font-size: 1.8em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    h3 { font-size: 1.4em; }
+    h4 { font-size: 1.2em; }
+    a { color: var(--link-color); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header, footer { text-align: center; margin-bottom: 2em; }
+    .meta { font-size: 0.9em; color: #666; }
+    .toc { background-color: var(--summary-bg-color); padding: 15px 25px; border-radius: 8px; margin-bottom: 2em; }
+    .toc h2 { margin-top: 0; }
+    .toc ul { padding-left: 20px; }
+    .toc ul ul { padding-left: 20px; }
+    .section { margin-bottom: 2em; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+    th { background-color: var(--summary-bg-color); }
+    .summary-box { background-color: var(--summary-bg-color); border-left: 5px solid var(--heading-color); padding: 15px 20px; margin: 1.5em 0; border-radius: 5px; }
+    .faq p { margin: 0.5em 0; }
+    .hashtags { background-color: var(--summary-bg-color); padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; word-spacing: 10px; }
+    mjx-container { text-align: center !important; margin: 1em 0; }
+    pre { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; overflow-x: auto; }
+    code { background-color: var(--code-bg-color); padding: 2px 4px; border-radius: 3px; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- =============================================================================
+       HEADER AND TABLE OF CONTENTS
+       ============================================================================= -->
+  <header>
+    <h1>無監督學習：聚類與降維技術完全指南</h1>
+    <p class="meta">掌握機器學習的核心技術，探索資料中的隱藏模式與結構</p>
+  </header>
+
+  <!--====================================
+      TABLE OF CONTENTS
+      ===================================-->
+  <nav class="toc" aria-label="本文目錄">
+    <h2>📝 本文目錄</h2>
+    <ul>
+      <li><a href="#introduction">前言</a></li>
+      <li><a href="#key-takeaways">重點摘要</a></li>
+      <li><a href="#setup">環境設定與準備</a></li>
+      <li><a href="#clustering-intro">聚類算法介紹</a></li>
+      <li><a href="#kmeans">K-Means 聚類算法</a></li>
+      <li><a href="#dbscan">DBSCAN 密度聚類</a></li>
+      <li><a href="#dimensionality-reduction">降維技術</a></li>
+      <li><a href="#pca">主成分分析 (PCA)</a></li>
+      <li><a href="#tsne">t-SNE 視覺化</a></li>
+      <li><a href="#applications">實務應用</a></li>
+      <li><a href="#faq">常見問題</a></li>
+    </ul>
+  </nav>
+
+  <!-- =============================================================================
+       MAIN CONTENT AREA
+       ============================================================================= -->
+  <main>
+    <section id="introduction" class="section">
+      <h2>前言</h2>
+      <p>無監督學習是機器學習的重要分支，不需要標籤資料即可從資料中發現模式。本教學將帶您深入了解聚類與降維的核心技術。</p>
+    </section>
+
+    <section id="key-takeaways" class="section">
+      <h2>重點摘要</h2>
+      <div class="summary-box">
+        <ul>
+          <li>K-Means：基於距離的聚類算法，適用於球形聚類</li>
+          <li>DBSCAN：密度基於聚類，能處理任意形狀的聚類</li>
+          <li>PCA：線性降維技術，保留最大方差</li>
+          <li>t-SNE：非線性降維，適合視覺化高維資料</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="setup" class="section">
+      <h2>環境設定與準備</h2>
+      <p>首先我們需要設定 Python 環境並匯入必要的套件：</p>
+      <pre><code>import sys
+import matplotlib.pyplot as plt
+from packaging import version
+import sklearn
+import numpy as np
+
+# 環境檢查
+assert sys.version_info >= (3, 7)
+assert version.parse(sklearn.__version__) >= version.parse("1.0.1")
+
+# 圖表設定
+plt.rc('font', size=14)
+plt.rc('axes', labelsize=14, titlesize=14)</code></pre>
+    </section>
+
+    <section id="clustering-intro" class="section">
+      <h2>聚類算法介紹</h2>
+      <p>聚類算法將相似資料點分組，常見應用包括客戶分群、影像分割等。</p>
+    </section>
+
+    <section id="kmeans" class="section">
+      <h2>K-Means 聚類算法</h2>
+      <p>K-Means 是最常見的聚類算法之一，其目標是最小化聚類內距離的平方和。</p>
+
+      <h3>基本使用</h3>
+      <pre><code>from sklearn.cluster import KMeans
+from sklearn.datasets import make_blobs
+
+# 產生測試資料
+X, y = make_blobs(n_samples=2000, centers=5, random_state=7)
+
+# 建立 K-Means 模型
+kmeans = KMeans(n_clusters=5, n_init=10, random_state=42)
+y_pred = kmeans.fit_predict(X)
+
+print(f"聚類中心: {kmeans.cluster_centers_}")</code></pre>
+
+      <h3>預測新資料點</h3>
+      <pre><code>X_new = np.array([[0, 2], [3, 2]])
+predictions = kmeans.predict(X_new)
+distances = kmeans.transform(X_new)</code></pre>
+    </section>
+
+    <section id="dbscan" class="section">
+      <h2>DBSCAN 密度聚類</h2>
+      <p>DBSCAN 基於密度定義聚類，能發現任意形狀的聚類並識別雜訊點。</p>
+      <pre><code>from sklearn.cluster import DBSCAN
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+X = iris.data[:, :2]
+
+dbscan = DBSCAN(eps=0.3, min_samples=5)
+y_pred = dbscan.fit_predict(X)</code></pre>
+    </section>
+
+    <section id="dimensionality-reduction" class="section">
+      <h2>降維技術</h2>
+      <p>降維技術將高維資料投影到低維空間，常用於視覺化與特徵提取。</p>
+    </section>
+
+    <section id="pca" class="section">
+      <h2>主成分分析 (PCA)</h2>
+      <p>PCA 通過線性變換找到資料的最大方差方向。</p>
+      <pre><code>from sklearn.decomposition import PCA
+
+pca = PCA(n_components=0.95)
+X_pca = pca.fit_transform(X)
+
+print(f"解釋方差比例: {pca.explained_variance_ratio_}")</code></pre>
+    </section>
+
+    <section id="tsne" class="section">
+      <h2>t-SNE 視覺化</h2>
+      <p>t-SNE 是一種非線性降維技術，特別適合高維資料的視覺化。</p>
+      <pre><code>from sklearn.manifold import TSNE
+
+tsne = TSNE(n_components=2, random_state=42)
+X_tsne = tsne.fit_transform(X_sample)</code></pre>
+    </section>
+
+    <section id="applications" class="section">
+      <h2>實務應用</h2>
+      <ul>
+        <li>客戶分群分析</li>
+        <li>影像壓縮</li>
+        <li>異常檢測</li>
+        <li>推薦系統</li>
+      </ul>
+    </section>
+
+    <section id="faq" class="section">
+      <h2>常見問題</h2>
+      <div class="faq">
+        <p><strong>Q: 如何選擇 K 值？</strong></p>
+        <p>A: 使用手肘法或輪廓係數分析來確定最佳聚類數量。</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- =============================================================================
+       FOOTER
+       ============================================================================= -->
+  <footer class="hashtags" id="hashtags">
+    #無監督學習 #機器學習 #KMeans #DBSCAN #PCA #tSNE #聚類算法 #降維 #Python #資料科學 #ScikitLearn
+  </footer>
+</body>
+</html>
