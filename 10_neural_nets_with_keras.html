@@ -1,0 +1,722 @@
+<!-- 使用 Keras 建構神經網路：從基礎到進階實作 -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>使用 Keras 建構神經網路：從基礎到進階實作</title>
+  <meta name="description" content="完整教學：學習使用 Keras 建構神經網路，從生物神經元到人工神經網路，包含分類、回歸、複雜模型設計、超參數調優等實戰技巧。"/>
+  <meta name="keywords" content="Keras, 神經網路, 機器學習, TensorFlow, 深度學習, 人工智慧, 程式設計, 教學"/>
+  
+  <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
+  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+  
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  
+  <!-- MathJax -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --heading-color: #265D94;
+      --link-color: #0056b3;
+      --border-color: #dddddd;
+      --code-bg-color: #f5f5f5;
+      --summary-bg-color: #eef3f8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #cccccc;
+        --heading-color: #87b5e1;
+        --link-color: #6caeef;
+        --border-color: #444444;
+        --code-bg-color: #2c2c2c;
+        --summary-bg-color: #252a30;
+      }
+    }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      line-height: 1.8;
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 900px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    h1, h2, h3, h4 {
+      color: var(--heading-color);
+      font-weight: 700;
+      margin-top: 1.5em;
+    }
+    h1 { font-size: 2.2em; text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+    h2 { font-size: 1.8em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+    h3 { font-size: 1.4em; }
+    h4 { font-size: 1.2em; }
+    a { color: var(--link-color); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header, footer { text-align: center; margin-bottom: 2em; }
+    .meta { font-size: 0.9em; color: #666; }
+    .toc { background-color: var(--summary-bg-color); padding: 15px 25px; border-radius: 8px; margin-bottom: 2em; }
+    .toc h2 { margin-top: 0; }
+    .toc ul { padding-left: 20px; }
+    .toc ul ul { padding-left: 20px; }
+    .section { margin-bottom: 2em; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+    th { background-color: var(--summary-bg-color); }
+    .summary-box { background-color: var(--summary-bg-color); border-left: 5px solid var(--heading-color); padding: 15px 20px; margin: 1.5em 0; border-radius: 5px; }
+    .faq p { margin: 0.5em 0; }
+    .hashtags { background-color: var(--summary-bg-color); padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; word-spacing: 10px; }
+    mjx-container { text-align: center !important; margin: 1em 0; }
+    code { background-color: var(--code-bg-color); padding: 2px 4px; border-radius: 3px; }
+    pre { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; overflow-x: auto; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- =============================================================================
+       HEADER AND TABLE OF CONTENTS
+       ============================================================================= -->
+  <header>
+    <h1>使用 Keras 建構神經網路：從基礎到進階實作</h1>
+    <p class="meta">神經網路是現代人工智慧的核心技術，而 Keras 作為 TensorFlow 的高階 API，讓建構和訓練神經網路變得簡單直觀。本教學將帶您從生物神經元的概念出發，逐步深入人工神經網路的實作，包含分類、回歸、複雜模型設計、超參數調優等完整流程。</p>
+  </header>
+
+  <!--====================================
+      TABLE OF CONTENTS
+      ===================================-->
+  <nav class="toc" aria-label="本文目錄">
+    <h2>📝 本文目錄</h2>
+    <ul>
+      <li><a href="#key-takeaways">🎯 關鍵重點 (Key Takeaways)</a></li>
+      <li><a href="#setup">🔧 環境設定與準備</a></li>
+      <li><a href="#biological-to-artificial">🧠 從生物神經元到人工神經網路</a>
+        <ul>
+          <li><a href="#perceptron">感知器 (The Perceptron)</a></li>
+          <li><a href="#activation-functions">激活函數 (Activation Functions)</a></li>
+        </ul>
+      </li>
+      <li><a href="#regression-mlps">📊 回歸多層感知器 (Regression MLPs)</a></li>
+      <li><a href="#classification-mlps">🏷️ 分類多層感知器 (Classification MLPs)</a></li>
+      <li><a href="#implementing-mlps-keras">🚀 使用 Keras 實作多層感知器</a>
+        <ul>
+          <li><a href="#sequential-api-classifier">使用序列 API 建構影像分類器</a></li>
+          <li><a href="#sequential-api-regression">使用序列 API 建構回歸模型</a></li>
+          <li><a href="#functional-api">使用函數式 API 建構複雜模型</a></li>
+          <li><a href="#subclassing-api">使用子類化 API 建構動態模型</a></li>
+          <li><a href="#saving-models">模型的儲存與載入</a></li>
+          <li><a href="#callbacks">回呼函數 (Callbacks)</a></li>
+          <li><a href="#tensorboard">使用 TensorBoard 視覺化</a></li>
+        </ul>
+      </li>
+      <li><a href="#hyperparameter-tuning">⚙️ 微調神經網路超參數</a></li>
+      <li><a href="#conclusion">💡 總結與最佳實踐</a></li>
+      <li><a href="#faq">❓ 常見問答 (FAQ)</a></li>
+      <li><a href="#hashtags">🏷️ 推薦標籤 (Suggested Hashtags)</a></li>
+    </ul>
+  </nav>
+
+  <!-- =============================================================================
+       MAIN CONTENT AREA
+       ============================================================================= -->
+  <main>
+    <section class="section" id="key-takeaways">
+      <h2>🎯 關鍵重點 (Key Takeaways)</h2>
+      <ul>
+        <li>神經網路由互連的神經元組成，能學習複雜的非線性關係</li>
+        <li>Keras 提供三種建構模型的 API：序列、函數式和子類化</li>
+        <li>激活函數決定神經元的輸出行為，ReLU 是隱藏層的常用選擇</li>
+        <li>過擬合是神經網路常見問題，可透過正則化、Dropout 等技術解決</li>
+        <li>超參數調優對於模型效能至關重要，可使用 Keras Tuner 等工具</li>
+      </ul>
+    </section>
+
+    <section class="section" id="setup">
+      <h2>🔧 環境設定與準備</h2>
+      <p>💡 <strong>實際應用情境：</strong> 在開始建構神經網路之前，需要確保開發環境已正確設定，包括必要的程式庫版本檢查。</p>
+
+      <h3>範例 1: 環境檢查與設定</h3>
+      <pre><code>import sys
+
+# 檢查 Python 版本
+assert sys.version_info &gt;= (3, 7)
+
+# 設定圖表字體大小
+plt.rc('font', size=14)
+plt.rc('axes', labelsize=14, titlesize=14)
+plt.rc('legend', fontsize=14)
+plt.rc('xtick', labelsize=10)
+plt.rc('ytick', labelsize=10)</code></pre>
+
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>import sys</code>: 匯入 sys 模組，用於檢查 Python 版本</li>
+        <li><code>assert sys.version_info &gt;= (3, 7)</code>: 確保 Python 版本至少為 3.7</li>
+        <li><code>plt.rc('font', size=14)</code>: 設定 Matplotlib 字體大小為 14</li>
+        <li><code>plt.rc('axes', labelsize=14, titlesize=14)</code>: 設定軸標籤和標題字體大小</li>
+        <li><code>plt.rc('legend', fontsize=14)</code>: 設定圖例字體大小</li>
+        <li><code>plt.rc('xtick', labelsize=10)</code>: 設定 x 軸刻度字體大小</li>
+        <li><code>plt.rc('ytick', labelsize=10)</code>: 設定 y 軸刻度字體大小</li>
+      </ol>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 確保開發環境符合最低要求，並設定一致的視覺化樣式</li>
+          <li><strong>潛在問題</strong>: 版本不相容可能導致程式錯誤</li>
+          <li><strong>最佳使用情境</strong>: 在每個機器學習專案開始時執行環境檢查</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="biological-to-artificial">
+      <h2>🧠 從生物神經元到人工神經網路</h2>
+
+      <section class="section" id="perceptron">
+        <h3>感知器 (The Perceptron)</h3>
+        <p>💡 <strong>實際應用情境：</strong> 感知器是最簡單的人工神經元，能解決線性可分的二元分類問題，如鳶尾花分類。</p>
+
+        <h4>範例 2: 使用 Scikit-Learn 實作感知器</h4>
+        <pre><code>from sklearn.datasets import load_iris
+from sklearn.linear_model import Perceptron
+from sklearn.model_selection import train_test_split
+
+# 載入鳶尾花資料集
+iris = load_iris(as_frame=True)
+X = iris.data[["petal length (cm)", "petal width (cm)"]].values
+y = (iris.target == 0)  # Iris setosa
+
+# 分割資料
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 建立並訓練感知器
+per_clf = Perceptron(random_state=42)
+per_clf.fit(X_train, y_train)
+
+# 進行預測
+X_new = [[2, 0.5], [3, 1]]
+y_pred = per_clf.predict(X_new)</code></pre>
+
+        <h5>✅ 程式碼逐行解析：</h5>
+        <ol>
+          <li><code>from sklearn.datasets import load_iris</code>: 匯入鳶尾花資料集</li>
+          <li><code>iris = load_iris(as_frame=True)</code>: 載入資料集並轉為 DataFrame 格式</li>
+          <li><code>X = iris.data[["petal length (cm)", "petal width (cm)"]].values</code>: 選取花瓣長度和寬度作為特徵</li>
+          <li><code>y = (iris.target == 0)</code>: 將目標轉為二元分類 (是否為 setosa)</li>
+          <li><code>per_clf = Perceptron(random_state=42)</code>: 建立感知器模型</li>
+          <li><code>per_clf.fit(X_train, y_train)</code>: 訓練模型</li>
+          <li><code>y_pred = per_clf.predict(X_new)</code>: 對新資料進行預測</li>
+        </ol>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 實作簡單的線性分類器</li>
+            <li><strong>潛在問題</strong>: 只能處理線性可分資料，無法學習複雜模式</li>
+            <li><strong>最佳使用情境</strong>: 快速原型設計或作為基準模型</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="activation-functions">
+        <h3>激活函數 (Activation Functions)</h3>
+        <p>💡 <strong>實際應用情境：</strong> 激活函數決定神經元的輸出，選擇合適的激活函數對於模型效能至關重要。</p>
+
+        <h4>範例 3: 常見激活函數視覺化</h4>
+        <pre><code>import numpy as np
+from scipy.special import expit as sigmoid
+
+def relu(z):
+    return np.maximum(0, z)
+
+def derivative(f, z, eps=0.000001):
+    return (f(z + eps) - f(z - eps))/(2 * eps)
+
+max_z = 4.5
+z = np.linspace(-max_z, max_z, 200)
+
+plt.figure(figsize=(11, 3.1))
+
+plt.subplot(121)
+plt.plot([-max_z, 0], [0, 0], "r-", linewidth=2, label="Heaviside")
+plt.plot(z, relu(z), "m-.", linewidth=2, label="ReLU")
+plt.plot([0, 0], [0, 1], "r-", linewidth=0.5)
+plt.plot([0, max_z], [1, 1], "r-", linewidth=2)
+plt.plot(z, sigmoid(z), "g--", linewidth=2, label="Sigmoid")
+plt.plot(z, np.tanh(z), "b-", linewidth=1, label="Tanh")
+plt.grid(True)
+plt.title("激活函數")
+plt.axis([-max_z, max_z, -1.65, 2.4])
+plt.legend(loc="lower right", fontsize=13)
+
+plt.subplot(122)
+plt.plot(z, derivative(np.sign, z), "r-", linewidth=2, label="Heaviside")
+plt.plot(0, 0, "ro", markersize=5)
+plt.plot(0, 0, "rx", markersize=10)
+plt.plot(z, derivative(sigmoid, z), "g--", linewidth=2, label="Sigmoid")
+plt.plot(z, derivative(np.tanh, z), "b-", linewidth=1, label="Tanh")
+plt.grid(True)
+plt.title("導數")
+plt.axis([-max_z, max_z, -0.2, 1.2])
+
+plt.show()</code></pre>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 視覺化不同激活函數及其導數</li>
+            <li><strong>潛在問題</strong>: 某些函數可能導致梯度消失或爆炸</li>
+            <li><strong>最佳使用情境</strong>: 選擇適合任務的激活函數</li>
+          </ul>
+        </div>
+      </section>
+    </section>
+
+    <section class="section" id="regression-mlps">
+      <h2>📊 回歸多層感知器 (Regression MLPs)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 回歸 MLP 用於預測連續值，如房價預測。</p>
+
+      <h3>範例 4: 使用 Scikit-Learn 建構回歸 MLP</h3>
+      <pre><code>from sklearn.datasets import fetch_california_housing
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPRegressor
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+housing = fetch_california_housing()
+X_train_full, X_test, y_train_full, y_test = train_test_split(
+    housing.data, housing.target, random_state=42)
+X_train, X_valid, y_train, y_valid = train_test_split(
+    X_train_full, y_train_full, random_state=42)
+
+mlp_reg = MLPRegressor(hidden_layer_sizes=[50, 50, 50], random_state=42)
+pipeline = make_pipeline(StandardScaler(), mlp_reg)
+pipeline.fit(X_train, y_train)
+y_pred = pipeline.predict(X_valid)
+rmse = root_mean_squared_error(y_valid, y_pred)
+print(f"驗證集 RMSE: {rmse:.4f}")</code></pre>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 使用 MLP 進行回歸預測</li>
+          <li><strong>潛在問題</strong>: 需要適當的資料預處理和超參數調優</li>
+          <li><strong>最佳使用情境</strong>: 處理複雜的非線性回歸問題</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="classification-mlps">
+      <h2>🏷️ 分類多層感知器 (Classification MLPs)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 分類 MLP 用於將輸入分類到不同類別，如影像分類。</p>
+
+      <h3>範例 5: 使用 Scikit-Learn 建構分類 MLP</h3>
+      <pre><code>from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+
+iris = load_iris()
+X_train_full, X_test, y_train_full, y_test = train_test_split(
+    iris.data, iris.target, test_size=0.1, random_state=42)
+X_train, X_valid, y_train, y_valid = train_test_split(
+    X_train_full, y_train_full, test_size=0.1, random_state=42)
+
+mlp_clf = MLPClassifier(hidden_layer_sizes=[5], max_iter=10_000,
+                        random_state=42)
+pipeline = make_pipeline(StandardScaler(), mlp_clf)
+pipeline.fit(X_train, y_train)
+accuracy = pipeline.score(X_valid, y_valid)
+print(f"驗證集準確率: {accuracy:.4f}")</code></pre>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 多類別分類任務</li>
+          <li><strong>潛在問題</strong>: 過擬合風險，需要適當的正則化</li>
+          <li><strong>最佳使用情境</strong>: 中小型分類資料集</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="implementing-mlps-keras">
+      <h2>🚀 使用 Keras 實作多層感知器</h2>
+
+      <section class="section" id="sequential-api-classifier">
+        <h3>使用序列 API 建構影像分類器</h3>
+        <p>💡 <strong>實際應用情境：</strong> Fashion MNIST 是常見的影像分類基準資料集，用於測試分類演算法。</p>
+
+        <h4>範例 6: 載入和預處理 Fashion MNIST 資料集</h4>
+        <pre><code>import tensorflow as tf
+
+fashion_mnist = tf.keras.datasets.fashion_mnist.load_data()
+(X_train_full, y_train_full), (X_test, y_test) = fashion_mnist
+X_train, y_train = X_train_full[:-5000], y_train_full[:-5000]
+X_valid, y_valid = X_train_full[-5000:], y_train_full[-5000:]
+
+X_train, X_valid, X_test = X_train / 255., X_valid / 255., X_test / 255.
+
+class_names = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
+               "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot"]</code></pre>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 準備影像分類資料集</li>
+            <li><strong>潛在問題</strong>: 忘記正規化可能導致訓練不穩定</li>
+            <li><strong>最佳使用情境</strong>: 任何影像分類任務的起點</li>
+          </ul>
+        </div>
+
+        <h4>範例 7: 建構和編譯序列模型</h4>
+        <pre><code>tf.random.set_seed(42)
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.InputLayer(input_shape=[28, 28]))
+model.add(tf.keras.layers.Flatten())
+model.add(tf.keras.layers.Dense(300, activation="relu"))
+model.add(tf.keras.layers.Dense(100, activation="relu"))
+model.add(tf.keras.layers.Dense(10, activation="softmax"))
+
+model.compile(loss="sparse_categorical_crossentropy",
+              optimizer="sgd",
+              metrics=["accuracy"])
+
+model.summary()</code></pre>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 建構標準的密集神經網路</li>
+            <li><strong>潛在問題</strong>: 層數和神經元數量需根據任務調整</li>
+            <li><strong>最佳使用情境</strong>: 大多數分類和回歸任務</li>
+          </ul>
+        </div>
+
+        <h4>範例 8: 訓練和評估模型</h4>
+        <pre><code>history = model.fit(X_train, y_train, epochs=30,
+                    validation_data=(X_valid, y_valid))
+
+test_loss, test_accuracy = model.evaluate(X_test, y_test)
+print(f"測試準確率: {test_accuracy:.4f}")</code></pre>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 訓練和評估神經網路模型</li>
+            <li><strong>潛在問題</strong>: 過擬合，需監控驗證指標</li>
+            <li><strong>最佳使用情境</strong>: 模型訓練和效能評估</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="sequential-api-regression">
+        <h3>使用序列 API 建構回歸模型</h3>
+        <p>💡 <strong>實際應用情境：</strong> 使用神經網路進行回歸預測，如加州房價預測。</p>
+
+        <h4>範例 9: 建構回歸 MLP</h4>
+        <pre><code>housing = fetch_california_housing()
+X_train_full, X_test, y_train_full, y_test = train_test_split(
+    housing.data, housing.target, random_state=42)
+X_train, X_valid, y_train, y_valid = train_test_split(
+    X_train_full, y_train_full, random_state=42)
+
+tf.random.set_seed(42)
+norm_layer = tf.keras.layers.Normalization(input_shape=X_train.shape[1:])
+model = tf.keras.Sequential([
+    norm_layer,
+    tf.keras.layers.Dense(50, activation="relu"),
+    tf.keras.layers.Dense(50, activation="relu"),
+    tf.keras.layers.Dense(50, activation="relu"),
+    tf.keras.layers.Dense(1)
+])
+optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
+model.compile(loss="mse", optimizer=optimizer, metrics=["RootMeanSquaredError"])
+norm_layer.adapt(X_train)
+history = model.fit(X_train, y_train, epochs=20,
+                    validation_data=(X_valid, y_valid))
+mse_test, rmse_test = model.evaluate(X_test, y_test)
+X_new = X_test[:3]
+y_pred = model.predict(X_new)</code></pre>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 神經網路回歸預測</li>
+            <li><strong>潛在問題</strong>: 需注意輸出範圍和損失函數選擇</li>
+            <li><strong>最佳使用情境</strong>: 複雜非線性回歸問題</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="functional-api">
+        <h3>使用函數式 API 建構複雜模型</h3>
+        <p>💡 <strong>實際應用情境：</strong> Wide & Deep 模型結合寬路徑和深路徑，能同時學習記憶和泛化。</p>
+
+        <h4>範例 10: Wide & Deep 模型</h4>
+        <pre><code>tf.keras.backend.clear_session()
+tf.random.set_seed(42)
+
+normalization_layer = tf.keras.layers.Normalization()
+hidden_layer1 = tf.keras.layers.Dense(30, activation="relu")
+hidden_layer2 = tf.keras.layers.Dense(30, activation="relu")
+concat_layer = tf.keras.layers.Concatenate()
+output_layer = tf.keras.layers.Dense(1)
+
+input_ = tf.keras.layers.Input(shape=X_train.shape[1:])
+normalized = normalization_layer(input_)
+hidden1 = hidden_layer1(normalized)
+hidden2 = hidden_layer2(hidden1)
+concat = concat_layer([normalized, hidden2])
+output = output_layer(concat)
+
+model = tf.keras.Model(inputs=[input_], outputs=[output])
+
+optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
+model.compile(loss="mse", optimizer=optimizer, metrics=["RootMeanSquaredError"])
+normalization_layer.adapt(X_train)
+history = model.fit(X_train, y_train, epochs=20,
+                    validation_data=(X_valid, y_valid))</code></pre>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 建構多輸入多輸出複雜模型</li>
+            <li><strong>潛在問題</strong>: 拓撲複雜度增加維護難度</li>
+            <li><strong>最佳使用情境</strong>: 需要特殊架構的進階模型</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="subclassing-api">
+        <h3>使用子類化 API 建構動態模型</h3>
+        <p>💡 <strong>實際應用情境：</strong> 子類化允許完全自訂模型行為，如動態架構或自訂訓練邏輯。</p>
+
+        <h4>範例 11: 自訂 WideAndDeepModel 類別</h4>
+        <pre><code>class WideAndDeepModel(tf.keras.Model):
+    def __init__(self, units=30, activation="relu", **kwargs):
+        super().__init__(**kwargs)
+        self.norm_layer_wide = tf.keras.layers.Normalization()
+        self.norm_layer_deep = tf.keras.layers.Normalization()
+        self.hidden1 = tf.keras.layers.Dense(units, activation=activation)
+        self.hidden2 = tf.keras.layers.Dense(units, activation=activation)
+        self.main_output = tf.keras.layers.Dense(1)
+        self.aux_output = tf.keras.layers.Dense(1)
+        
+    def call(self, inputs):
+        input_wide, input_deep = inputs
+        norm_wide = self.norm_layer_wide(input_wide)
+        norm_deep = self.norm_layer_deep(input_deep)
+        hidden1 = self.hidden1(norm_deep)
+        hidden2 = self.hidden2(hidden1)
+        concat = tf.keras.layers.concatenate([norm_wide, hidden2])
+        output = self.main_output(concat)
+        aux_output = self.aux_output(hidden2)
+        return output, aux_output
+
+tf.random.set_seed(42)
+model = WideAndDeepModel(30, activation="relu", name="my_cool_model")
+optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
+model.compile(loss=["mse", "mse"], loss_weights=[0.9, 0.1], optimizer=optimizer,
+              metrics=["RootMeanSquaredError", "RootMeanSquaredError"])</code></pre>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 完全自訂模型架構和行為</li>
+            <li><strong>潛在問題</strong>: 複雜度高，易出錯</li>
+            <li><strong>最佳使用情境</strong>: 需要高度自訂邏輯的研究性模型</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="saving-models">
+        <h3>模型的儲存與載入</h3>
+        <p>💡 <strong>實際應用情境：</strong> 儲存訓練好的模型以便後續使用或部署。</p>
+
+        <h4>範例 12: 儲存和載入 Keras 模型</h4>
+        <pre><code>model.save("my_model.keras")
+loaded_model = tf.keras.models.load_model("my_model.keras")
+
+model.save_weights("my_weights.weights.h5")
+model.load_weights("my_weights.weights.h5")</code></pre>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 模型持久化</li>
+            <li><strong>潛在問題</strong>: 版本相容性問題</li>
+            <li><strong>最佳使用情境</strong>: 模型部署和重用</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="callbacks">
+        <h3>回呼函數 (Callbacks)</h3>
+        <p>💡 <strong>實際應用情境：</strong> 回呼函數允許在訓練過程中執行自訂邏輯，如早期停止或檢查點儲存。</p>
+
+        <h4>範例 13: 使用常見回呼函數</h4>
+        <pre><code>checkpoint_cb = tf.keras.callbacks.ModelCheckpoint("my_checkpoints.weights.h5",
+                                                   save_weights_only=True)
+early_stopping_cb = tf.keras.callbacks.EarlyStopping(patience=10,
+                                                     restore_best_weights=True)
+
+class PrintValTrainRatioCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs):
+        ratio = logs["val_loss"] / logs["loss"]
+        print(f"Epoch={epoch}, val/train={ratio:.2f}")</code></pre>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 自動化訓練過程管理</li>
+            <li><strong>潛在問題</strong>: 過度複雜的回呼可能影響效能</li>
+            <li><strong>最佳使用情境</strong>: 長時間訓練任務</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="tensorboard">
+        <h3>使用 TensorBoard 視覺化</h3>
+        <p>💡 <strong>實際應用情境：</strong> TensorBoard 提供豐富的視覺化工具來監控訓練過程和模型效能。</p>
+
+        <h4>範例 14: 設定 TensorBoard 回呼</h4>
+        <pre><code>from pathlib import Path
+from time import strftime
+
+def get_run_logdir(root_logdir="my_logs"):
+    return Path(root_logdir) / strftime("run_%Y_%m_%d_%H_%M_%S")
+
+run_logdir = get_run_logdir()
+tensorboard_cb = tf.keras.callbacks.TensorBoard(run_logdir,
+                                                profile_batch=(100, 200))
+history = model.fit(X_train, y_train, epochs=20,
+                    validation_data=(X_valid, y_valid),
+                    callbacks=[tensorboard_cb])
+
+%load_ext tensorboard
+%tensorboard --logdir=./my_logs</code></pre>
+
+        <div class="summary-box">
+          <h5>🎯 重點摘要:</h5>
+          <ul>
+            <li><strong>核心功能</strong>: 訓練過程視覺化</li>
+            <li><strong>潛在問題</strong>: 日誌檔案可能佔用大量磁碟空間</li>
+            <li><strong>最佳使用情境</strong>: 模型開發和除錯</li>
+          </ul>
+        </div>
+      </section>
+    </section>
+
+    <section class="section" id="hyperparameter-tuning">
+      <h2>⚙️ 微調神經網路超參數</h2>
+      <p>💡 <strong>實際應用情境：</strong> 超參數調優對於提升模型效能至關重要，Keras Tuner 提供自動化工具。</p>
+
+      <h3>範例 15: 使用 Keras Tuner 進行超參數搜尋</h3>
+      <pre><code>import keras_tuner as kt
+
+def build_model(hp):
+    n_hidden = hp.Int("n_hidden", min_value=0, max_value=8, default=2)
+    n_neurons = hp.Int("n_neurons", min_value=16, max_value=256)
+    learning_rate = hp.Float("learning_rate", min_value=1e-4, max_value=1e-2,
+                             sampling="log")
+    optimizer = hp.Choice("optimizer", values=["sgd", "adam"])
+    if optimizer == "sgd":
+        optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
+    else:
+        optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Flatten())
+    for _ in range(n_hidden):
+        model.add(tf.keras.layers.Dense(n_neurons, activation="relu"))
+    model.add(tf.keras.layers.Dense(10, activation="softmax"))
+    model.compile(loss="sparse_categorical_crossentropy", optimizer=optimizer,
+                  metrics=["accuracy"])
+    return model
+
+random_search_tuner = kt.RandomSearch(
+    build_model, objective="val_accuracy", max_trials=5, overwrite=True,
+    directory="my_fashion_mnist", project_name="my_rnd_search", seed=42)
+random_search_tuner.search(X_train, y_train, epochs=10,
+                           validation_data=(X_valid, y_valid))
+
+top3_models = random_search_tuner.get_best_models(num_models=3)
+best_model = top3_models[0]</code></pre>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 自動化超參數優化</li>
+          <li><strong>潛在問題</strong>: 搜尋空間過大會增加計算成本</li>
+          <li><strong>最佳使用情境</strong>: 模型效能優化</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="conclusion">
+      <h2>💡 總結與最佳實踐</h2>
+      <p>神經網路是強大的機器學習工具，能學習複雜的模式和關係。本教學涵蓋了從基礎概念到進階實作的完整流程。</p>
+
+      <h3>最佳實踐：</h3>
+      <ul>
+        <li>從簡單模型開始，逐步增加複雜度</li>
+        <li>始終使用驗證集監控過擬合</li>
+        <li>正確預處理資料，包括正規化和特徵工程</li>
+        <li>使用適當的激活函數和優化器</li>
+        <li>利用回呼函數進行訓練管理</li>
+        <li>定期儲存模型檢查點</li>
+        <li>使用 TensorBoard 監控訓練過程</li>
+        <li>進行系統性的超參數調優</li>
+      </ul>
+    </section>
+
+    <section class="section" id="faq">
+      <h2>❓ 常見問答 (FAQ)</h2>
+
+      <div class="faq">
+        <p><strong>Q: 神經網路和傳統機器學習演算法有何差異？</strong></p>
+        <p>A: 神經網路能自動學習特徵表示，而傳統演算法需要手動特徵工程。神經網路在處理複雜非線性問題時表現更優異，但需要更多資料和計算資源。</p>
+
+        <p><strong>Q: 如何選擇隱藏層數量和神經元數量？</strong></p>
+        <p>A: 從簡單架構開始，透過交叉驗證比較不同配置。過少的層/神經元可能欠擬合，過多則可能過擬合。</p>
+
+        <p><strong>Q: ReLU 為什麼是隱藏層的常用激活函數？</strong></p>
+        <p>A: ReLU 計算簡單，能有效解決梯度消失問題，且在實務中表現良好。不過在某些情況下可能需要考慮 Leaky ReLU 或 ELU。</p>
+
+        <p><strong>Q: 如何處理過擬合問題？</strong></p>
+        <p>A: 使用 Dropout、正則化、早期停止、資料擴增等技術。增加訓練資料量也是有效方法。</p>
+
+        <p><strong>Q: 函數式 API 和序列 API 有何區別？</strong></p>
+        <p>A: 序列 API 適用於簡單的層疊結構，函數式 API 支援複雜拓撲如多輸入輸出、跳躍連接等。</p>
+      </div>
+    </section>
+
+    <section class="section" id="hashtags">
+      <h2>🏷️ 推薦標籤 (Suggested Hashtags)</h2>
+      <p>#Keras #神經網路 #機器學習 #深度學習 #TensorFlow #人工智慧 #程式設計 #教學 #編程 #開發 #技術分享 #學習筆記 #程式開發者 #軟體工程</p>
+    </section>
+  </main>
+
+  <!-- =============================================================================
+       FOOTER
+       ============================================================================= -->
+  <footer class="hashtags" id="hashtags">
+    #Keras #神經網路 #機器學習 #深度學習 #TensorFlow #人工智慧 #程式設計 #教學 #編程 #開發 #技術分享 #學習筆記 #程式開發者 #軟體工程
+  </footer>
+</body>
+</html>

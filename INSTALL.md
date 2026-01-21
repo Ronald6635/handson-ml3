@@ -75,20 +75,32 @@ If you get an error, it's probably because you modified a notebook. In this case
     $ git checkout main
     $ git pull
 
-Next, let's update the libraries. First, let's update `conda` itself:
+Next, update `conda` itself:
 
     $ conda update -c defaults -n base conda
 
-Then we'll delete this project's `homl3` environment:
+Before modifying the environment, it's a good idea to export a backup:
+
+    $ conda env export -n homl3 > homl3-backup.yml
+
+You have two options to apply the changes in `environment.yml`:
+
+Option A — Recreate the environment (clean, guaranteed match):
 
     $ conda activate base
     $ conda env remove -n homl3
-
-And recreate the environment:
-
     $ conda env create -f environment.yml
 
-Lastly, we reactivate the environment and start Jupyter:
+Option B — Update the existing environment in place (faster). Use --prune to remove packages no longer listed in environment.yml:
+
+    $ conda activate base
+    $ conda env update -f environment.yml --prune
+
+After updating or recreating, reactivate and (if needed) reinstall the Jupyter kernel (do this if Python's version changed):
 
     $ conda activate homl3
+    $ python -m ipykernel install --user --name=python3 --replace
+
+Lastly, start Jupyter:
+
     $ jupyter notebook

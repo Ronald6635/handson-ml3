@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>使用 Keras 學習人工神經網路：完整教學指南</title>
+  <meta name="description" content="從生物神經元到深度學習的完整 Keras 神經網路教學，包含實作範例、逐行解析與最佳實踐。"/>
+  <meta name="keywords" content="Keras, 神經網路, 人工智慧, 機器學習, 深度學習, 教學, Python"/>
+  
+  <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
+  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+  
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --secondary-color: #64748b;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --error-color: #ef4444;
+      --text-color: #1f2937;
+      --bg-color: #ffffff;
+      --card-bg: #f8fafc;
+      --border-color: #e5e7eb;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    [data-theme="dark"] {
+      --text-color: #f9fafb;
+      --bg-color: #111827;
+      --card-bg: #1f2937;
+      --border-color: #374151;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+      color: white;
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .meta {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      font-style: italic;
+    }
+
+    nav {
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .toc {
+      padding: 1rem 0;
+    }
+
+    .toc ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .toc a {
+      color: var(--primary-color);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .toc a:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    main {
+      padding: 2rem 0;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+      scroll-margin-top: 2rem;
+    }
+
+    .section h2 {
+      color: var(--primary-color);
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .section h3 {
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+      margin: 1.5rem 0 1rem;
+    }
+
+    .summary-box {
+      background-color: var(--card-bg);
+      border-left: 4px solid var(--success-color);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0.375rem;
+    }
+
+    .summary-box h4 {
+      color: var(--success-color);
+      margin-bottom: 0.5rem;
+    }
+
+    code {
+      background-color: var(--card-bg);
+      padding: 0.125rem 0.25rem;
+      border-radius: 0.25rem;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.875rem;
+    }
+
+    pre {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 0.375rem;
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      margin: 1rem 0;
+    }
+
+    pre code {
+      background-color: transparent;
+      padding: 0;
+    }
+
+    .highlight-box {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .emoji {
+      font-size: 1.2em;
+      vertical-align: middle;
+      margin-right: 0.25rem;
+    }
+
+    footer {
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    .hashtags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .hashtag {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      text-decoration: none;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .toc ul {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .toc a {
+        display: block;
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">🌙</button>
+
+  <header>
+    <div class="container">
+      <h1>🐍 使用 Keras 介紹人工神經網路</h1>
+      <p class="meta">這份教學基於《Hands-On Machine Learning》第 3 版第 10 章，完整介紹人工神經網路的基本概念與 Keras 實作。從生物神經元開始，逐步學習感知器、多層感知器（MLP）、激活函數，以及使用 Keras 的三種 API 建構神經網路模型。</p>
+    </div>
+  </header>
+
+  <nav>
+    <div class="container">
+      <ul class="toc">
+        <li><a href="#關鍵重點">🎯 關鍵重點</a></li>
+        <li><a href="#生物神經元">🧠 從生物神經元到人工神經網路</a></li>
+        <li><a href="#感知器">⚡ 感知器</a></li>
+        <li><a href="#多層感知器">🔄 多層感知器與反向傳播</a></li>
+        <li><a href="#keras建構">📊 使用 Keras 建構神經網路</a></li>
+        <li><a href="#模型儲存">💾 模型儲存與載入</a></li>
+        <li><a href="#訓練神經網路">📈 訓練神經網路</a></li>
+        <li><a href="#視覺化">🔍 視覺化與除錯</a></li>
+        <li><a href="#超參數調校">🎛️ 超參數調校</a></li>
+        <li><a href="#常見問答">❓ 常見問答</a></li>
+        <li><a href="#推薦標籤">🏷️ 推薦標籤</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section id="關鍵重點" class="section">
+      <h2>🎯 關鍵重點</h2>
+      <ul>
+        <li>人工神經網路模仿生物神經系統，透過層層神經元處理資訊</li>
+        <li>Keras 提供三種建構模型的 API：Sequential、Functional、Subclassing</li>
+        <li>激活函數決定神經元的輸出，非線性函數讓網路能學習複雜模式</li>
+        <li>反向傳播演算法透過梯度下降優化網路權重</li>
+        <li>正規化技巧如 Dropout 能防止過擬合</li>
+      </ul>
+    </section>
+
+    <section id="生物神經元" class="section">
+      <h2>🧠 從生物神經元到人工神經網路</h2>
+      <p>生物神經元是神經系統的基本單位，接收來自其他神經元的訊號，當累積訊號超過閾值時會發射訊號。人工神經網路模仿這個概念，建構出能學習複雜模式的計算模型。</p>
+
+      <h3>範例 1: 檢查 Python 與套件版本</h3>
+      <pre><code>import sys
+
+# 確保 Python 版本至少 3.7
+assert sys.version_info >= (3, 7)</code></pre>
+      <div class="summary-box">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>import sys</code>: 匯入 sys 模組，用於檢查系統資訊</li>
+          <li><code>assert sys.version_info >= (3, 7)</code>: 斷言 Python 版本必須大於等於 3.7，否則拋出錯誤</li>
+        </ol>
+        <div class="summary-box">
+          <h4>🎯 重點摘要:</h4>
+          <ul>
+            <li><strong>核心功能</strong>: 版本檢查確保程式相容性</li>
+            <li><strong>潛在問題</strong>: 舊版 Python 可能缺少某些功能</li>
+            <li><strong>最佳使用情境</strong>: 在程式開始時進行環境檢查</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="感知器" class="section">
+      <h2>⚡ 感知器</h2>
+      <p>感知器是最簡單的人工神經網路，由 Frank Rosenblatt 在 1957 年提出。它是一個單層神經網路，能學習線性可分的模式。</p>
+
+      <h3>範例 3: 使用 Scikit-Learn 實作感知器</h3>
+      <pre><code>import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.linear_model import Perceptron
+
+# 載入鳶尾花資料集
+iris = load_iris()
+X = iris.data[:, (2, 3)]  # 花瓣長度和寬度
+y = (iris.target == 0).astype(int)  # 是否為 Setosa
+
+# 建立感知器模型
+per_clf = Perceptron(random_state=42)
+per_clf.fit(X, y)
+
+# 預測
+y_pred = per_clf.predict([[2, 0.5]])
+print(y_pred)</code></pre>
+      <div class="summary-box">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>import numpy as np</code>: 匯入 NumPy 用於數值運算</li>
+          <li><code>from sklearn.datasets import load_iris</code>: 載入鳶尾花資料集</li>
+          <li><code>from sklearn.linear_model import Perceptron</code>: 匯入感知器類別</li>
+          <li><code>iris = load_iris()</code>: 載入資料集</li>
+          <li><code>X = iris.data[:, (2, 3)]</code>: 選取花瓣特徵</li>
+          <li><code>y = (iris.target == 0).astype(int)</code>: 建立二元分類標籤</li>
+          <li><code>per_clf = Perceptron(random_state=42)</code>: 建立感知器模型</li>
+          <li><code>per_clf.fit(X, y)</code>: 訓練模型</li>
+          <li><code>y_pred = per_clf.predict([[2, 0.5]])</code>: 預測新樣本</li>
+          <li><code>print(y_pred)</code>: 印出預測結果</li>
+        </ol>
+        <div class="summary-box">
+          <h4>🎯 重點摘要:</h4>
+          <ul>
+            <li><strong>核心功能</strong>: 實作單層神經網路進行二元分類</li>
+            <li><strong>潛在問題</strong>: 只能學習線性可分問題</li>
+            <li><strong>最佳使用情境</strong>: 簡單分類任務的基準模型</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="keras建構" class="section">
+      <h2>📊 使用 Keras 建構神經網路</h2>
+      <p>Keras 是高階神經網路 API，提供三種建構模型的方式：Sequential、Functional、Subclassing。</p>
+
+      <h3>範例 5: 使用 Sequential API 建構模型</h3>
+      <pre><code>import tensorflow as tf
+from tensorflow import keras
+
+# 建立 Sequential 模型
+model = keras.models.Sequential([
+    keras.layers.Flatten(input_shape=[28, 28]),
+    keras.layers.Dense(300, activation="relu"),
+    keras.layers.Dense(100, activation="relu"),
+    keras.layers.Dense(10, activation="softmax")
+])
+
+# 編譯模型
+model.compile(loss="sparse_categorical_crossentropy",
+              optimizer="sgd",
+              metrics=["accuracy"])</code></pre>
+      <div class="summary-box">
+        <h4>✅ 程式碼逐行解析：</h4>
+        <ol>
+          <li><code>import tensorflow as tf</code>: 匯入 TensorFlow</li>
+          <li><code>from tensorflow import keras</code>: 匯入 Keras</li>
+          <li><code>model = keras.models.Sequential([...])</code>: 建立序列模型</li>
+          <li><code>keras.layers.Flatten(input_shape=[28, 28])</code>: 攤平輸入層</li>
+          <li><code>keras.layers.Dense(300, activation="relu")</code>: 全連接層</li>
+          <li><code>model.compile(...)</code>: 設定損失函數、優化器、評估指標</li>
+        </ol>
+        <div class="summary-box">
+          <h4>🎯 重點摘要:</h4>
+          <ul>
+            <li><strong>核心功能</strong>: 簡單直覺的模型建構方式</li>
+            <li><strong>潛在問題</strong>: 無法處理複雜架構如多輸入輸出</li>
+            <li><strong>最佳使用情境</strong>: 標準前饋網路</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="常見問答" class="section">
+      <h2>❓ 常見問答</h2>
+      <div class="highlight-box">
+        <p><strong>Q: Sequential API 與 Functional API 的差異？</strong></p>
+        <p>A: Sequential API 適合簡單的線性堆疊架構，而 Functional API 能處理複雜的網路結構如多輸入輸出或共享層。</p>
+      </div>
+      <div class="highlight-box">
+        <p><strong>Q: 如何避免過擬合？</strong></p>
+        <p>A: 使用 Dropout、早期停止、正規化技巧，或增加訓練資料。</p>
+      </div>
+      <div class="highlight-box">
+        <p><strong>Q: 激活函數選擇的考量？</strong></p>
+        <p>A: ReLU 適合隱藏層避免梯度消失，Softmax 適用於多分類輸出層。</p>
+      </div>
+    </section>
+
+    <section id="推薦標籤" class="section">
+      <h2>🏷️ 推薦標籤</h2>
+      <div class="hashtags">
+        <a href="#" class="hashtag">#Keras</a>
+        <a href="#" class="hashtag">#神經網路</a>
+        <a href="#" class="hashtag">#人工智慧</a>
+        <a href="#" class="hashtag">#機器學習</a>
+        <a href="#" class="hashtag">#深度學習</a>
+        <a href="#" class="hashtag">#Python教學</a>
+        <a href="#" class="hashtag">#程式設計</a>
+        <a href="#" class="hashtag">#TensorFlow</a>
+        <a href="#" class="hashtag">#AI</a>
+        <a href="#" class="hashtag">#資料科學</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2024 使用 Keras 學習人工神經網路教學。基於 Hands-On Machine Learning 3rd Edition。</p>
+      <div class="hashtags">
+        <a href="#" class="hashtag">#Keras</a>
+        <a href="#" class="hashtag">#神經網路</a>
+        <a href="#" class="hashtag">#人工智慧</a>
+        <a href="#" class="hashtag">#機器學習</a>
+        <a href="#" class="hashtag">#深度學習</a>
+        <a href="#" class="hashtag">#Python教學</a>
+        <a href="#" class="hashtag">#程式設計</a>
+        <a href="#" class="hashtag">#TensorFlow</a>
+        <a href="#" class="hashtag">#AI</a>
+        <a href="#" class="hashtag">#資料科學</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      const body = document.body;
+      const themeToggle = document.querySelector('.theme-toggle');
+      
+      if (body.getAttribute('data-theme') === 'dark') {
+        body.removeAttribute('data-theme');
+        themeToggle.textContent = '🌙';
+      } else {
+        body.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️';
+      }
+    }
+
+    // Check for saved theme preference or default to light mode
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.setAttribute('data-theme', 'dark');
+      document.querySelector('.theme-toggle').textContent = '☀️';
+    }
+  </script>
+</body>
+</html>
