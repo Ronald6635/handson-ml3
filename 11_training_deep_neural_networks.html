@@ -1,35 +1,34 @@
+<!-- filepath: 11_training_deep_neural_networks.html -->
 <!--
 訓練深度神經網路 HTML 文件
 
-此文件是教學的HTML版本，針對網頁查看最佳化並包含數學方程式渲染。
+This template renders the Hands-On ML chapter as a static, accessible HTML page.
 
-關鍵特點：
-- 詳細解釋概念與範例
-- 使用MathJax進行LaTeX數學公式渲染
-- 響應式設計，支援深色模式
-- 清晰、有組織的區段以便導航
+Key features:
+- Complete explanations + runnable examples
+- MathJax for LaTeX rendering
+- Responsive + dark-mode aware styles
+- Accessibility improvements (skip links, landmarks)
 
-依賴：
+Dependencies:
 - Google Fonts (Noto Sans TC)
-- MathJax用於LaTeX渲染
-- ES6 Polyfill用於舊版瀏覽器相容性
+- MathJax (latex rendering)
+- Promise polyfill (older browsers)
 
-範本情境：
-- 這是一個靜態HTML文件，無伺服器端範本變數
+Template context: static HTML (no server-side template vars)
 
-瀏覽器支援：
-- 現代瀏覽器 (Chrome, Firefox, Safari, Edge)
+Browser support: modern browsers (Chrome, Firefox, Safari, Edge)
 
-最後更新：[日期]
-作者：HowToolHelp.com powered by GitHub Copilot
+Last Updated: 2026-02-01
+Author: HowToolHelp.com powered by GitHub Copilot
 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>訓練深度神經網路：解決梯度消失與爆炸問題的實戰指南</title>
-  <meta name="description" content="深入探討訓練深度神經網路的關鍵技術，包括初始化方法、激活函數、批次正規化、優化器與學習率調度。透過實戰範例學習如何建構穩定、高效能的深度學習模型。"/>
+  <title>訓練深度神經網路：解決梯度消失(Vanishing Gradient)與爆炸(Exploding Gradient)問題的實戰指南</title>
+  <meta name="description" content="深入探討訓練深度神經網路的關鍵技術，包括Xavier與He初始化、Swish等激活函數、批次正規化、Adam與Nadam優化器與學習率調度。透過CIFAR10實戰範例學習如何建構穩定、高效能的深度學習模型。"/>
   <meta name="keywords" content="Python, 深度學習, 神經網路, 梯度消失, 批次正規化, Adam優化器, 學習率調度, 程式設計, 教學"/>
   
   <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
@@ -107,6 +106,10 @@
     .summary-box { background-color: var(--summary-bg-color); border-left: 5px solid var(--heading-color); padding: 15px 20px; margin: 1.5em 0; border-radius: 5px; }
     .faq p { margin: 0.5em 0; }
     .hashtags { background-color: var(--summary-bg-color); padding: 15px; border-radius: 8px; text-align: center; font-size: 0.9em; word-spacing: 10px; }
+    .skip-links { position: absolute; left: -999px; top: 0; }
+    .skip-links:focus-within { left: 12px; top: 12px; }
+    .skip-links__link { background-color: var(--heading-color); color: #fff; padding: 8px 12px; border-radius: 6px; margin-right: 8px; text-decoration: none; font-size: 0.9em; }
+    .skip-links__link:focus { outline: 3px solid #fff3; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     mjx-container { text-align: center !important; margin: 1em 0; }
     code { background-color: var(--code-bg-color); padding: 2px 4px; border-radius: 3px; }
     pre { background-color: var(--code-bg-color); padding: 15px; border-radius: 5px; overflow-x: auto; }
@@ -114,52 +117,58 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="skip-links" aria-hidden="false">
+    <a class="skip-links__link" href="#main-content">Skip to main content</a>
+    <a class="skip-links__link" href="#navbar-menu">Skip to navigation</a>
+    <a class="skip-links__link" href="#hashtags">Skip to footer</a>
+  </div>
   <!-- =============================================================================
        HEADER AND TABLE OF CONTENTS
        ============================================================================= -->
   <header>
-    <h1>🐍 訓練深度神經網路：解決梯度消失與爆炸問題的實戰指南</h1>
-    <p class="meta">在深度學習領域，訓練深度神經網路往往面臨梯度消失或爆炸的挑戰。本教學將帶您探索有效的解決方案，包括Xavier與He初始化、ReLU及其變體激活函數、批次正規化、梯度裁剪、遷移學習，以及Adam等先進優化器。這些技術有助於在複雜資料集上建構穩定且高效能的模型。</p>
+    <h1>🐍 訓練深度神經網路：解決梯度消失(Vanishing Gradient)與爆炸(Exploding Gradient)問題的實戰指南</h1>
+    <p class="meta">在深度學習領域，訓練深度神經網路往往面臨梯度消失或爆炸的挑戰。本教學將帶您探索有效的解決方案，包括Xavier與He初始化、ReLU、Swish等激活函數、批次正規化、梯度裁剪、遷移學習，以及Adam、Nadam等先進優化器。這些技術有助於在複雜資料集上建構穩定且高效能的模型。</p>
   </header>
 
   <!--====================================
       TABLE OF CONTENTS
       ===================================-->
-  <nav class="toc" aria-label="本文目錄">
+  <nav id="navbar-menu" class="toc" aria-label="本文目錄">
     <h2>📝 本文目錄</h2>
     <ul>
-      <li><a href="#vanishing-exploding-gradients">梯度消失與爆炸問題</a></li>
-      <li><a href="#xavier-he-initialization">Xavier與He初始化</a></li>
-      <li><a href="#nonsaturating-activation-functions">非飽和激活函數</a></li>
-      <li><a href="#batch-normalization">批次正規化</a></li>
-      <li><a href="#gradient-clipping">梯度裁剪</a></li>
-      <li><a href="#reusing-pretrained-layers">重用預訓練層</a></li>
-      <li><a href="#faster-optimizers">更快的優化器</a></li>
-      <li><a href="#learning-rate-scheduling">學習率調度</a></li>
-      <li><a href="#avoiding-overfitting-regularization">透過正規化避免過擬合</a></li>
+      <li><a href="#vanishing-exploding-gradients">梯度消失與爆炸問題 (Vanishing/Exploding Gradients)</a></li>
+      <li><a href="#xavier-he-initialization">Xavier與He初始化 (Xavier/He Initialization)</a></li>
+      <li><a href="#nonsaturating-activation-functions">非飽和激活函數 (Nonsaturating Activation Functions)</a></li>
+      <li><a href="#batch-normalization">批次正規化 (Batch Normalization)</a></li>
+      <li><a href="#gradient-clipping">梯度裁剪 (Gradient Clipping)</a></li>
+      <li><a href="#reusing-pretrained-layers">重用預訓練層 (Reusing Pretrained Layers)</a></li>
+      <li><a href="#faster-optimizers">更快的優化器 (Faster Optimizers)</a></li>
+      <li><a href="#learning-rate-scheduling">學習率調度 (Learning Rate Scheduling)</a></li>
+      <li><a href="#avoiding-overfitting-regularization">透過正規化避免過擬合 (Avoiding Overfitting - Regularization)</a></li>
+      <li><a href="#cifar10-dnn-implementation">CIFAR10 上的 DNN 訓練實戰 (CIFAR10 DNN Implementation)</a></li>
     </ul>
   </nav>
 
   <!-- =============================================================================
        MAIN CONTENT AREA
        ============================================================================= -->
-  <main>
+  <main id="main-content" role="main">
     <section class="section" id="key-takeaways">
       <h2>🎯 關鍵重點 (Key Takeaways)</h2>
       <ul>
-        <li>理解梯度消失與爆炸問題，並學習初始化與激活函數的解決方案</li>
-        <li>掌握批次正規化與梯度裁剪技術，提升訓練穩定性</li>
-        <li>熟悉各種優化器與學習率調度策略，加速收斂</li>
-        <li>應用正規化技術避免過擬合，建構泛化能力強的模型</li>
+        <li>理解梯度消失(Vanishing Gradient)與爆炸(Exploding Gradient)問題，並學習初始化(Initialization)與激活函數(Activation Function)的解決方案</li>
+        <li>掌握批次正規化(Batch Normalization)與梯度裁剪(Gradient Clipping)技術，提升訓練穩定性</li>
+        <li>熟悉各種優化器(Optimizer)與學習率調度(Learning Rate Scheduling)策略，加速收斂</li>
+        <li>應用正規化(Regularization)技術避免過擬合(Overfitting)，建構泛化能力強的模型</li>
       </ul>
     </section>
 
     <section class="section" id="vanishing-exploding-gradients">
-      <h2>梯度消失與爆炸問題</h2>
+      <h2>梯度消失與爆炸問題 (Vanishing/Exploding Gradients)</h2>
       <p>💡 <strong>實際應用情境：</strong> 在訓練深度神經網路時，特別是處理複雜的圖像分類任務時，梯度可能會隨著層數增加而變得極小（消失）或極大（爆炸），導致訓練緩慢或不穩定。這在自然語言處理或電腦視覺任務中特別常見。</p>
 
       <h3>範例 1: 繪製Sigmoid激活函數的飽和問題</h3>
-      <pre><code># 匯入必要的函式庫
+      <pre><code class="language-python"># 匯入必要的函式庫
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -213,11 +222,11 @@ plt.show()</code></pre>
     </section>
 
     <section class="section" id="xavier-he-initialization">
-      <h2>Xavier與He初始化</h2>
+      <h2>Xavier與He初始化 (Xavier/He Initialization)</h2>
       <p>💡 <strong>實際應用情境：</strong> 在建構深度卷積神經網路處理圖像分類時，正確的權重初始化對於避免梯度問題至關重要。</p>
 
       <h3>範例 2: 使用He初始化建立Dense層</h3>
-      <pre><code># 匯入TensorFlow Keras層
+      <pre><code class="language-python"># 匯入TensorFlow Keras層
 import tensorflow as tf
 
 # 使用He正態初始化建立Dense層，適用於ReLU激活函數
@@ -238,14 +247,22 @@ dense = tf.keras.layers.Dense(50, activation="relu",
           <li><strong>最佳使用情境</strong>: 深度網路中使用ReLU激活函數時</li>
         </ul>
       </div>
+
+      <h3>範例 3: 自訂He初始化變體</h3>
+      <pre><code class="language-python"># 使用VarianceScaling初始化器自訂He初始化
+he_avg_init = tf.keras.initializers.VarianceScaling(scale=2., mode="fan_avg",
+                                                    distribution="uniform")
+dense = tf.keras.layers.Dense(50, activation="sigmoid",
+                              kernel_initializer=he_avg_init)</code></pre>
+
     </section>
 
     <section class="section" id="nonsaturating-activation-functions">
-      <h2>非飽和激活函數</h2>
+      <h2>非飽和激活函數 (Nonsaturating Activation Functions)</h2>
       <p>💡 <strong>實際應用情境：</strong> 在訓練深度網路處理語音辨識任務時，使用非飽和激活函數可以防止神經元死亡，提升模型效能。</p>
 
       <h3>範例 4: Leaky ReLU激活函數</h3>
-      <pre><code># 定義Leaky ReLU函數
+      <pre><code class="language-python"># 定義Leaky ReLU函數
 def leaky_relu(z, alpha):
     return np.maximum(alpha * z, z)
 
@@ -258,50 +275,158 @@ plt.xlabel("$z$")
 plt.legend()
 plt.show()</code></pre>
 
+      <h3>範例 5: 使用TensorFlow的LeakyReLU</h3>
+      <pre><code class="language-python"># 使用TensorFlow的LeakyReLU層
+leaky_relu = tf.keras.layers.LeakyReLU(alpha=0.2)
+dense = tf.keras.layers.Dense(50, activation=leaky_relu,
+                              kernel_initializer="he_normal")</code></pre>
+
       <div class="summary-box">
         <h4>🎯 重點摘要:</h4>
         <ul>
-          <li><strong>核心功能</strong>: 允許負輸入有小梯度，防止神經元死亡</li>
-          <li><strong>潛在問題</strong>: alpha參數需要調整</li>
-          <li><strong>最佳使用情境</strong>: ReLU可能導致神經元死亡的網路</li>
+          <li><strong>核心功能</strong>: 將LeakyReLU作為單獨層使用，便於控制</li>
+          <li><strong>潛在問題</strong>: 增加網路深度</li>
+          <li><strong>最佳使用情境</strong>: 需要精細控制激活函數時</li>
+        </ul>
+      </div>
+
+      <h3>範例 6: Swish激活函數</h3>
+      <pre><code class="language-python"># 定義Swish函數
+def swish(z):
+    return z * (1 / (1 + np.exp(-z)))
+
+# 繪製Swish曲線
+z = np.linspace(-5, 5, 200)
+plt.plot(z, swish(z), "b-", linewidth=2,
+         label=r"$Swish(z) = z \cdot \sigma(z)$")
+plt.axis([-5, 5, -2.5, 5])
+plt.xlabel("$z$")
+plt.legend()
+plt.show()</code></pre>
+
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>def swish(z):</code>: 定義Swish函數</li>
+        <li><code>return z * (1 / (1 + np.exp(-z)))</code>: 計算Swish值</li>
+        <li><code>z = np.linspace(-5, 5, 200)</code>: 建立z值範圍</li>
+        <li><code>plt.plot(z, swish(z), ...)</code>: 繪製Swish曲線</li>
+        <li><code>plt.axis([-5, 5, -2.5, 5])</code>: 設定軸範圍</li>
+        <li><code>plt.xlabel("$z$")</code>: 設定x軸標籤</li>
+        <li><code>plt.legend()</code>: 顯示圖例</li>
+        <li><code>plt.show()</code>: 顯示圖表</li>
+      </ol>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 平滑激活，適合深層網路</li>
+          <li><strong>潛在問題</strong>: 計算稍複雜於ReLU</li>
+          <li><strong>最佳使用情境</strong>: 深層網路中需要更好性能時</li>
         </ul>
       </div>
     </section>
 
     <section class="section" id="batch-normalization">
-      <h2>批次正規化</h2>
+      <h2>批次正規化 (Batch Normalization)</h2>
       <p>💡 <strong>實際應用情境：</strong> 在訓練大型卷積網路處理醫療影像分類時，批次正規化可以加速收斂並提升穩定性。</p>
 
-      <h3>範例 6: 在Sequential模型中加入批次正規化</h3>
-      <pre><code># 建立包含批次正規化的模型
+      <p><strong>簡短定義：</strong>批次正規化（Batch Normalization, BN）會對一個 mini-batch 中每個神經元的輸入進行零中心化（zero-centering）與正規化（normalizing），並透過學習兩個新參數（縮放與平移）來決定最佳的平均值與標準差，從而讓每層的輸入分佈更穩定。</p>
+
+      <p><strong>直觀效果與好處：</strong></p>
+      <ul>
+        <li><strong>加速訓練：</strong> 減輕了對權重初始化的敏感性，並允許使用更大的學習率。</li>
+        <li><strong>減少過擬合：</strong> BN 具有某種程度的正規化效果，可減少對其他正規化技術（如 Dropout）的需求。</li>
+        <li>穩定每層輸入分佈，減少所謂的「internal covariate shift」（雖然名稱有爭議，但實務上確實穩定了訓練過程）。</li>
+        <li>幫助梯度流動，對深層網路特別有用。</li>
+      </ul>
+
+      <p><strong>訓練 vs 推論（關鍵差異）：</strong> 訓練時：BN 使用 mini-batch 的均值與方差來標準化，並同時更新「running mean/variance」。推論時：BN 使用累積的 running mean/variance（moving averages），而非當前樣本的統計量——因此訓練與推論行為不同，這一點在微調或小 batch 情境下需要特別留意。</p>
+
+      <h3>實作要點與最佳實踐</h3>
+      <ul>
+        <li>典型擺放：在非線性之前對線性輸出做 BN（例如：Dense/Conv2D -&gt; BatchNormalization -&gt; Activation）。</li>
+        <li>若使用 BN，通常可將上一層的 bias 關閉（use_bias=False），因為 BN 有自己的平移參數 beta。</li>
+        <li>小 batch（例如 batch size &lt; 8）會削弱 BN 的效果；可改用 LayerNorm、GroupNorm 或 InstanceNorm 作為替代。</li>
+        <li>調整 momentum（running average 的慣性）與 epsilon（數值穩定項）可改善累積統計量的品質，特別是在遷移學習或非平穩資料上。</li>
+        <li>與 Dropout 的互動：BN 已有正則化效果，但在某些架構中兩者結合仍有益；順序上通常先 BN 再 Dropout（若同時使用）。</li>
+      </ul>
+
+      <h3>範例 6 (推薦做法): 在 Sequential 模型中加入批次正規化</h3>
+      <pre><code class="language-python"># 推薦做法：在線性層後、Activation 前使用 BatchNormalization，並關閉 bias
 model = tf.keras.Sequential([
     tf.keras.layers.Flatten(input_shape=[28, 28]),
-    tf.keras.layers.BatchNormalization(), # 標準化輸入
-    tf.keras.layers.Dense(300, activation="relu",
+
+    tf.keras.layers.Dense(300, use_bias=False,
                           kernel_initializer="he_normal"),
-    tf.keras.layers.BatchNormalization(), # 標準化隱藏層
-    tf.keras.layers.Dense(100, activation="relu",
+    tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Activation("relu"),
+
+    tf.keras.layers.Dense(100, use_bias=False,
                           kernel_initializer="he_normal"),
-    tf.keras.layers.BatchNormalization(), # 標準化另一隱藏層
+    tf.keras.layers.BatchNormalization(),
+    tf.keras.layers.Activation("relu"),
+
     tf.keras.layers.Dense(10, activation="softmax")
 ])</code></pre>
 
       <div class="summary-box">
         <h4>🎯 重點摘要:</h4>
         <ul>
-          <li><strong>核心功能</strong>: 標準化每層輸入，加速訓練並提升穩定性</li>
-          <li><strong>潛在問題</strong>: 增加計算成本，訓練時行為與推論時不同</li>
-          <li><strong>最佳使用情境</strong>: 深度網路訓練不穩定時</li>
+          <li><strong>核心功能</strong>: 穩定每層輸入分佈、改善梯度流並加速收斂</li>
+          <li><strong>實作要點</strong>: 將 BN 放在 Activation 之前、關閉前一層 bias；小 batch 時選用替代正規化</li>
+          <li><strong>遷移學習提示</strong>: 微調時可凍結 BN 或在較大 batch 上重新估計 running stats</li>
         </ul>
       </div>
     </section>
 
+    <section class="section" id="gradient-clipping">
+      <h2>梯度裁剪 (Gradient Clipping)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 在訓練循環神經網路或非常深的網路時，梯度裁剪可防止梯度爆炸並穩定訓練。</p>
+
+      <h3>範例 7: 使用梯度裁剪的SGD優化器</h3>
+      <pre><code class="language-python"># 使用clipvalue進行梯度裁剪
+optimizer = tf.keras.optimizers.SGD(clipvalue=1.0)
+model.compile(loss="sparse_categorical_crossentropy", optimizer=optimizer)</code></pre>
+
+      <div class="summary-box">
+        <ul>
+          <li><strong>核心功能</strong>: 限制梯度最大值，防止爆炸</li>
+          <li><strong>潛在問題</strong>: 可能影響收斂速度；需與學習率一起調整</li>
+          <li><strong>最佳使用情境</strong>: RNN 或非常深的網路</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="reusing-pretrained-layers">
+      <h2>重用預訓練層 (Reusing Pretrained Layers)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 在處理相似任務時，重用預訓練模型可以節省訓練時間並提升效能。</p>
+
+      <h3>範例 8: 載入並重用預訓練模型</h3>
+      <pre><code class="language-python"># 載入預訓練模型
+model_A = tf.keras.models.load_model("my_model_A.keras")
+
+# 建立新模型重用前幾層
+model_B_on_A = tf.keras.Sequential(model_A.layers[:-1])
+model_B_on_A.add(tf.keras.layers.Dense(1, activation="sigmoid"))</code></pre>
+
+      <p>在微調時建議凍結大部分層（<code>layer.trainable = False</code>），僅調整最後幾層；若需要更新 BatchNorm 統計量，請特別小心 batch size 與 learning rate。</p>
+    </section>
+
     <section class="section" id="faster-optimizers">
-      <h2>更快的優化器</h2>
-      <p>💡 <strong>實際應用情境：</strong> 在訓練大型模型時，使用適當的優化器可以大幅縮短訓練時間。</p>
+      <h2>更快的優化器 (Faster Optimizers)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 比起標準梯度下降，更快的優化器能大幅縮短模型達到最佳解的時間。</p>
+
+      <ul>
+        <li><strong>Momentum (動量)：</strong> 模擬物理動量，讓權重更新具有「慣性」，幫助跳出局部最小值並加速通過平緩區域。</li>
+        <li><strong>AdaGrad：</strong> 根據梯度的陡峭程度自動縮放學習率，給予平緩維度較大的步長。</li>
+        <li><strong>RMSProp：</strong> 修正了 AdaGrad 停止過早的問題，僅累積最近迭代的梯度。</li>
+        <li><strong>Adam (自適應動量估計)：</strong> 結合了動量與 RMSProp 的優點，通常只需微調學習率即可表現優異。</li>
+        <li><strong>Nadam：</strong> 為帶有 Nesterov 技巧的 Adam，收斂速度通常比 Adam 更快。</li>
+        <li><strong>AdamW：</strong> 專門針對 Adam 結合權重衰減（weight decay）不佳的問題進行修正，能提供更好的泛化能力。</li>
+      </ul>
 
       <h3>範例 9: 使用Adam優化器</h3>
-      <pre><code># 使用Adam優化器
+      <pre><code class="language-python"># 使用Adam優化器
 optimizer = tf.keras.optimizers.Adam(learning_rate=0.001, beta_1=0.9,
                                      beta_2=0.999)
 model.compile(loss="sparse_categorical_crossentropy", optimizer=optimizer,
@@ -315,14 +440,36 @@ model.compile(loss="sparse_categorical_crossentropy", optimizer=optimizer,
           <li><strong>最佳使用情境</strong>: 快速原型設計</li>
         </ul>
       </div>
+
+      <h3>範例 10: 使用Nadam優化器</h3>
+      <pre><code class="language-python"># 使用Nadam優化器
+optimizer = tf.keras.optimizers.Nadam(learning_rate=0.001, beta_1=0.9,
+                                      beta_2=0.999)
+model.compile(loss="sparse_categorical_crossentropy", optimizer=optimizer,
+              metrics=["accuracy"])</code></pre>
+
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>optimizer = tf.keras.optimizers.Nadam(...)</code>: 建立Nadam優化器</li>
+        <li><code>model.compile(...)</code>: 編譯模型使用Nadam優化器</li>
+      </ol>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: Nadam通常收斂速度比Adam更快</li>
+          <li><strong>潛在問題</strong>: 參數調整</li>
+          <li><strong>最佳使用情境</strong>: 需要更快收斂的任務</li>
+        </ul>
+      </div>
     </section>
 
     <section class="section" id="learning-rate-scheduling">
-      <h2>學習率調度</h2>
+      <h2>學習率調度 (Learning Rate Scheduling)</h2>
       <p>💡 <strong>實際應用情境：</strong> 在訓練過程中動態調整學習率可以提升最終模型效能。</p>
 
       <h3>範例 10: 指數衰減學習率調度</h3>
-      <pre><code># 使用指數衰減調度器
+      <pre><code class="language-python"># 使用指數衰減調度器
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     initial_learning_rate=0.01,
     decay_steps=20_000,
@@ -342,11 +489,21 @@ optimizer = tf.keras.optimizers.SGD(learning_rate=lr_schedule)</code></pre>
     </section>
 
     <section class="section" id="avoiding-overfitting-regularization">
-      <h2>透過正規化避免過擬合</h2>
+      <h2>透過正規化避免過擬合 (Avoiding Overfitting - Regularization)</h2>
       <p>💡 <strong>實際應用情境：</strong> 在處理小資料集時，正規化技術可以防止模型過度擬合訓練資料。</p>
 
+      <p><strong>主要方法（快速參考）：</strong></p>
+      <ul>
+        <li><strong>Dropout：</strong> 在每次訓練迭代中，隨機將部分神經元暫時「丟棄」（設為 0），強迫神經元獨立學習有用的特徵，減少彼此間的過度依賴。</li>
+        <li><strong>Max-Norm：</strong> 對每個神經元的傳入權重實施約束，使其範數不超過預定閾值。這有助於緩解梯度消失或爆炸問題。</li>
+        <li><strong>早停法 (Early Stopping)：</strong> 監控驗證集的效能，當效能不再提升時立即停止訓練，避免模型對訓練數據過度擬合。</li>
+        <li>權重懲罰（L1 / L2）：抑制權重放大，常用於線性與深度模型的基礎正則化。</li>
+        <li>資料增強（data augmentation）：透過合成或變換擴充資料集，直接改善泛化。</li>
+        <li>正規化層（BatchNorm / LayerNorm / GroupNorm）：穩定中間表示並帶來某種正則化效果。</li>
+      </ul>
+
       <h3>範例 11: 使用Dropout正規化</h3>
-      <pre><code># 在模型中加入Dropout層
+      <pre><code class="language-python"># 在模型中加入Dropout層
 model = tf.keras.Sequential([
     tf.keras.layers.Flatten(input_shape=[28, 28]),
     tf.keras.layers.Dropout(rate=0.2), # 輸入Dropout
@@ -369,9 +526,84 @@ model = tf.keras.Sequential([
       </div>
     </section>
 
+    <section class="section" id="cifar10-dnn-implementation">
+      <h2>CIFAR10 上的 DNN 訓練實戰 (CIFAR10 DNN Implementation)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 在完成理論學習後，建議進行以下實驗以鞏固知識。</p>
+
+      <h3>網路結構建議</h3>
+      <p>建立一個具有 20 個隱藏層（每層 100 個神經元）的深層網路。</p>
+
+      <h3>配置建議</h3>
+      <ul>
+        <li><strong>初始化：</strong> 採用 <strong>He 初始化</strong></li>
+        <li><strong>激活函數：</strong> 使用 <strong>Swish 激活函數</strong>（適用於深層網路）</li>
+        <li><strong>優化器：</strong> 使用 <strong>Nadam 優化器</strong></li>
+        <li><strong>正規化：</strong> 應用 <strong>早停法</strong></li>
+      </ul>
+
+      <h3>進階比較</h3>
+      <p>嘗試添加 <strong>Batch Normalization</strong> 並與使用 <strong>SELU</strong> 的自正規化網路進行比較，觀察收斂速度與最終準確度的差異。</p>
+
+      <h3>範例 12: CIFAR10 深層網路訓練</h3>
+      <pre><code class="language-python">import tensorflow as tf
+from tensorflow.keras.datasets import cifar10
+
+# 載入CIFAR10資料集
+(X_train, y_train), (X_test, y_test) = cifar10.load_data()
+X_train = X_train.astype('float32') / 255.0
+X_test = X_test.astype('float32') / 255.0
+
+# 建立深層網路
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Flatten(input_shape=(32, 32, 3)))
+
+for _ in range(20):
+    model.add(tf.keras.layers.Dense(100, kernel_initializer='he_normal'))
+    model.add(tf.keras.layers.Activation('swish'))  # 使用Swish激活
+
+model.add(tf.keras.layers.Dense(10, activation='softmax'))
+
+# 編譯模型
+optimizer = tf.keras.optimizers.Nadam()
+model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', 
+              metrics=['accuracy'])
+
+# 訓練模型（使用早停法）
+early_stopping = tf.keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True)
+model.fit(X_train, y_train, epochs=100, validation_split=0.2, 
+          callbacks=[early_stopping])</code></pre>
+
+      <h4>✅ 程式碼逐行解析：</h4>
+      <ol>
+        <li><code>import tensorflow as tf</code>: 匯入TensorFlow</li>
+        <li><code>from tensorflow.keras.datasets import cifar10</code>: 匯入CIFAR10資料集</li>
+        <li><code>(X_train, y_train), (X_test, y_test) = cifar10.load_data()</code>: 載入資料</li>
+        <li><code>X_train = X_train.astype('float32') / 255.0</code>: 正規化輸入</li>
+        <li><code>model = tf.keras.Sequential()</code>: 建立順序模型</li>
+        <li><code>model.add(tf.keras.layers.Flatten(...))</code>: 展平輸入</li>
+        <li><code>for _ in range(20):</code>: 加入20個隱藏層</li>
+        <li><code>model.add(tf.keras.layers.Dense(100, kernel_initializer='he_normal'))</code>: Dense層使用He初始化</li>
+        <li><code>model.add(tf.keras.layers.Activation('swish'))</code>: Swish激活</li>
+        <li><code>model.add(tf.keras.layers.Dense(10, activation='softmax'))</code>: 輸出層</li>
+        <li><code>optimizer = tf.keras.optimizers.Nadam()</code>: Nadam優化器</li>
+        <li><code>model.compile(...)</code>: 編譯模型</li>
+        <li><code>early_stopping = tf.keras.callbacks.EarlyStopping(...)</code>: 早停回呼</li>
+        <li><code>model.fit(...)</code>: 訓練模型</li>
+      </ol>
+
+      <div class="summary-box">
+        <h4>🎯 重點摘要:</h4>
+        <ul>
+          <li><strong>核心功能</strong>: 實戰深層網路訓練於CIFAR10</li>
+          <li><strong>潛在問題</strong>: 深層網路可能過擬合，需要調整正規化</li>
+          <li><strong>最佳使用情境</strong>: 學習DNN訓練技術</li>
+        </ul>
+      </div>
+    </section>
+
     <section class="section" id="summary">
       <h2>💡 總結與最佳實踐</h2>
-      <p>訓練深度神經網路需要仔細處理梯度問題、初始化、正規化和優化。本教學涵蓋了從基礎到進階的技術，包括適當的激活函數選擇、批次正規化應用、優化器選用以及學習率調度。實務上，建議從Adam開始原型設計，然後使用SGD配合動量進行最終訓練，並應用適當的正規化技術。</p>
+      <p>訓練深度神經網路需要仔細處理梯度問題、初始化、正規化和優化。本教學涵蓋了從基礎到進階的技術，包括適當的激活函數選擇（如Swish）、批次正規化應用、各種優化器（Adam、Nadam等）選用以及學習率調度。實務上，建議從Adam或Nadam開始原型設計，然後使用SGD配合動量進行最終訓練，並應用適當的正規化技術如早停法。透過CIFAR10實戰範例，可以鞏固這些知識。</p>
     </section>
 
     <section class="section" id="faq">
@@ -387,6 +619,12 @@ model = tf.keras.Sequential([
 
       <p><strong>Q: Adam和SGD+momentum哪個更好？</strong><br>
       A: Adam適合快速原型，SGD+momentum通常提供更好的最終泛化。</p>
+
+      <p><strong>Q: Nadam和Adam有什麼差別？</strong><br>
+      A: Nadam結合了Nesterov動量，通常收斂速度比Adam更快。</p>
+
+      <p><strong>Q: Swish激活函數適合什麼情況？</strong><br>
+      A: Swish適用於深層網路，提供平滑的梯度流和更好的性能。</p>
     </section>
   </main>
 
