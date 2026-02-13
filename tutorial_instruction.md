@@ -11,7 +11,7 @@ This document outlines the process for creating comprehensive Python tutorial co
 1. **Structure Enhancement**
 
    - Add SEO-optimized meta tags (`<!-- meta-title -->`, `<!-- meta-description -->`, `<!-- meta-keywords -->`)
-   - Create clear table of contents with anchor links. Use HTML `<a>` tags (e.g., `<a id="anchor-name"></a>`) for section headers to ensure cross-platform compatibility.
+   - Create clear table of contents with anchor links. Use Markdown-style anchors for section headers (e.g., `## <a id="anchor-name"></a> Section Title`) to ensure cross-platform compatibility.
    - Add emoji icons for visual hierarchy (🐍 🎯 🔄 🚀 💡 ❓)
    - Optimize for Threads platform engagement with compelling headlines
 
@@ -23,6 +23,11 @@ This document outlines the process for creating comprehensive Python tutorial co
    - Add "🎯 重點摘要" for each major section
    - Provide clear explanations and real-world application scenarios
    - Include comprehensive comments within code for enhanced readability
+   - **Bilingual terminology (required):** include the English original in parentheses immediately after the first Chinese mention of any specialised technical term (example: `梯度消失 (Vanishing Gradient)`).
+     - Apply to: section headings, TOC entries, the first in-paragraph occurrence, figure/table captions, and FAQ items.
+     - Rules: annotate only at first mention (and in headings/TOC); avoid repeating the parenthetical on every subsequent occurrence to reduce visual clutter.
+     - Exception: glossary/terminology sections may include repeated bilingual labels.
+     - Benefit: improves clarity for bilingual readers and boosts SEO/discoverability on social platforms.
 
 3. **Code Example Standards**
    - Use realistic, practical examples rather than abstract ones
@@ -41,6 +46,17 @@ This document outlines the process for creating comprehensive Python tutorial co
    - Provide troubleshooting tips and common pitfalls
    - Add cross-references to related concepts
    - **Optimize content for Threads SEO and engagement**
+
+5. **Markdown Lint Compliance**
+   - To avoid common lint warnings when generating .md files, follow these rules:
+     - **MD012/no-multiple-blanks**: Ensure no more than one consecutive blank line between sections.
+     - **MD022/blanks-around-headings**: Surround all headings with blank lines (one before and one after).
+     - **MD032/blanks-around-lists**: Surround all lists with blank lines (one before and one after).
+     - **MD033/no-inline-html**: Avoid inline HTML where possible; use Markdown equivalents (e.g., for anchors, use `## <a id="anchor-name"></a> Section Title` sparingly or replace with pure Markdown if feasible).
+     - **MD007/ul-indent**: Use 2 spaces for each level of unordered list indentation.
+     - **MD018/no-missing-space-atx**: Always add a space after `#` in atx-style headings (e.g., `# Heading`).
+     - **MD047/single-trailing-newline**: Ensure the file ends with a single newline character.
+     - **Other**: Define all link references if using reference-style links; ensure all headers have corresponding anchors if referenced in TOC.
 
 ### Phase 2: Tutorial to Executable Code (.py)
 
@@ -87,23 +103,28 @@ This document outlines the process for creating comprehensive Python tutorial co
 
 **HTML Generation Process:**
 
-1.  **Template Structure**
-    -   Start with the standard HTML5 boilerplate from `tutorial_html_template.html`.
-    -   Populate SEO meta tags (`title`, `description`, `keywords`) from the Markdown's `<!-- meta-... -->` comments.
-    -   The template includes a comprehensive `<style>` block with light/dark mode support and Google Fonts integration.
+1. **Template Structure**
+   - Start with the standard HTML5 boilerplate from `tutorial_html_template.html`.
+   - Populate SEO meta tags (`title`, `description`, `keywords`) from the Markdown's `<!-- meta-... -->` comments.
+   - The template includes a comprehensive `<style>` block with light/dark mode support and Google Fonts integration.
+   - **Bilingual-term rendering:** the HTML generator MUST preserve Chinese + English parentheticals at first mention. Concretely:
+     - emit the English original in parentheses in the `<h1>`/`<h2>` text and the corresponding TOC entry;
+     - preserve the first in-paragraph parenthetical and the first caption/figure/table mention;
+     - include the English original in the `<title>` and `<meta description>` when it improves clarity/SEO but avoid excessive length;
+     - do NOT duplicate the parenthetical on every subsequent occurrence (use glossary or tooltip if repeated clarification is needed).
 
-2.  **MathJax Integration**
-    -   The template already includes the necessary scripts for MathJax library, configuration, and a polyfill for compatibility.
-    -   Ensure LaTeX code from Markdown is preserved as-is in the HTML.
+2. **MathJax Integration**
+   - The template already includes the necessary scripts for MathJax library, configuration, and a polyfill for compatibility.
+   - Ensure LaTeX code from Markdown is preserved as-is in the HTML.
 
-3.  **Content Conversion**
-    -   **Header**: The main `<h1>` and the introductory paragraph (`<p class="meta">`) should be placed in the `<header>`.
-    -   **Table of Contents**: Generate a nested `<ul>` list from the Markdown's ToC and place it inside `<nav class="toc">`.
-    -   **Main Content**: Each major section from Markdown should be converted into a `<section class="section">` tag within `<main>`.
-    -   **Section Headers**: Use `<h2>`, `<h3>`, etc., for section titles. Each `<section>` should have an `id` and `aria-labelledby` attribute, and the corresponding `<h2>` should have a matching `id`.
-    -   **Summary Boxes**: Convert "🎯 重點摘要" blocks into `<div class="summary-box">`.
-    -   **Footer**: Place the hashtags in the `<footer class="hashtags">`.
-    -   Convert standard Markdown (lists, tables, bold text) to semantic HTML.
+3. **Content Conversion**
+   - **Header**: The main `<h1>` and the introductory paragraph (`<p class="meta">`) should be placed in the `<header>`.
+   - **Table of Contents**: Generate a nested `<ul>` list from the Markdown's ToC and place it inside `<nav class="toc">`.
+   - **Main Content**: Each major section from Markdown should be converted into a `<section class="section">` tag within `<main>`.
+   - **Section Headers**: Use `<h2>`, `<h3>`, etc., for section titles. Each `<section>` should have an `id` and `aria-labelledby` attribute, and the corresponding `<h2>` should have a matching `id`.
+   - **Summary Boxes**: Convert "🎯 重點摘要" blocks into `<div class="summary-box">`.
+   - **Footer**: Place the hashtags in the `<footer class="hashtags">`.
+   - Convert standard Markdown (lists, tables, bold text) to semantic HTML.
 
 ### HTML Document Template
 
@@ -114,7 +135,6 @@ This document outlines the process for creating comprehensive Python tutorial co
 - **`<meta name="description">`**: 來自 `<!-- meta-description -->`
 - **`<meta name="keywords">`**: 來自 `<!-- meta-keywords -->`
 - **`<header>`**: 包含 `<h1>` 和介紹性段落 `<p class="meta">`
-- **`<nav class="toc">`**: 包含自動生成的目錄列表
 - **`<main>`**: 包含所有從 Markdown 轉換而來的 `<section>` 內容
 - **`<footer>`**: 包含 `<!-- meta-hashtags -->` 的內容
 
@@ -171,9 +191,10 @@ print("\n=== [Section] Examples Complete ===")
 
 3. **Language Optimization**
    - Use Traditional Chinese with Taiwan linguistic conventions
-   - Include technical terms in both Chinese and English
+   - Include technical terms in both Chinese and English — **English originals must appear in parentheses at first mention and in section headings/TOC** to aid clarity and SEO
    - Maintain professional yet approachable tone
    - Use culturally relevant examples and scenarios
+   - Threads-specific: include at most one bilingual term per short post to maximise clarity without clutter; prefer `中文 (English)` at the top or in the first sentence.
 
 4. **Hashtag Strategy**
    - Primary tags: #Python #程式設計 #教學
@@ -238,7 +259,7 @@ print("\n=== [Section] Examples Complete ===")
 - [Key point 1 in Traditional Chinese]
 - [Key point 2 in Traditional Chinese]
 
-## <a id="section-1-anchor"></a>[Section 1]
+## <a id="section-1-anchor"></a> [Section 1]
 💡 **實際應用情境：** [Real-world scenario explanation]
 
 ### 範例 [N]: [Example title]
@@ -333,15 +354,32 @@ print("\n=== [Section] Examples Complete ===")
 
 ### Quality Assurance
 
-1.  Verify all links and anchors work correctly. Ensure anchors use the compatible `<a id="..."></a>` format.
-2.  Test code examples in clean Python environment
-3.  Ensure content flows logically from basic to advanced
-4.  Check that explanations match the code exactly
-5.  Validate that examples demonstrate real-world utility
-6.  **Verify Mathematical Equations**: When generating HTML, confirm that all LaTeX equations are rendered correctly by MathJax.
-7.  **Verify Traditional Chinese linguistic conventions for Taiwan**
-8.  **Test hashtag effectiveness for Threads platform**
-9.  **Ensure line-by-line breakdowns are comprehensive and accurate**
+1. Verify all links and anchors work correctly. Ensure anchors use the compatible Markdown-style format.
+2. Verify bilingual parentheticals: confirm the first occurrence of each specialised technical term includes an English original in parentheses (headings, TOC, first in-paragraph occurrence). Example automated QA (heuristic):
+
+   ```python
+   # quick CI-style sanity check (heuristic)
+   import re
+   from pathlib import Path
+   s = Path('11_training_deep_neural_networks.md').read_text(encoding='utf-8')
+   # find Chinese phrases followed by ASCII English in parentheses
+   pattern = re.compile(r"([\u4e00-\u9fff\u3000-\u303F]{2,})\s*\(([A-Za-z0-9 \-\_/\.]+)\)")
+   matches = pattern.findall(s)
+   if not matches:
+       raise SystemExit('QA FAIL: no bilingual parentheticals found — check headings/first mentions')
+   # optional: surface first 10 matches for reviewer
+   print('bilingual examples (sample):', matches[:10])
+   ```
+
+3. Test code examples in clean Python environment
+4. Ensure content flows logically from basic to advanced
+5. Check that explanations match the code exactly
+6. Validate that examples demonstrate real-world utility
+7. **Verify Mathematical Equations**: When generating HTML, confirm that all LaTeX equations are rendered correctly by MathJax.
+8. **Verify Traditional Chinese linguistic conventions for Taiwan**
+9. **Test hashtag effectiveness for Threads platform**
+10. **Ensure line-by-line breakdowns are comprehensive and accurate**
+11. **Run Markdown lint checks**: Use tools like `markdownlint` to scan for issues such as MD012, MD022, MD032, MD033, MD007, MD018, MD047, and resolve them before finalizing the .md file.
 
 ## 📈 Success Metrics
 
@@ -352,6 +390,7 @@ print("\n=== [Section] Examples Complete ===")
 - Comprehensive explanations that anticipate common questions
 - SEO optimization for discoverability on Threads platform
 - **Effective use of Traditional Chinese linguistic conventions**
+- **Bilingual clarity:** specialised technical terms include the English original in parentheses at first mention (headings/TOC/first in-paragraph occurrence); ≥95% of tutorials should pass the automated parenthetical QA check
 - **High engagement through compelling content and hashtags**
 - **Mandatory line-by-line analysis for all code examples**
 - **Comprehensive Key Points Summary for each section**
