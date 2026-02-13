@@ -29,8 +29,8 @@ NumPy 工具教學 HTML 文件
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐍 NumPy 完整教學指南：陣列建立、操作與線性代數實戰技巧</title>
-  <meta name="description" content="學習 NumPy 的完整指南，從基本陣列操作到進階線性代數功能。包含實用範例、逐行解析和最佳實踐。適合 Python 程式設計師和資料科學學習者"/>
+  <title>🐍 NumPy 完整教學指南：陣列建立 (array creation)、操作與線性代數 (linear algebra) 實戰技巧</title>
+  <meta name="description" content="學習 NumPy 的完整指南（NumPy — array toolbox），從基本陣列操作 (array creation) 到進階線性代數功能 (linear algebra)。包含實用範例、逐行解析和最佳實踐。適合 Python 程式設計師和資料科學 (data science) 學習者"/>
   <meta name="keywords" content="NumPy, Python, 陣列, 線性代數, 科學計算, 教學, 廣播, 向量化, 資料分析"/>
 
   <!-- Polyfill for ES6 features for older browsers (for MathJax) -->
@@ -119,10 +119,10 @@ NumPy 工具教學 HTML 文件
        HEADER AND TABLE OF CONTENTS
        ============================================================================= -->
   <header>
-    <h1>🐍 NumPy 完整教學指南：陣列建立、操作與線性代數實戰技巧</h1>
-    <p class="meta">NumPy 是 Python 科學計算領域的核心函式庫，專為高效能 N 維陣列運算設計。</p>
-    <p>其底層以 C 語言實作，提供極快的數值處理速度，並支援線性代數、傅立葉變換、隨機數生成等進階功能。</p>
-    <p>NumPy 不僅是資料科學、機器學習、人工智慧等領域的基礎工具，也是許多 Python 標準函式庫和第三方套件的效能關鍵。透過 Python 封裝，使用者能輕鬆進行大規模數據分析與科學運算，提升開發效率與程式效能。</p>
+    <h1>🐍 NumPy 完整教學指南：陣列建立 (array creation)、操作與線性代數 (linear algebra) 實戰技巧</h1>
+    <p class="meta">NumPy 是 Python 科學計算領域的核心函式庫，專為高效能 N 維陣列 (N-dimensional arrays) 運算設計。</p>
+    <p>其底層以 C 語言實作，提供極快的數值處理速度，並支援線性代數 (linear algebra)、傅立葉變換 (Fourier transforms)、隨機數生成等進階功能。</p>
+    <p>NumPy 不僅是資料科學 (data science)、機器學習 (machine learning)、人工智慧 (artificial intelligence) 等領域的基礎工具，也是許多 Python 標準函式庫和第三方套件的效能關鍵。透過 Python 封裝，使用者能輕鬆進行大規模數據分析與科學運算，提升開發效率與程式效能。</p>
     <p>以下就讓我們深入探索 NumPy 的強大功能，從基礎的陣列建立到複雜的線性代數運算，並透過實際範例與逐行解析，幫助你掌握這個不可或缺的工具。</p>
   </header>
 
@@ -132,19 +132,19 @@ NumPy 工具教學 HTML 文件
   <nav class="toc" aria-label="本文目錄">
     <h2>📝 本文目錄</h2>
     <ul>
-      <li><a href="#建立陣列">建立陣列</a></li>
-      <li><a href="#陣列資料">陣列資料</a></li>
-      <li><a href="#重塑陣列">重塑陣列</a></li>
+      <li><a href="#建立陣列">建立陣列 (array creation)</a></li>
+      <li><a href="#陣列資料">陣列資料 (array data)</a></li>
+      <li><a href="#重塑陣列">重塑陣列 (reshaping arrays)</a></li>
       <li><a href="#算術運算">算術運算</a></li>
-      <li><a href="#廣播">廣播</a></li>
+      <li><a href="#廣播">廣播 (broadcasting)</a></li>
       <li><a href="#條件運算子">條件運算子</a></li>
       <li><a href="#數學和統計函數">數學和統計函數</a></li>
       <li><a href="#陣列索引">陣列索引</a></li>
       <li><a href="#疊加陣列">疊加陣列</a></li>
       <li><a href="#分割陣列">分割陣列</a></li>
       <li><a href="#轉置陣列">轉置陣列</a></li>
-      <li><a href="#線性代數">線性代數</a></li>
-      <li><a href="#向量化">向量化</a></li>
+      <li><a href="#線性代數">線性代數 (linear algebra)</a></li>
+      <li><a href="#向量化">向量化 (vectorized operations)</a></li>
       <li><a href="#儲存和載入">儲存和載入</a></li>
       <li><a href="#常見問答">常見問答</a></li>
       <li><a href="#最佳實踐">最佳實踐</a></li>
@@ -167,9 +167,9 @@ NumPy 工具教學 HTML 文件
       </ul>
     </section>
 
-    <section id="建立陣列" class="section">
-      <h2>建立陣列</h2>
-      <p>💡 <strong>實際應用情境：</strong> 在資料科學和機器學習中，陣列是處理數值資料的基本單位，從簡單的向量到複雜的張量，都依賴 NumPy 的陣列建立功能。</p>
+    <section id="建立陣列" class="section" aria-labelledby="建立陣列-heading">
+      <h2 id="建立陣列-heading">建立陣列 (array creation)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 在資料科學 (data science) 和機器學習 (machine learning) 中，陣列 (array) 是處理數值資料的基本單位，從簡單的 向量 (vector) 到複雜的 張量 (tensor)，都依賴 NumPy 的陣列建立功能。</p>
 
       <h3>基本概念</h3>
       <p>NumPy 中的每個維度稱為軸（axis）。軸的數量稱為秩（rank），軸長度的清單稱為形狀（shape），總元素數稱為大小（size）。</p>
@@ -282,9 +282,9 @@ func_array = np.fromfunction(my_function, (3, 2, 10))</code></pre>
       </div>
     </section>
 
-    <section id="陣列資料" class="section">
-      <h2>陣列資料</h2>
-      <p>💡 <strong>實際應用情境：</strong> 了解陣列的資料類型和記憶體配置對於優化效能和確保計算精確度至關重要。</p>
+    <section id="陣列資料" class="section" aria-labelledby="陣列資料-heading">
+      <h2 id="陣列資料-heading">陣列資料 (array data)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 了解陣列的資料類型 (data types) 和記憶體配置對於優化效能和確保計算精確度至關重要。</p>
 
       <h3>資料類型</h3>
       <div class="code-breakdown">
@@ -350,9 +350,9 @@ print("f.data (first 20 bytes) =", f.data[:20])</code></pre>
       </div>
     </section>
 
-    <section id="重塑陣列" class="section">
-      <h2>重塑陣列</h2>
-      <p>💡 <strong>實際應用情境：</strong> 在深度學習和影像處理中，經常需要改變張量的形狀來適應不同的網路架構或處理需求。</p>
+    <section id="重塑陣列" class="section" aria-labelledby="重塑陣列-heading">
+      <h2 id="重塑陣列-heading">重塑陣列 (reshaping arrays)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 在深度學習和影像處理中，經常需要改變張量 (tensor) 的形狀來適應不同的網路架構或處理需求。</p>
 
       <h3>改變形狀</h3>
       <div class="code-breakdown">
@@ -446,9 +446,9 @@ print("flat =", flat)</code></pre>
       </div>
     </section>
 
-    <section id="算術運算" class="section">
-      <h2>算術運算</h2>
-      <p>💡 <strong>實際應用情境：</strong> 向量化和矩陣運算是機器學習演算法的核心，從簡單的資料預處理到複雜的神經網路前向傳播都依賴這些操作。</p>
+    <section id="算術運算" class="section" aria-labelledby="算術運算-heading">
+      <h2 id="算術運算-heading">算術運算 (arithmetic operations)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 向量化和矩陣運算是機器學習 (machine learning) 演算法的核心，從簡單的資料預處理到複雜的神經網路前向傳播都依賴這些操作。</p>
 
       <div class="code-breakdown">
         <h4>程式碼範例</h4>
@@ -595,9 +595,9 @@ print("k3.dtype =", k3.dtype, "k3 =", k3)</code></pre>
       </div>
     </section>
 
-    <section id="條件運算子" class="section">
-      <h2>條件運算子</h2>
-      <p>💡 <strong>實際應用情境：</strong> 條件運算是資料過濾和布林索引的基礎，在資料分析中用於選擇滿足條件的值。</p>
+    <section id="條件運算子" class="section" aria-labelledby="條件運算子-heading">
+      <h2 id="條件運算子-heading">條件運算子 (conditional operators)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 條件運算是資料過濾和布林索引的基礎，在資料分析 (data analysis) 中用於選擇滿足條件的值。</p>
 
       <div class="code-breakdown">
         <h4>程式碼範例</h4>
@@ -637,9 +637,9 @@ print("m[m &lt; 25] =", filtered)</code></pre>
       </div>
     </section>
 
-    <section id="數學和統計函數" class="section">
-      <h2>數學和統計函數</h2>
-      <p>💡 <strong>實際應用情境：</strong> 這些函數是資料分析和統計建模的基礎，從簡單的描述性統計到複雜的數學變換都依賴這些高效能的向量化操作。</p>
+    <section id="數學和統計函數" class="section" aria-labelledby="數學和統計函數-heading">
+      <h2 id="數學和統計函數-heading">數學和統計函數 (math & statistical functions)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 這些函數是資料分析 (data analysis) 和統計建模 (statistical modeling) 的基礎，從描述性統計到複雜的數學變換都依賴這些高效能的向量化操作。</p>
 
       <h3>陣列方法</h3>
       <div class="code-breakdown">
@@ -742,9 +742,9 @@ print("np.cos(a) =", np.cos(a))</code></pre>
       </div>
     </section>
 
-    <section id="陣列索引" class="section">
-      <h2>陣列索引</h2>
-      <p>💡 <strong>實際應用情境：</strong> 靈活的索引機制是 NumPy 的強大功能，能夠以各種方式存取和修改陣列元素，從簡單的切片到複雜的布林索引和花式索引。</p>
+    <section id="陣列索引" class="section" aria-labelledby="陣列索引-heading">
+      <h2 id="陣列索引-heading">陣列索引 (array indexing)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 靈活的索引機制是 NumPy 的強大功能，能以各種方式存取和修改陣列元素，從簡單的切片到複雜的布林索引 (boolean indexing) 和花式索引 (fancy indexing)。</p>
 
       <h3>基本索引</h3>
       <div class="code-breakdown">
@@ -945,9 +945,9 @@ for i in c.flat:
       </div>
     </section>
 
-    <section id="疊加陣列" class="section">
-      <h2>疊加陣列</h2>
-      <p>💡 <strong>實際應用情境：</strong> 陣列疊加在資料合併、批次處理和建立複雜資料結構時非常有用，能夠沿著不同軸向組合多個陣列。</p>
+    <section id="疊加陣列" class="section" aria-labelledby="疊加陣列-heading">
+      <h2 id="疊加陣列-heading">疊加陣列 (stacking arrays)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 陣列疊加在資料合併 (data merging)、批次處理 (batching) 和建立複雜資料結構時非常有用，能夠沿著不同軸向組合多個陣列。</p>
 
       <div class="code-breakdown">
         <h4>程式碼範例</h4>
@@ -1011,9 +1011,9 @@ print("q8.shape =", q8.shape)</code></pre>
       </div>
     </section>
 
-    <section id="分割陣列" class="section">
-      <h2>分割陣列</h2>
-      <p>💡 <strong>實際應用情境：</strong> 陣列分割常用於資料分割、交叉驗證和批次處理，能夠將大陣列分割成多個小陣列以進行並行處理或獨立分析。</p>
+    <section id="分割陣列" class="section" aria-labelledby="分割陣列-heading">
+      <h2 id="分割陣列-heading">分割陣列 (splitting arrays)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 陣列分割常用於資料分割 (data partitioning)、交叉驗證 (cross-validation) 和批次處理 (batch processing)，能將大陣列切成多個小陣列以便並行或分步處理。</p>
 
       <div class="code-breakdown">
         <h4>程式碼範例</h4>
@@ -1055,9 +1055,9 @@ print("r5 =", r5)</code></pre>
       </div>
     </section>
 
-    <section id="轉置陣列" class="section">
-      <h2>轉置陣列</h2>
-      <p>💡 <strong>實際應用情境：</strong> 轉置在線性代數中至關重要，如矩陣運算和座標變換。</p>
+    <section id="轉置陣列" class="section" aria-labelledby="轉置陣列-heading">
+      <h2 id="轉置陣列-heading">轉置陣列 (transposing arrays)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 轉置在矩陣運算與座標變換中至關重要，並常用於資料重排以符合模型輸入需求。</p>
 
       <div class="code-breakdown">
         <h4>程式碼範例</h4>
@@ -1097,9 +1097,9 @@ print("t3.shape =", t3.shape)</code></pre>
         </ul>
       </div>
 
-    <section id="線性代數" class="section">
-      <h2>線性代數</h2>
-      <p>💡 <strong>實際應用情境：</strong> 線性代數運算是機器學習和資料科學的核心，從主成分分析到神經網路優化都依賴這些高效能的矩陣運算。</p>
+    <section id="線性代數" class="section" aria-labelledby="線性代數-heading">
+      <h2 id="線性代數-heading">線性代數 (linear algebra)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 線性代數 (linear algebra) 運算是機器學習 (machine learning) 和資料科學 (data science) 的核心，從主成分分析到神經網路優化都依賴這些高效能的矩陣運算。</p>
 
       <h3>矩陣運算</h3>
       <div class="code-breakdown">
@@ -1203,9 +1203,9 @@ print("V =", V)</code></pre>
       </div>
     </section>
 
-    <section id="向量化" class="section">
-      <h2>向量化</h2>
-      <p>💡 <strong>實際應用情境：</strong> 向量化是 NumPy 效能優化的關鍵，避免 Python 迴圈的低效率。</p>
+    <section id="向量化" class="section" aria-labelledby="向量化-heading">
+      <h2 id="向量化-heading">向量化 (vectorized operations)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 向量化 (vectorization) 是 NumPy 效能優化的關鍵，能避免 Python 迴圈的低效率並提升計算速度。</p>
       
       <div class="code-breakdown">
         <h4>程式碼範例</h4>
@@ -1252,9 +1252,9 @@ print("Results match:", np.allclose(data_slow, data_fast))</code></pre>
       </div>
     </section>
 
-    <section id="儲存和載入" class="section">
-      <h2>儲存和載入</h2>
-      <p>💡 <strong>實際應用情境：</strong> 資料持久化對於機器學習工作流程至關重要，能夠儲存訓練資料、中間結果和模型參數以便後續使用。</p>
+    <section id="儲存和載入" class="section" aria-labelledby="儲存和載入-heading">
+      <h2 id="儲存和載入-heading">儲存和載入 (saving & loading)</h2>
+      <p>💡 <strong>實際應用情境：</strong> 資料持久化 (persistence) 對於機器學習 (machine learning) 工作流程至關重要，能儲存訓練資料、中間結果與模型參數以便後續使用。</p>
 
       <h3>二進位格式</h3>
       <div class="code-breakdown">
@@ -1356,11 +1356,11 @@ print("my_a =", my_arrays["my_a"])</code></pre>
       </div>
     </section>
 
-    <section id="常見問答" class="section">
-      <h2>常見問答</h2>
+    <section id="常見問答" class="section" aria-labelledby="常見問答-heading">
+      <h2 id="常見問答-heading">常見問答 (FAQ)</h2>
       <div class="faq">
         <h3>Q: NumPy 陣列和 Python 列表有什麼區別？</h3>
-        <p>A: NumPy 陣列更高效，支援向量化運算和廣播，所有元素必須同類型。</p>
+        <p>A: NumPy 陣列更高效，支援向量化運算和廣播 (broadcasting)，所有元素必須同類型。</p>
 
         <h3>Q: 如何選擇適當的資料類型？</h3>
         <p>A: 根據資料範圍選擇，如影像用 uint8，科學計算用 float64。</p>
@@ -1376,8 +1376,8 @@ print("my_a =", my_arrays["my_a"])</code></pre>
       </div>
     </section>
 
-    <section id="最佳實踐" class="section">
-      <h2>最佳實踐</h2>
+    <section id="最佳實踐" class="section" aria-labelledby="最佳實踐-heading">
+      <h2 id="最佳實踐-heading">最佳實踐 (best practices)</h2>
       <div class="summary-box">
         <h3>效能優化</h3>
         <ul>
@@ -1405,8 +1405,8 @@ print("my_a =", my_arrays["my_a"])</code></pre>
       </div>
     </section>
 
-    <section id="推薦標籤" class="section">
-      <h2>推薦標籤</h2>
+    <section id="推薦標籤" class="section" aria-labelledby="推薦標籤-heading">
+      <h2 id="推薦標籤-heading">推薦標籤 (recommended hashtags)</h2>
       <p>在 Threads 上分享此教學時，建議使用以下標籤以增加曝光度和相關性：</p>
     </section>
   </main>
