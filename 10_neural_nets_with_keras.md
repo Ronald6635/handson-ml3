@@ -12,7 +12,7 @@
 - [🔧 環境設定與準備](#setup)
 - [🧠 從生物神經元到人工神經網路](#biological-to-artificial)
   - [感知器 (The Perceptron)](#perceptron)
-  - [激活函數 (Activation Functions)](#activation-functions)
+  - [活化函數 (Activation Functions)](#activation-functions)
 - [📊 回歸多層感知器 (Regression MLPs)](#regression-mlps)
 - [🏷️ 分類多層感知器 (Classification MLPs)](#classification-mlps)
 - [🚀 使用 Keras 實作多層感知器](#implementing-mlps-keras)
@@ -32,7 +32,7 @@
 ## 🎯 關鍵重點 (Key Takeaways)
 - 神經網路由互連的神經元組成，能學習複雜的非線性關係
 - Keras 提供三種建構模型的 API：序列、函數式和子類化
-- 激活函數決定神經元的輸出行為，ReLU 是隱藏層的常用選擇
+- 活化函數決定神經元的輸出行為，ReLU 是隱藏層的常用選擇
 - 過擬合是神經網路常見問題，可透過正則化、Dropout 等技術解決
 - 超參數調優對於模型效能至關重要，可使用 Keras Tuner 等工具
 
@@ -125,10 +125,10 @@ y_pred = per_clf.predict(X_new)
 ---
 
 <a id="activation-functions"></a>
-### 激活函數 (Activation Functions)
-💡 **實際應用情境：** 激活函數決定神經元的輸出，選擇合適的激活函數對於模型效能至關重要。
+### 活化函數 (Activation Functions)
+💡 **實際應用情境：** 活化函數決定神經元的輸出，選擇合適的活化函數對於模型效能至關重要。
 
-### 範例 3: 常見激活函數視覺化
+### 範例 3: 常見活化函數視覺化
 ```python
 import numpy as np
 from scipy.special import expit as sigmoid
@@ -152,7 +152,7 @@ plt.plot([0, max_z], [1, 1], "r-", linewidth=2)
 plt.plot(z, sigmoid(z), "g--", linewidth=2, label="Sigmoid")
 plt.plot(z, np.tanh(z), "b-", linewidth=1, label="Tanh")
 plt.grid(True)
-plt.title("激活函數")
+plt.title("活化函數")
 plt.axis([-max_z, max_z, -1.65, 2.4])
 plt.legend(loc="lower right", fontsize=13)
 
@@ -171,7 +171,7 @@ plt.show()
 
 **✅ 程式碼逐行解析：**
 
-1. `def relu(z): return np.maximum(0, z)`: 定義 ReLU 激活函數
+1. `def relu(z): return np.maximum(0, z)`: 定義 ReLU 活化函數
 2. `def derivative(f, z, eps=0.000001)`: 定義數值微分函數
 3. `z = np.linspace(-max_z, max_z, 200)`: 產生輸入值範圍
 4. `plt.subplot(121)`: 建立第一個子圖
@@ -181,9 +181,9 @@ plt.show()
 
 **🎯 重點摘要:**
 
-- **核心功能**: 視覺化不同激活函數及其導數
+- **核心功能**: 視覺化不同活化函數及其導數
 - **潛在問題**: 某些函數可能導致梯度消失或爆炸
-- **最佳使用情境**: 選擇適合任務的激活函數
+- **最佳使用情境**: 選擇適合任務的活化函數
 
 ---
 
@@ -341,9 +341,9 @@ model.summary()
 
 1. `tf.random.set_seed(42)`: 設定隨機種子確保重現性
 2. `tf.keras.layers.Flatten(input_shape=[28, 28])`: 將 28x28 影像展平為 784 維向量
-3. `tf.keras.layers.Dense(300, activation="relu")`: 第一隱藏層，300 個神經元，ReLU 激活
+3. `tf.keras.layers.Dense(300, activation="relu")`: 第一隱藏層，300 個神經元，ReLU 活化
 4. `tf.keras.layers.Dense(100, activation="relu")`: 第二隱藏層，100 個神經元
-5. `tf.keras.layers.Dense(10, activation="softmax")`: 輸出層，10 個類別，softmax 激活
+5. `tf.keras.layers.Dense(10, activation="softmax")`: 輸出層，10 個類別，softmax 活化
 6. `model.compile(...)`: 編譯模型，指定損失函數、優化器和指標
 7. `model.summary()`: 顯示模型結構和參數數量
 
@@ -401,7 +401,7 @@ model = tf.keras.Sequential([
     tf.keras.layers.Dense(50, activation="relu"),
     tf.keras.layers.Dense(50, activation="relu"),
     tf.keras.layers.Dense(50, activation="relu"),
-    tf.keras.layers.Dense(1)  # 回歸任務無激活函數
+    tf.keras.layers.Dense(1)  # 回歸任務無活化函數
 ])
 
 optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
@@ -420,11 +420,11 @@ y_pred = model.predict(X_new)
 
 **✅ 程式碼逐行解析：**
 
-1. `norm_layer = tf.keras.layers.Normalization(input_shape=X_train.shape[1:])`: 建立正規化層
-2. `tf.keras.layers.Dense(1)`: 回歸輸出層無激活函數
+1. `norm_layer = tf.keras.layers.Normalization(input_shape=X_train.shape[1:])`: 建立歸一化層
+2. `tf.keras.layers.Dense(1)`: 回歸輸出層無活化函數
 3. `optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)`: 使用 Adam 優化器
 4. `model.compile(loss="mse", optimizer=optimizer, metrics=["RootMeanSquaredError"])`: 編譯回歸模型
-5. `norm_layer.adapt(X_train)`: 適應訓練資料進行正規化
+5. `norm_layer.adapt(X_train)`: 適應訓練資料進行歸一化
 6. `y_pred = model.predict(X_new)`: 對新資料進行預測
 
 **🎯 重點摘要:**
