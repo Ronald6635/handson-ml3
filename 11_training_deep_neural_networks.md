@@ -7,16 +7,16 @@
 # 🐍 訓練深度神經網路：解決梯度消失(Vanishing Gradient)與爆炸(Exploding Gradient)問題的實戰指南
 
 在深度學習(Deep Learning)領域，訓練深度神經網路(Deep Neural Network, DNN)往往面臨**梯度消失(Vanishing Gradient)**或**爆炸(Exploding Gradient)** 的挑戰。
-本教學將帶您探索有效的解決方案，包括**Xavier與He初始化(Initialization)**、**ReLU及其變體激活函數(Activation Function)**、
-**批次正規化(Batch Normalization)**、**梯度裁剪(Gradient Clipping)**、**遷移學習(Transfer Learning)**，以及**Adam等先進優化器(Optimizer)**。
+本教學將帶您探索有效的解決方案，包括**Xavier與He初始化(Initialization)**、**ReLU及其變體活化函數(Activation Function)**、
+**批次歸一化(Batch Normalization)**、**梯度裁剪(Gradient Clipping)**、**遷移學習(Transfer Learning)**，以及**Adam等先進優化器(Optimizer)**。
 這些技術有助於在複雜資料集上建構穩定且高效能的模型。
 
 ## 📝 本文目錄
 
 - [梯度消失與爆炸問題(Vanishing/Exploding Gradients)](#vanishing-exploding-gradients)
 - [Xavier與He初始化(Xavier/He Initialization)](#xavier-he-initialization)
-- [非飽和激活函數(Nonsaturating Activation Functions)](#nonsaturating-activation-functions)
-- [批次正規化(Batch Normalization)](#batch-normalization)
+- [非飽和活化函數(Nonsaturating Activation Functions)](#nonsaturating-activation-functions)
+- [批次歸一化(Batch Normalization)](#batch-normalization)
 - [梯度裁剪(Gradient Clipping)](#gradient-clipping)
 - [重用預訓練層(Reusing Pretrained Layers)](#reusing-pretrained-layers)
 - [更快的優化器(Faster Optimizers)](#faster-optimizers)
@@ -26,8 +26,8 @@
 
 ## 🎯 關鍵重點 (Key Takeaways)
 
-- 理解梯度消失(Vanishing Gradient)與爆炸(Exploding Gradient)問題，並學習初始化(Initialization)與激活函數(Activation Function)的解決方案
-- 掌握批次正規化(Batch Normalization)與梯度裁剪(Gradient Clipping)技術，提升訓練穩定性
+- 理解梯度消失(Vanishing Gradient)與爆炸(Exploding Gradient)問題，並學習初始化(Initialization)與活化函數(Activation Function)的解決方案
+- 掌握批次歸一化(Batch Normalization)與梯度裁剪(Gradient Clipping)技術，提升訓練穩定性
 - 熟悉各種優化器(Optimizer)與學習率調度(Learning Rate Scheduling)策略，加速收斂
 - 應用正規化(Regularization)技術避免過擬合(Overfitting)，建構泛化能力強的模型
 
@@ -52,21 +52,21 @@ $$\nabla_{x_l}L = \left(\prod_{k=l+1}^{L} J_k\right) \nabla_{x_L}L$$
 這兩種現象都會讓深層網路的訓練變得困難，因為底層的參數無法有效學習。
 
 - 常見觸發因子：
-  - **飽和激活函數(Saturating Activation Function, 如 sigmoid、tanh)**：在極端輸入下導數接近 0，造成梯度被壓扁。
+  - **飽和活化函數(Saturating Activation Function, 如 sigmoid、tanh)**：在極端輸入下導數接近 0，造成梯度被壓扁。
   - **不當的權重初始化(Poor Weight Initialization)**：使得層的縮放因子偏離 1，長深度網路中連乘效應被放大。
-    - **「縮放因子」(Scaling Factor)** 在深度學習中通常指的是每一層在前向或反向傳播時，對信號（如激活值或梯度）造成的放大或縮小比例。
+    - **「縮放因子」(Scaling Factor)** 在深度學習中通常指的是每一層在前向或反向傳播時，對信號（如活化值或梯度）造成的放大或縮小比例。
       這個因子會影響信號在多層網路中傳遞時是否穩定。
       如果每層的縮放因子偏離 1，信號就會在多層連乘後指數級衰減（導致梯度消失）或增長（導致梯度爆炸）。
-      因此，設計合適的初始化方法和激活函數，讓每層的縮放因子接近 1，是避免梯度問題、確保深層網路能有效學習的關鍵。
+      因此，設計合適的初始化方法和活化函數，讓每層的縮放因子接近 1，是避免梯度問題、確保深層網路能有效學習的關鍵。
   - **深度或長序列結構(Very Deep Nets / RNN)**：多次相乘會把微小縮放累積成巨大的衰減或增長。
   - **非線性與偏移的累積**：每層輸入分佈偏移會改變導數的分布，進一步影響梯度流。
 
 - 直觀示例：若每層平均縮放因子為 0.9，深度為 100，則梯度約為 $0.9^{100}\approx 2.7\times10^{-5}$，幾乎消失；若為 1.1，則 $1.1^{100}\approx 13{,}780$，會爆炸。
 
 - 快速對策（為何前文方法有效）：
-  - 使用*非飽和或部分非飽和激活*(Non-saturating or Partially Non-saturating Activation，如ReLU／LeakyReLU)以維持導數大小。
-  - 採用*合適初始化*(Proper Initialization，如Xavier／He)使每層輸出與梯度的方差接近恆定。
-  - *批次正規化*(Batch Normalization)或*層正規化*(Layer Normalization)穩定每層輸入分佈，減少導數偏移。
+  - 使用*非飽和或部分非飽和活化*(Non-saturating or Partially Non-saturating Activation，如ReLU／LeakyReLU)以維持導數大小。
+  - 採用*合適初始化*(Proper Initialization，如Xavier／He)使每層輸出與梯度的變異數接近恆定。
+  - *批次歸一化*(Batch Normalization)或*層歸一化*(Layer Normalization)穩定每層輸入分佈，減少導數偏移。
   - *殘差連接*(Residual Connection, ResNet)與*跳躍連接*(Skip Connection)提供直接梯度通路，緩解連乘效應。
   - *梯度裁剪*(Gradient Clipping)可控制爆炸情況。
   - 調整*學習率*(Learning Rate)與*優化器*(Optimizer)也能幫助穩定訓練。
@@ -162,17 +162,17 @@ dense = tf.keras.layers.Dense(50, activation="relu",
 **✅ 程式碼逐行解析：**
 
 1. `import tensorflow as tf`: 匯入TensorFlow函式庫
-2. `dense = tf.keras.layers.Dense(50, activation="relu", kernel_initializer="he_normal")`: 建立具有50個神經元、ReLU激活函數和He正態初始化的Dense層
-    - `activation="relu"`：指定使用ReLU激活函數
-    - `kernel_initializer="he_normal"`：指定使用He正態初始化方法來初始化權重
-        - `he_normal` 是 He 初始化的一種實現，會根據 fan_in 計算適當的標準差來生成正態分佈的權重。
+2. `dense = tf.keras.layers.Dense(50, activation="relu", kernel_initializer="he_normal")`: 建立具有50個神經元、ReLU活化函數和He常態初始化的Dense層
+    - `activation="relu"`：指定使用ReLU活化函數
+    - `kernel_initializer="he_normal"`：指定使用He常態初始化方法來初始化權重
+        - `he_normal` 是 He 初始化的一種實現，會根據 fan_in 計算適當的標準差來生成常態分佈 (Normal distribution) 的權重；其標準差 $ \sigma $ 計算公式為：
             $$\sigma = \sqrt{\frac{2}{\text{fan\_in}}}$$
 
 **🎯 重點摘要:**
 
-- **核心功能**: 使用He初始化來適應ReLU激活函數，維持激活和梯度的穩定方差
+- **核心功能**: 使用He初始化來適應ReLU活化函數，維持活化和梯度的穩定變異數
 - **潛在問題**: Xavier初始化更適合tanh或sigmoid，He初始化最適合ReLU及其變體
-- **最佳使用情境**: 深度網路中使用ReLU激活函數時
+- **最佳使用情境**: 深度網路中使用ReLU活化函數時
 
 ### 範例 3: 自訂He初始化變體
 
@@ -187,14 +187,14 @@ dense = tf.keras.layers.Dense(50, activation="sigmoid",
 **✅ 程式碼逐行解析：**
 
 1. `he_avg_init = tf.keras.initializers.VarianceScaling(scale=2., mode="fan_avg", distribution="uniform")`: 建立自訂的He初始化變體，使用統一分佈和平均扇入扇出模式
-    - `scale=2.`：指定縮放因子為2，適合ReLU類激活函數
-    - `mode="fan_avg"`：使用fan_in和fan_out的平均值來計算縮放，適合某些激活函數
+    - `scale=2.`：指定縮放因子為2，適合ReLU類活化函數
+    - `mode="fan_avg"`：使用fan_in和fan_out的平均值來計算縮放，適合某些活化函數
     - `distribution="uniform"`：使用均勻分佈來生成權重
 2. `dense = tf.keras.layers.Dense(50, activation="sigmoid", kernel_initializer=he_avg_init)`: 建立Dense層使用此自訂初始化
 
 **🎯 重點摘要:**
 
-- **潛在問題**: 需要根據激活函數調整scale參數
+- **潛在問題**: 需要根據活化函數調整scale參數
 - **最佳使用情境**: 需要精細控制初始化行為時
 
 ---
@@ -257,13 +257,13 @@ dense = tf.keras.layers.Dense(50, activation=leaky_relu,
 **✅ 程式碼逐行解析：**
 
 1. `leaky_relu = tf.keras.layers.LeakyReLU(alpha=0.2)`: 建立LeakyReLU層，alpha=0.2
-2. `dense = tf.keras.layers.Dense(50, activation=leaky_relu, kernel_initializer="he_normal")`: 建立Dense層使用LeakyReLU激活
+2. `dense = tf.keras.layers.Dense(50, activation=leaky_relu, kernel_initializer="he_normal")`: 建立Dense層使用LeakyReLU活化
 
 **🎯 重點摘要:**
 
 - **核心功能**: 將LeakyReLU作為單獨層使用，便於控制
 - **潛在問題**: 增加網路深度
-- **最佳使用情境**: 需要精細控制激活函數時
+- **最佳使用情境**: 需要精細控制活化函數時
 
 ### 範例 6: Swish激活函數
 
