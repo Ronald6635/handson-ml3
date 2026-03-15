@@ -314,6 +314,150 @@ print(f"Test Accuracy: {test_acc:.4f}")
   1. 簡述 Adam 與 SGD + Momentum 的權衡（Trade-off）：哪一個在初期收斂快？哪一個通常能達到更好的最終泛化（Generalization）？
   2. 實作比較：使用同一個模型分別配置 `Adam(learning_rate=0.001)` 與 `SGD(learning_rate=0.01, momentum=0.9)` 訓練 20 個 Epochs，繪製 Loss 曲線圖。
 
+```python
+import tensorflow as tf
+from tensorflow import keras
+import matplotlib.pyplot as plt
+
+# Prepare dataset
+(X_train_full, y_train_full), (X_test, y_test) = keras.datasets.fashion_mnist.load_data()
+X_train, y_train = X_train_full[:-5000], y_train_full[:-5000]
+X_valid, y_valid = X_train_full[-5000:], y_train_full[-5000:]
+X_train, X_valid, X_test = X_train / 255.0, X_valid / 255.0, X_test / 255.0
+
+# Build a simple model
+def build_model(use_bn=False):  
+  model = keras.Sequential()
+
+  model.add(keras.layers.Input(shape=(28, 28)))
+  model.add(keras.layers.Flatten())
+
+  for _ in range(15):
+    model.add(keras.layers.Dense(300, kernel_initializer="he_normal"))
+    if use_bn:
+      model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.ReLU())
+  
+  model.add(keras.layers.Dense(100, kernel_initializer="he_normal"))
+  if use_bn:
+    model.add(keras.layers.BatchNormalization())
+  model.add(keras.layers.ReLU())
+
+  model.add(keras.layers.Dense(10, activation="softmax"))
+  
+  return model
+
+# Train with Adam
+model_adam = build_model()
+model_adam.compile(loss="sparse_categorical_crossentropy",
+                   optimizer=keras.optimizers.Adam(learning_rate=0.001),
+                   metrics=["accuracy"])
+history_adam = model_adam.fit(X_train, y_train, epochs=20,
+                              validation_data=(X_valid, y_valid),
+                              verbose=0)
+
+# Train with SGD + Momentum
+model_sgd = build_model()
+model_sgd.compile(loss="sparse_categorical_crossentropy",
+                  optimizer=keras.optimizers.SGD(learning_rate=0.01, momentum=0.9),
+                  metrics=["accuracy"])
+history_sgd = model_sgd.fit(X_train, y_train, epochs=20,
+                            validation_data=(X_valid, y_valid),
+                            verbose=0)
+# Plot Loss Curves and accuracy Curves for both optimizers
+plt.figure(figsize=(12, 5))
+plt.title("Training Curves: Adam vs SGD + Momentum")
+plt.plot(history_adam.history["loss"], ".-",label="Adam Loss")
+plt.plot(history_sgd.history["loss"], "-",label="SGD + Momentum Loss")
+plt.plot(history_adam.history["accuracy"], ".-",label="Adam Accuracy")
+plt.plot(history_sgd.history["accuracy"], "-",label="SGD + Momentum Accuracy")
+plt.xlabel("Epochs")
+plt.ylabel("Loss / Accuracy")
+plt.legend()
+plt.show()
+
+# Use BN to stabilize training and allow higher learning rates
+# Train with Adam
+model_adam = build_model(use_bn=True)
+model_adam.compile(loss="sparse_categorical_crossentropy",
+                   optimizer=keras.optimizers.Adam(learning_rate=0.01),
+                   metrics=["accuracy"])
+history_adam = model_adam.fit(X_train, y_train, epochs=20,
+                              validation_data=(X_valid, y_valid),
+                              verbose=0)
+
+# Train with SGD + Momentum
+model_sgd = build_model(use_bn=True)
+model_sgd.compile(loss="sparse_categorical_crossentropy",
+                  optimizer=keras.optimizers.SGD(learning_rate=0.05, momentum=0.9),
+                  metrics=["accuracy"])
+history_sgd = model_sgd.fit(X_train, y_train, epochs=20,
+                            validation_data=(X_valid, y_valid),
+                            verbose=0)
+# Plot Loss Curves and accuracy Curves for both optimizers
+plt.figure(figsize=(12, 5))
+plt.title("Training Curves with Batch Normalization: Adam vs SGD + Momentum")
+plt.plot(history_adam.history["loss"], ".-",label="Adam Loss")
+plt.plot(history_sgd.history["loss"], "-",label="SGD + Momentum Loss")
+plt.plot(history_adam.history["accuracy"], ".-",label="Adam Accuracy")
+plt.plot(history_sgd.history["accuracy"], "-",label="SGD + Momentum Accuracy")
+plt.xlabel("Epochs")
+plt.ylabel("Loss / Accuracy")
+plt.legend()
+plt.show()
+
+# Self-Normalizing Networks (SNNs) with SELU activation and AlphaDropout
+def build_model_selu():
+    model = keras.Sequential()
+    model.add(keras.layers.Input(shape=(28, 28)))
+    model.add(keras.layers.Flatten())
+
+    # 使用迴圈建立 15 層深層隱藏層
+    for _ in range(15):
+        # 關鍵：SELU 必須搭配 lecun_normal 初始化才能實現自我歸一化
+        model.add(keras.layers.Dense(300, 
+                                     activation="selu", 
+                                     kernel_initializer="lecun_normal"))
+    
+    # 倒數第二層隱藏層
+    model.add(keras.layers.Dense(100, 
+                                 activation="selu", 
+                                 kernel_initializer="lecun_normal"))
+
+    # 輸出層
+    model.add(keras.layers.Dense(10, activation="softmax"))
+    
+    return model
+
+pixel_means = X_train.mean(axis=0, keepdims=True)
+pixel_stds = X_train.std(axis=0, keepdims=True)
+X_train_scaled = (X_train - pixel_means) / pixel_stds
+X_valid_scaled = (X_valid - pixel_means) / pixel_stds
+X_test_scaled = (X_test - pixel_means) / pixel_stds
+
+model_selu = build_model_selu()
+model_selu.compile(loss="sparse_categorical_crossentropy",
+                   optimizer=keras.optimizers.Nadam(learning_rate=0.001),
+                   metrics=["accuracy"])
+history_selu = model_selu.fit(X_train_scaled, y_train, epochs=20,
+                              validation_data=(X_valid_scaled, y_valid),
+                              verbose=0)
+
+# Plot Loss Curves and accuracy Curves for all optimizers
+plt.figure(figsize=(12, 5))
+plt.title("Training Curves: Adam vs SGD + Momentum vs SELU")
+plt.plot(history_adam.history["loss"], ".-",label="Adam Loss")
+plt.plot(history_sgd.history["loss"], "-",label="SGD + Momentum Loss")
+plt.plot(history_adam.history["accuracy"], ".-",label="Adam Accuracy")
+plt.plot(history_sgd.history["accuracy"], "-",label="SGD + Momentum Accuracy")
+plt.plot(history_selu.history["loss"], "--",label="SELU Loss")
+plt.plot(history_selu.history["accuracy"], "--",label="SELU Accuracy")
+plt.xlabel("Epochs")
+plt.ylabel("Loss / Accuracy")
+plt.legend()
+plt.show()
+```
+
 ---
 
 ## 6. 學習率排程與正則化 (LR Scheduling & Regularization)
@@ -328,6 +472,118 @@ print(f"Test Accuracy: {test_acc:.4f}")
 * **⚡ 補充練習 6：**
   1. 解釋為什麼「權重衰減（L2 Regularization）」可以防止模型權重過大？（從 Loss Function 的懲罰項角度說明）。
   2. 實作練習：定義一個 `MCDropout` 類別，並對測試集進行 50 次預測，計算其預測結果的標準差，視覺化模型在哪些影像上最「猶豫」。
+
+### 權重衰減（L2 Regularization）與損失函數的關係
+在機器學習中，**權重衰減（Weight Decay / L2 Regularization）** 是防止模型過擬合（Overfitting）最常用的技術之一。從損失函數（Loss Function）的角度來看，其運作邏輯如下：
+
+#### 1. 損失函數的構成
+在加入 L2 正則化後，模型原本的損失函數 $J(\theta)$ 會被修改為：
+
+$$ J(\mathbf{w}) = \text{MSE}(\mathbf{w}) + \alpha \frac{1}{2} \sum_{i=1}^n w_i^2 $$
+
+這裡的 $\text{MSE}(\mathbf{w})$ 是原始的均方誤差（代表模型對資料的擬合程度），而 $\alpha \frac{1}{2} \sum w_i^2$ 就是**懲罰項（Penalty Term）**。$\alpha$ 是一個超參數，用來控制正則化的強度。
+
+#### 2. 懲罰項的作用
+當模型進行訓練（即最小化 $J(\mathbf{w})$）時，最佳化演算法（如梯度下降）現在必須同時兼顧兩個目標：
+*   **縮小預測誤差**：讓 $\text{MSE}(\mathbf{w})$ 越小越好。
+*   **縮小權重數值**：讓權重的平方和 $\sum w_i^2$ 越小越好。
+
+如果某個權重 $w_i$ 變得非常大，懲罰項會迅速增加（因為是平方關係），進而導致總損失 $J(\mathbf{w})$ 大幅上升。為了降低總損失，最佳化過程會強迫權重往較小的值移動。
+
+#### 3. 梯度下降與權重更新
+從數學更新公式來看，權重 $w$ 的梯度更新為：
+
+$$ w_{next} = w - \eta \left( \frac{\partial \text{MSE}}{\partial w} + \alpha w \right) $$
+
+整理後可得：
+$$ w_{next} = (1 - \eta \alpha) w - \eta \frac{\partial \text{MSE}}{\partial w} $$
+
+其中 $\eta$ 是學習率。由於 $(1 - \eta \alpha)$ 是一個略小於 1 的數值，這意味著在每一次更新權重之前，系統都會先將權重**等比例地縮小（Decay）**。只有當資料產生的梯度 $\frac{\partial \text{MSE}}{\partial w}$ 足夠強大到能抵銷這個縮小效果時，權重才會保持較大的數值。
+
+#### 4. 結論
+權重衰減透過在損失函數中引入「對權重大小的成本」，確保模型不會為了完美擬合每一個訓練樣本（包含雜訊）而產生極端的權重值。這使得模型函數變得更平滑，提高了對未見資料的泛化能力。
+
+
+### 實作 `MCDropout` 類別並視覺化不確定性
+```python
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Prepare dataset
+(X_train_full, y_train_full), (X_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
+X_train, y_train = X_train_full[:-5000], y_train_full[:-5000]
+X_valid, y_valid = X_train_full[-5000:], y_train_full[-5000:]
+X_train, X_valid, X_test = X_train / 255.0, X_valid / 255.0, X_test / 255.0
+
+pixel_means = X_train.mean(axis=0, keepdims=True)
+pixel_stds = X_train.std(axis=0, keepdims=True)
+X_train_scaled = (X_train - pixel_means) / pixel_stds
+X_valid_scaled = (X_valid - pixel_means) / pixel_stds
+X_test_scaled = (X_test - pixel_means) / pixel_stds
+
+# 1. 定義 MC Dropout 類別
+class MCDropout(tf.keras.layers.Dropout):
+    def call(self, inputs):
+        # 強制在推論階段也保持 Dropout 開啟
+        return super().call(inputs, training=True)
+
+# 2. 假設我們有一個模型並套用此層
+model_mc = tf.keras.Sequential([
+  tf.keras.layers.Input(shape=(28, 28)),
+  tf.keras.layers.Flatten(),
+  tf.keras.layers.Dense(300, activation="selu", kernel_initializer="lecun_normal"),
+  MCDropout(rate=0.2),
+  tf.keras.layers.Dense(10, activation="softmax")
+])
+
+# 3. 編譯並訓練模型
+model_mc.compile(loss="sparse_categorical_crossentropy",
+                 optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+                 metrics=["accuracy"])
+model_mc.fit(X_train_scaled, y_train, epochs=20,
+             validation_data=(X_valid_scaled, y_valid),
+              verbose=1)
+
+# 4. 進行 100 次預測並計算標準差
+y_probas = np.stack([model_mc.predict(X_test_scaled) for _ in range(100)])
+y_std = y_probas.std(axis=0) # 形狀為 (10000, 10) -> 10000 個樣本各個類別的標準差
+
+# 5. 視覺化不確定性
+# 找出預測類別中標準差最高的樣本，即為最「猶豫」的影像
+uncertainty = y_std.max(axis=1) # 每個樣本的最大標準差
+most_uncertain_idx = np.argsort(uncertainty)[-5:] # 取出最不確定的前 5 個樣本
+
+# 顯示這些樣本及其不確定性
+# 定義類別名稱（以 Fashion MNIST 為例）
+class_names = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
+               "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot"]
+
+# 計算平均預測機率
+y_probas_mean = y_probas.mean(axis=0)
+
+# 建立畫布：每一列顯示一個樣本（左圖：影像，右圖：機率分佈）
+n_samples = len(most_uncertain_idx)
+fig, axes = plt.subplots(n_samples, 2, figsize=(12, 3 * n_samples))
+
+# 從最不確定的樣本開始顯示 (逆序)
+for i, idx in enumerate(most_uncertain_idx[::-1]):
+    # --- 左圖：原始影像 ---
+    axes[i, 0].imshow(X_test[idx], cmap="binary")
+    axes[i, 0].set_title(f"Actual: {class_names[y_test[idx]]}")
+    axes[i, 0].axis('off')
+    
+    # --- 右圖：預測機率分佈與標準差 ---
+    # 使用 yerr=y_std[idx] 來繪製誤差棒，代表 MC Dropout 的不確定性
+    axes[i, 1].bar(class_names, y_probas_mean[idx], 
+                   yerr=y_std[idx], capsize=5, color="skyblue", edgecolor="black")
+    axes[i, 1].set_ylim(0, 1.1) # 預留空間給誤差棒
+    axes[i, 1].set_title(f"MC Dropout Probabilities (Max Std: {uncertainty[idx]:.4f})")
+    plt.setp(axes[i, 1].get_xticklabels(), rotation=45, ha="right")
+
+plt.tight_layout()
+plt.show()
+```
 
 ---
 
