@@ -36,6 +36,7 @@ dependencies:
     - tensorboard-plugin-profile~=2.19.0  # profiling plugin for TensorBoard
     - tensorboard~=2.19.0  # TensorFlow's visualization toolkit
     - tensorflow-datasets~=4.9.3  # datasets repository, ready to use
+    - tensorflow-estimator~=2.15.0 # Required for hub.KerasLayer and other tf.estimator uses
     - tensorflow-hub~=0.15.0  # trained ML models repository, ready to use
     - tensorflow-serving-api-gpu~=2.19.0  # or tensorflow-serving-api-gpu if gpu
     - tensorflow~=2.19.0  # Deep Learning library
@@ -44,3 +45,5 @@ dependencies:
     - gymnasium[classic_control,atari]  # used only in ch18
     - google-cloud-aiplatform~=1.36.2  # used only in chapter 19
     - google-cloud-storage~=2.13.0  # used only in chapter 19
+    - streamlit
+    - google-generativeai
