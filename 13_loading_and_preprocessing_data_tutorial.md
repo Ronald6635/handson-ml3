@@ -397,3 +397,97 @@ A: 嵌入模型的預處理在**部署時自動執行**——只需傳入原始�
 ## <a id="hashtags"></a>🏷️ 推薦標籤 (Suggested Hashtags)
 
 \#Python #TensorFlow #tfdata #TFRecord #Keras #資料管線 #預處理 #TextVectorization #深度學習 #圖像增強 #程式設計 #教學 #DataScience #MachineLearning
+
+---
+
+這章節的核心問題是：**GPU 很快，但資料餵不夠快**。`tf.data` API 就是解決這個瓶頸的工具。
+
+## 1. tf.data 的核心概念
+
+`tf.data.Dataset` 是一個**惰性（lazy）管線**——不會立刻執行，只有真正迭代時才跑。
+
+```
+原始資料 → Dataset → 轉換鏈 → 模型訓練
+```
+
+三種建立方式：
+
+| 方式 | 適用場景 |
+|------|---------|
+| `from_tensor_slices()` | 資料能全部放進記憶體 |
+| `from_generator()` | 資料太大，用 Python 逐筆生成 |
+| `TFRecordDataset()` | 大型二進位資料集（圖像、音訊） |
+
+---
+
+## 2. 標準管線順序（重要！）
+
+```python
+dataset
+  .shuffle(buffer_size=1000)          # 1. 打亂順序
+  .map(preprocess, num_parallel_calls=AUTOTUNE)  # 2. 預處理（多執行緒）
+  .cache()                            # 3. 快取（可選，放 map 後）
+  .batch(32)                          # 4. 組成 batch
+  .prefetch(AUTOTUNE)                 # 5. 預取（必加！）
+```
+
+**為什麼順序很重要？**
+- `shuffle` 要在 `batch` 前：打亂個別樣本，而非 batch 間交換
+- `cache` 在 `map` 後：快取的是預處理完的結果，避免重複計算
+- `prefetch` 永遠最後：讓 CPU 準備下一個 batch 的同時，GPU 跑當前 batch
+
+---
+
+## 3. TFRecord：大型資料集的二進位格式
+
+**為什麼用 TFRecord？**
+- 讀 10,000 個 JPEG 小檔 vs 讀 1 個大二進位檔：後者快 3–5 倍
+- Protocol Buffers 格式，有類型驗證
+
+序列化流程：
+```
+NumPy array / 圖像 bytes
+    → tf.train.Feature（bytes/float/int64）
+    → tf.train.Example（多個 Feature 的容器）
+    → SerializeToString()
+    → 寫入 .tfrecord 檔
+```
+
+讀取時反向操作：`parse_single_example()` 根據你定義的 `feature_description` 還原。
+
+---
+
+## 4. Keras 預處理層：嵌入模型 vs 放在管線
+
+兩種做法的關鍵差異：
+
+| | 放在 tf.data 管線 | 嵌入 Keras 模型 |
+|--|-----------------|---------------|
+| 訓練速度 | 較快（CPU 平行執行）| 稍慢 |
+| 部署方便性 | ❌ 需要額外的預處理代碼 | ✅ 模型自己處理 |
+| 推薦場景 | 訓練環境 | 生產部署 |
+
+`Normalization` 層的 `adapt()` = sklearn 的 `fit()`，**只能在訓練資料上呼叫**。
+
+---
+
+## 5. 效能最佳化心法
+
+```
+prefetch → 消除 CPU-GPU 等待（最重要，零成本）
+cache    → 第二個 epoch 起 I/O 接近零
+AUTOTUNE → 讓 TF 自動決定最佳執行緒數，不用手動調
+```
+
+`prefetch(AUTOTUNE)` 一行的效果等於免費的效能翻倍，**沒有理由不加**。
+
+---
+
+## 學習路徑建議
+
+1. **先跑範例 1 和 2**：理解 Dataset 的惰性特性和基本轉換鏈
+2. **跑範例 3+4**：寫入再讀取 TFRecord，感受格式差異
+3. **跑範例 5**：把 `Normalization` 嵌入模型，觀察 `adapt()` 前後的 mean/variance
+4. **跑範例 8**：用 `measure_dataset_performance()` 量測有無 `prefetch`/`cache` 的速度差
+
+你對哪個部分想深入了解？（例如 TFRecord 的序列化原理、`shuffle` 的 buffer 機制、或圖像增強的實作）
