@@ -23,12 +23,14 @@
 
 ## <a id="key-takeaways"></a> 🎯 關鍵重點
 
-- 卷積層 (Convolutional Layer) 能從影像中提取局部特徵，並透過共享
+- **卷積層 (Convolutional Layer)** 能從影像中提取局部特徵，並透過共享
   權重大幅降低參數量。
-- `padding="same"` 與步幅 (stride) 影響特徵圖 (feature map) 的空間大小。
-- 池化層 (Pooling Layer) 可進行下採樣、擴大感受野、並減少計算成本。
-- ResNet 的殘差連接 (skip connection) 讓深層網路更容易訓練。
-- 轉移學習 (Transfer Learning) 可將預訓練特徵快速應用到新任務。
+- `padding="same"` 或 `padding="valid"` 與步幅 (stride) 影響*特徵圖 (feature map)* 的空間大小。
+- **池化層 (Pooling Layer)** 可進行下採樣 (downsampling)、擴大感受野 (receptive field)、並減少計算成本。
+- **ResNet 的殘差連接 (skip connection)** 讓深層網路更容易訓練。
+- **轉移學習 (Transfer Learning)** 可將預訓練特徵快速應用到新任務。
+
+---
 
 ## <a id="conv-layer"></a> 🧠 卷積層 (Convolutional Layer) 與特徵圖
 
@@ -42,7 +44,8 @@
 from sklearn.datasets import load_sample_images
 import tensorflow as tf
 
-images = load_sample_images()["images"]
+img_dataset = load_sample_images()
+images = img_dataset["images"]
 images = tf.keras.layers.CenterCrop(height=70, width=120)(images)
 images = tf.keras.layers.Rescaling(scale=1 / 255)(images)
 ```
@@ -60,6 +63,17 @@ images = tf.keras.layers.Rescaling(scale=1 / 255)(images)
 - 先行資料預處理可保持模型輸入一致性。
 - 將像素歸一化有助於梯度穩定。
 - 中心裁剪是視覺實作中常見的尺寸標準化方式。
+
+```python
+# inspect this dataset
+print("Dataset keys:", img_dataset.keys())
+
+for i, img in enumerate(img_dataset["images"]):
+    print(f"Image {i} : {img_dataset['filenames'][i]}")
+    print(f"Shape: {img.shape}, dtype: {img.dtype}")
+    print(f"min: {img.min()}, max: {img.max()}, mean: {img.mean():.4f}")
+    print("\n")
+```
 
 ### <a id="conv-2"></a> 2. 卷積層基本實作
 
@@ -81,22 +95,62 @@ fmaps = conv_layer(images)
 - 卷積核大小影響可偵測的局部結構。
 - 預設 `padding="valid"` 會讓輸出尺寸縮小。
 
+```python
+# inspect the feature maps
+print("Feature maps shape:", fmaps.shape)
+print("Feature maps dtype:", fmaps.dtype)
+print("Feature maps min:", fmaps.numpy().min())
+print("Feature maps max:", fmaps.numpy().max())
+print("Feature maps mean:", fmaps.numpy().mean())
+
+# inspect the convolutional layer weights
+print("Conv layer weights shape:", conv_layer.kernel.shape)
+print("Conv layer weights dtype:", conv_layer.kernel.dtype)
+print("Conv layer weights min:", conv_layer.kernel.numpy().min())
+print("Conv layer weights max:", conv_layer.kernel.numpy().max())
+print("Conv layer weights mean:", conv_layer.kernel.numpy().mean())
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12, 6))
+for i in range(32):
+    plt.subplot(4, 8, i + 1)
+    plt.imshow(fmaps[0, :, :, i], cmap="viridis")
+    plt.axis("off")
+plt.suptitle("Feature Maps from Conv2D Layer", fontsize=16)
+plt.show()
+```
+
+> 從`conv_layer.kernel.shape` 可以看出卷積核的形狀，通常為 `(kernel_height, kernel_width, input_channels, output_channels)`。
+> `fmaps.shape` 顯示輸出特徵圖的形狀，通常為 `(batch_size, height, width, output_channels)`。
+
 ### <a id="conv-3"></a> 3. Padding 與 Stride 對輸出大小的影響
+
+以下比較不同 `padding` 與 `strides` 設定對特徵圖大小的影響：
 
 ```python
 conv_layer_same = tf.keras.layers.Conv2D(
-    filters=32, kernel_size=7, padding="same")
+    filters=32, kernel_size=7, padding="same") # 保持輸入輸出尺寸相同（步幅為 1）
 fmaps_same = conv_layer_same(images)
 
 conv_layer_stride = tf.keras.layers.Conv2D(
-    filters=32, kernel_size=7, padding="same", strides=2)
+    filters=32, kernel_size=7, padding="same", strides=2) # 步幅為 2，輸出尺寸變為原來的一半
 fmaps_stride = conv_layer_stride(images)
+
+conv_layer_valid = tf.keras.layers.Conv2D(
+    filters=32, kernel_size=7, padding="valid") # 不填充，輸出尺寸會縮小
+fmaps_valid = conv_layer_valid(images)
+
+print("Input shape:", images.shape, "\n")
+print("Output shape with padding='same':", fmaps_same.shape)
+print("Output shape with strides=2:", fmaps_stride.shape, "\n")
+print("Output shape with padding='valid':", fmaps_valid.shape)
 ```
 
 ```python
 import numpy as np
 
 def conv_output_size(input_size, kernel_size, strides=1, padding="valid"):
+    """ 計算卷積層輸出尺寸與被捨去/補零的列/欄數 """
     if padding == "valid":
         z = input_size - kernel_size + strides
         output_size = z // strides
@@ -149,15 +203,31 @@ fmaps = tf.nn.conv2d(
 - 手動設計濾波器有助於理解 CNN 的特徵提取機制。
 - `padding="SAME"` 顯示填充對邊緣響應的影響。
 
+---
+
 ## <a id="pooling-layer"></a> 📉 池化層 (Pooling Layer) 與全域平均池化
 
-池化層負責下採樣與特徵聚合，是 CNN 中常見的空間壓縮方法。
+池化層負責下採樣 (downsampling) 與特徵聚合 (feature aggregation)，是 CNN 中常見的空間壓縮方法。
 
 ### <a id="max-pool"></a> 1. 最大池化 (Max Pooling)
+
+`MaxPool2D` 是最常見的池化方法，它在每個池化窗口中取最大值，保留最強激活。
+- 適合保留邊緣與紋理特徵。
+- 減少參數與運算量，提升平移不變性 (translation invariance)。
+- 常見的池化窗口大小為 2×2，步幅為 2，會將空間尺寸減半。
+    - `pool_size=2` 表示每個 2×2 區塊取最大值。
+    - 例如，從 28×28 變為 14×14。
 
 ```python
 max_pool = tf.keras.layers.MaxPool2D(pool_size=2)
 output = max_pool(images)
+print("Max pooling output shape:", output.shape)
+
+# Visualize the max pooling output
+plt.imshow(output[0].numpy())
+plt.title("Max Pooling Output")
+plt.axis("off")
+plt.show()
 ```
 
 ✅ 程式碼逐行解析
@@ -171,6 +241,8 @@ output = max_pool(images)
 - 池化可減少參數與運算量，並提升平移不變性 (translation invariance)。
 
 ### <a id="depth-pool"></a> 2. 深度池化 (Depth-wise Pooling)
+
+透過自訂層實現*沿通道維度的池化*，將每個通道分成多個子群組，對每個群組取最大值。
 
 ```python
 class DepthPool(tf.keras.layers.Layer):
@@ -198,9 +270,11 @@ class DepthPool(tf.keras.layers.Layer):
 
 - 深度池化提供另一種壓縮通道信息的方法。
 - 自訂層展示 TensorFlow 函式庫的彈性。
-- 適合在深度特徵抽取後進行通道壓縮。
+- 適合在深度特徵抽取後**進行通道壓縮**。
 
 ### <a id="gap"></a> 3. 全域平均池化 (Global Average Pooling)
+
+`GlobalAvgPool2D` 將每個通道的空間維度 (高度與寬度) 平均為單一值，適合在分類器之前使用，能顯著降低參數量並減少過擬合風險。
 
 ```python
 global_avg_pool = tf.keras.layers.GlobalAvgPool2D()
@@ -214,9 +288,11 @@ global_avg_pool(images)
 
 🎯 重點摘要
 
-- 全域平均池化可將每個特徵圖壓縮為一個標量，適用於分類器之前。
+- 全域平均池化可將*每個特徵圖壓縮為一個標量*，適用於分類器之前。
 - 它能顯著降低參數數量並減少過擬合風險。
 - 與 `Flatten()` 相比，更適合多尺度輸入。
+
+---
 
 ## <a id="fashion-mnist-cnn"></a> 👗 Fashion MNIST CNN 範例
 
@@ -226,6 +302,7 @@ Dropout 與 Dense 分類器。
 ```python
 from functools import partial
 
+# 定義卷積層的預設參數
 default_conv = partial(tf.keras.layers.Conv2D,
                        kernel_size=3,
                        padding="same",
@@ -255,8 +332,9 @@ model = tf.keras.Sequential([
 ✅ 程式碼逐行解析
 
 1. `partial(...)`: 使用 `functools.partial` 簡化 `Conv2D` 建構。
+    - 這樣可以在後續呼叫時只需指定 `filters` 和 `input_shape`，其他參數保持一致。
 2. `default_conv(filters=64, kernel_size=7, input_shape=[28, 28, 1])`:
-   第一層卷積，輸入為 28×28 灰階影像。
+   第一層卷積，輸入為 28×28 灰階影像；kernel 大小為 7×7，濾波器數量為 64。
 3. `MaxPool2D()`: 每次下採樣 2×2。
 4. 重複 128 和 256 通道的卷積堆疊：增加特徵抽取能力。
 5. `Flatten()`: 將特徵圖攤平成向量，送入密集層 (Dense layer)。
@@ -267,13 +345,16 @@ model = tf.keras.Sequential([
 🎯 重點摘要
 
 - 這是典型的影像分類 CNN 架構：卷積 + 池化 + 全連接層。
-- Dropout 有助於穩定訓練並提升泛化能力。
+- `Dropout` 有助於穩定訓練並提升泛化能力。
 - `he_normal` 初始化適合 ReLU 活化函數 (activation function)。
+- `SpatialDropout` 也可考慮用於卷積層，隨機失活整個特徵圖 (feature map)，進一步提升模型魯棒性。
+
+---
 
 ## <a id="resnet"></a> 🔗 ResNet 殘差單元 (Residual Unit) 與深度架構
 
-ResNet 的殘差單元是解決深度網路退化 (degradation) 問題的關鍵。它透過
-捷徑連接 (skip connection) 讓輸入直接疊加到後續層，改善梯度傳播。
+ResNet 的殘差單元是解決深度網路**退化 (degradation)** 問題的關鍵。它透過
+**捷徑連接 (skip connection)** 讓輸入直接疊加到後續層，改善梯度傳播。
 
 ```python
 DefaultConv2D = partial(tf.keras.layers.Conv2D,
@@ -352,6 +433,8 @@ model.add(tf.keras.layers.Dense(10, activation="softmax"))
 - `GlobalAvgPool2D()` 將每個通道壓縮為單一統計量，適合分類器輸入。
 - 這樣的架構適合深層影像分類問題。
 
+---
+
 ## <a id="transfer-learning"></a> 🚀 預訓練模型與轉移學習 (Transfer Learning)
 
 轉移學習可讓你重用大型資料集（如 ImageNet）上訓練好的特徵，
@@ -371,11 +454,12 @@ for layer in base_model.layers:
 ✅ 程式碼逐行解析
 
 1. `xception.Xception(...)`: 載入 Xception 模型，不包含頂層分類器。
-2. `include_top=False`: 保留特徵提取器，丟棄原始 ImageNet 分類層。
-3. `GlobalAveragePooling2D()`: 將空間特徵聚合成向量。
-4. `Dense(n_classes, activation="softmax")`: 新的分類器輸出層。
-5. `tf.keras.Model(...)`: 建立完整模型。
-6. `layer.trainable = False`: 凍結基底模型，僅訓練新加入的分類層。
+    - `weights="imagenet"` 表示使用在 ImageNet 上預訓練的權重。
+    - `include_top=False`: 保留特徵提取器，丟棄原始 ImageNet 分類層。
+2. `GlobalAveragePooling2D()`: 將空間特徵聚合成向量。
+3. `Dense(n_classes, activation="softmax")`: 新的分類器輸出層。
+4. `tf.keras.Model(...)`: 建立完整模型。
+5. `layer.trainable = False`: 凍結基底模型，僅訓練新加入的分類層。
 
 🎯 重點摘要
 
@@ -403,6 +487,8 @@ train_set = train_set.shuffle(1000, seed=42).batch(batch_size).prefetch(1)
 - `preprocess_input` 會將像素值轉換到模型預期的區間，例如 [-1, 1]。
 - `shuffle()`、`batch()` 和 `prefetch()` 可提升訓練效率。
 
+---
+
 ## <a id="fine-tuning"></a> 🧩 進階微調 (Fine-Tuning) 與多輸出分類
 
 當新加入的分類層收斂後，可對基底模型最後幾層進行微調 (fine-tuning)，
@@ -420,8 +506,8 @@ history = model.fit(train_set, validation_data=valid_set, epochs=10)
 
 🎯 重點摘要
 
-- 微調時應使用較低學習率，以避免破壞預訓練權重。
-- 只解凍部分基底層可以平衡訓練穩定性與適應性。
+- **微調時應使用較低學習率**，以避免破壞預訓練權重。
+- **只解凍部分基底層** 可以平衡訓練穩定性與適應性。
 - 這樣的流程通常先「凍結訓練」、「再解凍微調」。
 
 ### <a id="multi-output"></a> 範例：分類與定位的多輸出模型
@@ -445,6 +531,8 @@ model.compile(loss=["sparse_categorical_crossentropy", "mse"],
 - `loss_weights` 可調整不同目標的影響力。
 - 這類架構是目標檢測 (object detection) 任務的基礎概念。
 
+---
+
 ## <a id="faq"></a> ❓ 常見問答
 
 ### 問：為什麼要用 `padding="same"` 而不是 `padding="valid"`？
@@ -460,10 +548,88 @@ model.compile(loss=["sparse_categorical_crossentropy", "mse"],
 
 ### 問：ResNet 的殘差連接解決了什麼問題？
 
-它解決了深層網路的梯度退化 (gradient degradation) 與訓練困難問題，
-讓深層網路可以像淺層網路一樣傳遞訊號。殘差連接提供了捷徑路徑，
+它解決了深層網路的**梯度退化 (gradient degradation)** 與訓練困難問題，
+讓深層網路可以像淺層網路一樣傳遞訊號。**殘差連接 (Residual Connection)** 提供了捷徑路徑，
 讓梯度更容易回傳到前層。
+
+---
 
 ## <a id="hashtags"></a> 🏷️ 推薦標籤
 
 標籤：#CNN #深度學習 #TensorFlow #Keras #Python教學 #機器學習 #電腦視覺
+
+---
+
+## 🧠 總結與深化學習路徑
+
+### 💡 第一部分：概念理解（What & Why）
+
+這部分是理解「為什麼要這樣做」的基礎。
+
+1.  **CNN 的核心思想 (Feature Hierarchy):**
+    *   **理解點：** CNN 的層次結構是模仿人腦視覺皮層的。
+        - 淺層（Early Layers）學到的是簡單的特徵（邊緣、角點）；
+        - 深層（Deep Layers）則將這些簡單特徵組合起來，學到複雜的特徵（眼睛、車輪、整個物體）。
+    *   **關鍵區分：** 
+        - **卷積層（Convolution）** 負責提取特徵；
+        - **池化層（Pooling）** 負責降維和增加魯棒性（讓模型對輸入的微小位移不敏感）。
+
+2.  **遷移學習 (Transfer Learning) 的必要性：**
+    *   **理解點：** 訓練一個大型模型（如 ImageNet 上的 ResNet）需要海量的標籤化數據和巨大的算力。當你的任務數據量小、算力有限時，直接從零開始訓練是不可行的。
+    *   **解決方案：** 採用預訓練模型（Pre-trained Model），利用它在大型數據集上學到的通用特徵提取能力，然後只在你的小數據集上進行微調（Fine-tuning）。
+
+3.  **殘差網路 (ResNet) 的突破 (The Vanishing Gradient Problem):**
+    *   **理解點：** 隨著網路層數的加深，梯度（Gradient）在反向傳播時可能會變得極小（梯度消失），導致深層網路無法有效學習。
+    *   **ResNet 的天才之處：** 它引入了**殘差塊 (Residual Block)**，核心思想是讓網路學習「殘差 $F(x)$」，而不是直接學習完整的映射 $H(x)$。透過 $H(x) = F(x) + x$ 的結構，它讓梯度可以直接「跳過」一些層（Skip Connection），從而有效解決了梯度消失問題，使得模型可以穩定地堆疊到數百層。
+
+---
+
+### 🚀 第二部分：核心概念深化（How）
+
+這部分是深入理解模型結構和訓練策略的關鍵。
+
+#### 1. 關於微調策略 (Fine-Tuning Strategy)
+當使用預訓練模型時，切記這三個層級的微調策略：
+
+*   **Feature Extractor (特徵提取器)：** 凍結所有預訓練層的權重，只訓練最後的分類器（Classification Head）。**（適用於：目標任務與源任務差異極大，或數據量極小）**
+*   **Fine-Tuning (微調)：** 解凍所有層，但使用非常小的學習率（Learning Rate）。這讓模型在「微調」已學到的知識，而不是「忘記」它。**（適用於：目標任務與源任務相似，數據量中等）**
+*   **Full Retraining (完整重訓練)：** 重新訓練所有層。**（適用於：數據量極大，且目標任務與源任務差異極大）**
+
+#### 2. 關於優化器與學習率 (Optimizer & Learning Rate)
+*   **優化器：** 雖然 Adam/AdamW 是主流，但理解 **SGD + Momentum** 的物理直覺（慣性）仍然重要。
+*   **學習率衰減 (Learning Rate Scheduling)：** 這是提升性能的關鍵。不要用一個固定的學習率。建議使用 **Cosine Annealing** 或 **ReduceLROnPlateau**，讓學習率隨著訓練的進行而逐漸減小，讓模型在後期能精確收斂到最佳點。
+
+---
+
+### 🛠️ 第三部分：實戰建議與進階實作（Best Practices）
+
+這部分是將知識轉化為高效率代碼的技巧。
+
+1.  **數據增強 (Data Augmentation) 的組合拳：**
+    *   不要只用隨機翻轉。組合使用：`RandomCrop` (隨機裁剪) + `RandomHorizontalFlip` (水平翻轉) + `ColorJitter` (改變亮度/對比度)。
+    *   **進階技巧：** 考慮使用 **Mixup** 或 **CutMix**，這類方法會將多張圖片混合，能極大地提高模型的泛化能力，尤其在數據量較小時。
+
+2.  **模型評估指標的選擇：**
+    *   **準確率 (Accuracy)：** 適用於類別分佈均衡的分類任務。
+    *   **F1-Score / AUC：** 當類別分佈不均衡（Imbalanced Data）時，**必須**使用 F1-Score 或 ROC-AUC 來評估模型，否則高準確率可能只是因為模型偏向多數類別。
+
+3.  **實作流程總結（Checklist）：**
+    1.  **數據預處理：** 統一尺寸 $\rightarrow$ 數據增強 $\rightarrow$ 歸一化 (Normalization)。
+    2.  **模型載入：** 載入預訓練權重 $\rightarrow$ 替換分類頭。
+    3.  **訓練階段 1 (Warm-up)：** 凍結層 $\rightarrow$ 訓練分類頭 $\rightarrow$ 較高 LR。
+    4.  **訓練階段 2 (Fine-tuning)：** 解凍所有層 $\rightarrow$ 訓練所有層 $\rightarrow$ **極低 LR**。
+    5.  **優化：** 實施學習率衰減 $\rightarrow$ 監控驗證集性能 $\rightarrow$ 最佳點提前停止 (Early Stopping)。
+
+---
+
+### 總結對照表
+
+| 概念 | 目的 | 關鍵技術/結構 | 實戰應用點 |
+| :--- | :--- | :--- | :--- |
+| **CNN** | 提取層級特徵 | 卷積層 (Conv) + 池化層 (Pool) | 基礎結構搭建 |
+| **ResNet** | 解決梯度消失 | 殘差連接 (Skip Connection) | 堆疊更深層網路 |
+| **遷移學習** | 解決數據量不足 | 預訓練權重 (Pre-trained Weights) | 快速入門，提升性能上限 |
+| **微調** | 調整通用知識到特定任務 | 凍結/解凍層 + 學習率調整 | 決定訓練的「深度」和「廣度」 |
+| **數據增強** | 提高模型泛化能力 | 組合式增強 (Mixup, CutMix) | 數據量小時的「虛擬數據」製造機 |
+
+希望這份結構化的總結能幫助您將知識點串聯起來，從「知道」到「精通」！如果您對某個特定環節（例如：如何手動實現一個殘差塊的代碼）有進一步的疑問，隨時可以提出！
