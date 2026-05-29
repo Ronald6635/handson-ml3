@@ -67,7 +67,9 @@ print(f"y_train shape: {y_train.shape}")  # (7000, 1)
 
 # 最簡單的基準：直接用最後一個值（天真預測）
 y_naive = X_valid[:, -1]
-baseline_mse = np.mean(tf.keras.losses.mean_squared_error(y_valid, y_naive))
+mse_loss_fn = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)
+individual_errors = mse_loss_fn(y_valid, y_naive)
+baseline_mse = np.mean(individual_errors)
 print(f"基準 MSE（天真預測）: {baseline_mse:.4f}")
 ```
 
@@ -76,6 +78,21 @@ print(f"基準 MSE（天真預測）: {baseline_mse:.4f}")
 1. `[..., np.newaxis]`: 在最後添加維度，讓形狀從 `[batch, steps]` 變為 `[batch, steps, 1]`（RNN 需要特徵維度）
 2. `X_train[:, -1]`: 取每個序列的最後一步作為目標值（預測未來一步）
 3. 基準測試：用最後已知值直接預測——若你的 RNN 連這個都贏不了，說明模型有問題
+
+> 可視化數據以理解時間序列中的模式和噪音。這有助於選擇正確的模型架構和超參數。
+
+```python
+import matplotlib.pyplot as plt
+time = np.arange(n_steps+1)
+plt.figure(figsize=(10, 6))
+for i in range(5):
+    plt.plot(time, X_train[i].squeeze(), label=f"Series {i+1}")
+plt.title("Sample Time Series")
+plt.xlabel("Time Steps")
+plt.ylabel("Value")
+plt.legend()
+plt.show()
+```
 
 ---
 
@@ -90,12 +107,12 @@ print(f"基準 MSE（天真預測）: {baseline_mse:.4f}")
 model_lstm = tf.keras.Sequential([
     # 輸入形狀：(時間步數, 特徵數) = (50, 1)
     tf.keras.layers.LSTM(
-        64,
+        units=64, # 隱藏狀態的維度（不是時間步數）
         return_sequences=True,   # 回傳每個時間步的隱藏狀態（給下一層用）
         input_shape=[None, 1]    # None 表示可接受任意長度的序列
     ),
-    tf.keras.layers.LSTM(32),    # 最後一層：只回傳最後時間步
-    tf.keras.layers.Dense(1)     # 輸出一個值（預測下一個時間步）
+    tf.keras.layers.LSTM(units=32),    # 最後一層：只回傳最後時間步
+    tf.keras.layers.Dense(units=1)     # 輸出一個值（預測下一個時間步）
 ])
 
 model_lstm.compile(optimizer="adam", loss="mse")
@@ -138,30 +155,32 @@ $$\text{記憶單元}: C_t = f_t \odot C_{t-1} + i_t \odot \tanh(W_C \cdot [h_{t
 **✅ 程式碼逐行解析：**
 
 1. `return_sequences=True`: LSTM 回傳每個時間步的輸出 `(batch, steps, units)`，讓下一層 LSTM 能看到完整序列
-2. `input_shape=[None, 1]`: `None` 允許可變長度的序列（適應不同長度的輸入）
+2. `input_shape=[None, 1]`: 
+    - `None` 允許可變長度的序列（適應不同長度的輸入）
+    - `1` 是特徵數（每個時間步只有一個值）
 3. `EarlyStopping(restore_best_weights=True)`: 驗證損失不再改善後停止，並恢復最佳時期的權重
 
 **🎯 重點摘要:**
 
-- LSTM 的 `units` 參數是隱藏狀態的維度（不是時間步數）
+- LSTM 的 `units` 參數是隱藏狀態 (hidden state) 的維度（不是時間步數）
 - 堆疊多層 LSTM 時，中間層需要 `return_sequences=True`，最後一層預設 `return_sequences=False`
 
 ---
 
 ## <a id="gru"></a>⚡ GRU 門控遞歸單元
 
-### 範例 3: GRU 模型（更快的 LSTM 替代品）
+### 範例 3: GRU (Gated Recurrent Unit) 模型（更快的 LSTM 替代品）
 
 ```python
 # GRU 只有兩個門（更新門 + 重置門）vs LSTM 的三個門
 model_gru = tf.keras.Sequential([
     tf.keras.layers.GRU(
-        64,
+        units=64, # 隱藏狀態的維度（不是時間步數）
         return_sequences=True,
         input_shape=[None, 1]
     ),
-    tf.keras.layers.GRU(32),
-    tf.keras.layers.Dense(1)
+    tf.keras.layers.GRU(units=32),
+    tf.keras.layers.Dense(units=1)
 ])
 
 model_gru.compile(optimizer="adam", loss="mse")
@@ -172,6 +191,19 @@ gru_params  = model_gru.count_params()
 print(f"LSTM 參數量: {lstm_params:,}")
 print(f"GRU 參數量: {gru_params:,}")
 print(f"GRU 比 LSTM 少 {(lstm_params - gru_params)/lstm_params*100:.1f}% 參數")
+
+# 訓練 GRU 模型
+history_gru = model_gru.fit(
+    X_train, y_train,
+    epochs=100,
+    validation_data=(X_valid, y_valid),
+    callbacks=callbacks,
+    verbose=0
+)
+gru_mse = model_gru.evaluate(X_valid, y_valid, verbose=0)
+print(f"GRU 驗證 MSE: {gru_mse:.4f}")
+print(f"基準 MSE: {baseline_mse:.4f}")
+print(f"改善幅度: {(baseline_mse - gru_mse) / baseline_mse * 100:.1f}%")
 ```
 
 **🎯 重點摘要:**
@@ -190,13 +222,13 @@ print(f"GRU 比 LSTM 少 {(lstm_params - gru_params)/lstm_params*100:.1f}% 參�
 # 注意：不適合實時預測（需要未來資訊），但適合情感分析等任務
 model_bidirectional = tf.keras.Sequential([
     tf.keras.layers.Bidirectional(
-        tf.keras.layers.LSTM(64, return_sequences=True),
+        tf.keras.layers.LSTM(units=64, return_sequences=True),
         input_shape=[None, 1]
     ),
     tf.keras.layers.Bidirectional(
-        tf.keras.layers.LSTM(32)
+        tf.keras.layers.LSTM(units=32)
     ),
-    tf.keras.layers.Dense(1)
+    tf.keras.layers.Dense(units=1)
 ])
 
 # 雙向 LSTM 的輸出維度是 2 × units（前向 + 反向）
@@ -205,7 +237,7 @@ model_bidirectional.summary()
 
 ---
 
-## <a id="seq2seq"></a>🔢 序列到序列預測
+## <a id="seq2seq"></a>🔢 序列到序列 (Sequence-to-Sequence) 預測
 
 💡 **實際應用情境：** 氣象站的台灣天氣預測——輸入過去 50 天的氣溫，**一次輸出**未來 10 天的預測（而非每次只輸出一個值）。
 
@@ -223,16 +255,16 @@ X_train_seq = X_train_seq[:, :n_steps]      # 前 50 步作為輸入
 
 # 方法 1：Vector 輸出（最簡單）
 model_vector = tf.keras.Sequential([
-    tf.keras.layers.LSTM(64, return_sequences=True, input_shape=[None, 1]),
-    tf.keras.layers.LSTM(32),
-    tf.keras.layers.Dense(n_future)  # 直接輸出 10 個值
+    tf.keras.layers.LSTM(units=64, return_sequences=True, input_shape=[None, 1]),
+    tf.keras.layers.LSTM(units=32),
+    tf.keras.layers.Dense(units=n_future)  # 直接輸出 10 個值 (batch, n_future)
 ])
 
 # 方法 2：Sequence 輸出（使用 TimeDistributed）
 model_seq2seq = tf.keras.Sequential([
-    tf.keras.layers.LSTM(64, return_sequences=True, input_shape=[None, 1]),
+    tf.keras.layers.LSTM(units=64, return_sequences=True, input_shape=[None, 1]),
     tf.keras.layers.TimeDistributed(
-        tf.keras.layers.Dense(n_future)
+        tf.keras.layers.Dense(units=n_future)
     )
     # TimeDistributed 對每個時間步都應用 Dense，輸出 (batch, steps, n_future)
 ])
@@ -245,6 +277,66 @@ model_vector.summary()
 
 1. `Dense(n_future)`: 最終 Dense 層直接輸出未來 10 個值——最簡單的多步預測方法
 2. `TimeDistributed(Dense(n_future))`: 對 LSTM 每個時間步的輸出都應用 Dense，生成序列輸出
+
+> 注意：多步預測的難度更大，通常需要更多資料和更複雜的模型來捕捉長期依賴。
+
+```python
+# 準備驗證與測試資料
+X_valid_seq = generate_time_series(2000, n_steps + n_future)
+y_valid_seq = X_valid_seq[:, n_steps:, 0]   
+X_valid_seq = X_valid_seq[:, :n_steps]
+X_test_seq = generate_time_series(500, n_steps + n_future)
+y_test_seq = X_test_seq[:, n_steps:, 0]
+X_test_seq = X_test_seq[:, :n_steps]
+
+# 訓練多步預測模型
+history_vector = model_vector.fit(
+    X_train_seq, y_train_seq,
+    epochs=100,
+    validation_data=(X_valid_seq, y_valid_seq),
+    callbacks=callbacks,
+    verbose=0
+)
+vector_mse = model_vector.evaluate(X_test_seq, y_test_seq, verbose=0)
+print(f"Vector 預測測試 MSE: {vector_mse:.4f}")
+```
+
+```python
+# 準備資料
+X_train_seq = generate_time_series(7000, n_steps + n_future)
+y_train_seq = X_train_seq[:, n_steps:, 0]  # (batch, n_future)
+X_train_seq = X_train_seq[:, :n_steps]
+
+X_valid_seq = generate_time_series(2000, n_steps + n_future)
+y_valid_seq = X_valid_seq[:, n_steps:, 0]
+X_valid_seq = X_valid_seq[:, :n_steps]
+
+X_test_seq = generate_time_series(500, n_steps + n_future)
+y_test_seq = X_test_seq[:, n_steps:, 0]
+X_test_seq = X_test_seq[:, :n_steps]
+
+# 為 seq2seq 模型建立目標：每個時間步都預測同一個未來向量
+y_train_seq_seq = np.repeat(y_train_seq[:, np.newaxis, :], n_steps, axis=1)  # (batch, n_steps, n_future)
+y_valid_seq_seq = np.repeat(y_valid_seq[:, np.newaxis, :], n_steps, axis=1)
+y_test_seq_seq  = np.repeat(y_test_seq[:, np.newaxis, :], n_steps, axis=1)
+
+model_seq2seq.compile(optimizer="adam", loss="mse")
+history = model_seq2seq.fit(
+    X_train_seq, y_train_seq_seq,
+    epochs=100,
+    validation_data=(X_valid_seq, y_valid_seq_seq),
+    callbacks=callbacks,
+    verbose=0
+)
+
+y_pred_seq = model_seq2seq.predict(X_test_seq, verbose=0)
+print(y_pred_seq.shape)  # (batch, steps, n_future)
+
+# 如果只關心最後一個時間步的預測
+y_pred_last = y_pred_seq[:, -1, :]
+seq2seq_mse = np.mean((y_pred_last - y_test_seq) ** 2)
+print(f"Sequence 預測測試 MSE: {seq2seq_mse:.4f}")
+```
 
 ---
 

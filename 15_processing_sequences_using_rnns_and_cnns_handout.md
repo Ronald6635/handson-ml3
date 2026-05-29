@@ -1,12 +1,12 @@
 # 課程講義：使用 RNN 與 CNN 處理序列 (Chapter 15)
 
-時間序列、文字、音訊——這些資料的共同特點是**順序很重要**。本章介紹循環神經網路（RNN），一種內建「記憶」的架構：它在處理序列時，隱藏狀態會將過去的資訊傳遞給未來的時間步驟。我們以芝加哥公共交通乘客量預測為主線，從 ARIMA 基準線出發，逐步引入 SimpleRNN、LSTM，最後以 WaveNet 的膨脹卷積收尾。
+時間序列、文字、音訊——這些資料的共同特點是**順序很重要**。本章介紹**循環神經網路（RNN: Recurrent Neural Network）**，一種內建「記憶」的架構：它在處理序列時，隱藏狀態會將過去的資訊傳遞給未來的時間步驟。我們以芝加哥公共交通乘客量預測為主線，從 ARIMA 基準線出發，逐步引入 SimpleRNN、LSTM，最後以 WaveNet 的**膨脹卷積 (Dilated Convolution)** 收尾。
 
 ---
 
 ## 1. 時間序列前處理與傳統基準線
 
-### 理論背景
+### 1.1 時間序列的統計特性
 
 在建立神經網路模型之前，必須先了解資料的統計特性，並建立**傳統基準線**——若神經網路無法超越 ARIMA，那就不值得用神經網路。
 
@@ -16,15 +16,83 @@
 - **季節性 (Seasonality)**：固定週期的規律（如每週、每年）
 - **差分 (Differencing)**：$\nabla y_t = y_t - y_{t-k}$ 移除趨勢/季節性，使序列平穩
 
-**ARIMA (Autoregressive Integrated Moving Average)**：
+### ARIMA 模型 (Autoregressive Integrated Moving Average)
 
-$$y_t = c + \sum_{i=1}^{p} \phi_i y_{t-i} + \sum_{j=1}^{q} \theta_j \varepsilon_{t-j} + \varepsilon_t$$
+在引入深度學習之前，ARIMA 是時間序列分析的黃金標準。它將序列分解為三個維度：
 
-SARIMA = ARIMA + 季節性項目，適合有週期性的時間序列。
+$$
+y_t = c + \sum_{i=1}^{p} \phi_i y_{t-i} + \sum_{j=1}^{q} \theta_j \varepsilon_{t-j} + \varepsilon_t
+$$
 
-**序列到監督式學習**：給定過去 $n$ 步，預測未來 1 步（或多步）。
+其中 
+- $\varepsilon_t \sim \mathcal{N}(0, \sigma^2)$ 為白噪音,
+- $c$ 是常數項
+- $\phi_i$ 是 AR 項的係數
+    - $p$ 是 AR 項的階數，代表模型會往回看多少個時間步的觀測值
+    - $y_{t-i}$ 是過去的觀測值
+- $\theta_j$ 是 MA 項的係數
+    - $q$ 是 MA 項的階數，代表模型會往回看多少個時間步的誤差項
+    - $\varepsilon_{t-j}$ 是過去的預測誤差, $\varepsilon_{t-j} = y_{t-j} - \hat{y}_{t-j}$
 
-### 核心代碼
+我們可以透過以下維度來理解：
+
+- **AR (p) — 自回歸 (Autoregressive)**：
+  - **直觀**：利用「過去的觀測值」來預測未來。假設今天的銷量跟昨天、前天的銷量有直接的線性關係。
+  - **意義**：代表系統具有**慣性**或**動量**。
+  - **參數 $p$**：代表你要往回看多少個時間步（Lag）。如果 $p=2$，代表模型會使用昨天和前天的數據來預測今天。
+- **I (d) — 整合 (Integrated)**：
+  - **直觀**：透過「差分」消除非平穩性。
+    - ARIMA 是一個比較「挑剔」的模型，它要求數據必須是平穩的 (Stationary)（也就是平均值和變異數不隨時間改變）。但真實世界的數據通常有「趨勢」（例如房價逐年攀升）。「差分」就是把今天的數值減去昨天的數值，算出「變化量」，藉此消除趨勢。
+    - **一階差分**：$y_t' = y_t - y_{t-1}$，消除趨勢。
+  - **意義**：處理**趨勢**，使序列在統計特性的均值與變異數趨於穩定。
+  - **參數 $d$**：代表數據需要進行幾次差分才能達到平穩狀態。通常 $d=1$ 或 $d=2$ 就足夠了。
+- **MA (q) — 移動平均 (Moving Average)**：
+  - **直觀**：利用「過去的預測誤差」來修正未來的預測。如果模型在過去幾天常常高估了數值，MA 機制就會捕捉到這個誤差，並在今天的預測中稍微往下修正。
+  - **意義**：處理**衝擊 (Shocks)**。
+  - **參數 $q$**：代表你要考慮過去幾個時間步的誤差項。
+
+#### SARIMA 模型 (Seasonal ARIMA)
+
+SARIMA 是 ARIMA 的季節性延伸，適合週期性資料。
+- S 代表季節性，P、D、Q 分別對應季節性的 AR、I、MA 項。
+- X 代表外生變數 (eXogenous), 如節假日、促銷活動等。
+
+#### RNN 隱藏狀態計算
+
+RNN 的核心在於每個時間步都有一個隱藏狀態 (hidden state; $\mathbf{h}_t$)，它同時保留過去的記憶與當前輸入：
+
+$$
+\mathbf{h}_t = \phi\!\left(
+    \mathbf{W}_h^T \mathbf{h}_{t-1}
+    + \mathbf{W}_x^T \mathbf{x}_t
+    + \mathbf{b}
+\right)
+$$
+
+- $\mathbf{h}_{t-1}$：上一時間步的隱藏狀態，代表歷史資訊
+- $\mathbf{x}_t$：當前時間步的輸入
+- $\phi$：激活函數，常用 $\tanh$ 或 ReLU
+
+這個公式說明了 RNN 的「循環」性：新的隱藏狀態是由過去記憶加上本次輸入一起計算出來的。
+
+#### 序列監督式學習 (Sequence-to-Sequence Supervised Learning)
+
+時間序列預測本質上也可以看成一種監督式回歸 (supervised regression) 問題：
+- 輸入：過去 $n$ 步的序列資料
+- 輸出：未來 1 步或多步的目標值
+
+換句話說，將時間軸展開成特徵向量：
+- $X = [y_{t-n}, \dots, y_{t-1}]$; 表示過去 $n$ 步的觀測值
+- $y = y_t$（單步預測）
+
+若要做多步預測，則可以改成：
+- $y = [y_t, y_{t+1}, \dots, y_{t+m-1}]$
+
+這樣的轉換是後面使用 Keras RNN / LSTM 時最常見的資料形式，對應到模型輸入形狀：
+- `X.shape = (batch_size, seq_length, n_features)`
+- `y.shape = (batch_size, output_dim)`
+
+### 1.2 ARIMA 實作與資料轉換
 
 ```python
 import pandas as pd
@@ -32,10 +100,10 @@ import numpy as np
 from statsmodels.tsa.arima.model import ARIMA
 
 # 載入芝加哥每日乘客量
-df = pd.read_csv("datasets/ridership/CTA_-_Ridership_-_Daily_Boarding_Totals.csv",
-                 parse_dates=["service_date"])
-df.columns = ["date", "day_type", "bus", "rail", "total"]
-df = df.sort_values("date").set_index("date")
+df = pd.read_csv("datasets/ridership_extracted/ridership/CTA_-_Ridership_-_Daily_Boarding_Totals.csv",
+                 parse_dates=["service_date"]) # 解析日期欄位
+df.columns = ["date", "day_type", "bus", "rail", "total"] # 重命名欄位
+df = df.sort_values("date").set_index("date") # 以日期作為索引
 df = df.drop("total", axis=1)
 
 rail = df["rail"] / 1e6  # 縮放至百萬人次
@@ -67,7 +135,7 @@ print(f"X_train shape: {X_train_ts.shape}")  # (n_samples, 56, 1)
 
 ### ⚡ 補充練習 1
 
-**理論題：** 為什麼要用 7 天差分而非 1 天差分？如何用「自相關函數（ACF）」圖判斷一個時間序列的季節性週期？
+**理論題：** 為什麼要用 7 天差分而非 1 天差分？如何用「自相關函數（ACF; Autocorrelation Function）」圖判斷一個時間序列的季節性週期？
 
 **實作題：** 計算芝加哥 Rail 乘客量的 7 天和 365 天自相關，繪製 ACF 圖（用 `statsmodels.graphics.tsaplots.plot_acf`），從圖中識別出週週期和年週期。
 
@@ -75,7 +143,7 @@ print(f"X_train shape: {X_train_ts.shape}")  # (n_samples, 56, 1)
 
 ## 2. SimpleRNN 與梯度消失問題
 
-### 理論背景
+### 2.1 RNN 原理與梯度問題
 
 **RNN 的基本公式**：
 
@@ -91,7 +159,7 @@ $$\mathbf{h}_t = \tanh\left(\mathbf{W}_h \mathbf{h}_{t-1} + \mathbf{W}_x \mathbf
 
 **梯度消失**的解法：LSTM、GRU（門控機制）
 
-### 核心代碼
+### 2.2 Keras SimpleRNN 實作
 
 ```python
 import tensorflow as tf
@@ -130,21 +198,21 @@ model_deep = tf.keras.Sequential([
 
 ---
 
-## 3. LSTM 與 GRU 的門控機制
+## 3. LSTM (Long Short-Term Memory) 與 GRU (Gated Recurrent Unit) 的門控機制
 
-### 理論背景
+### 3.1 LSTM 與 GRU 內部機制
 
 **LSTM (Long Short-Term Memory)** 引入**細胞狀態 (Cell State)** $\mathbf{c}_t$，解決梯度消失：
 
 **遺忘閘 (Forget Gate)**：決定丟棄多少舊記憶：
 
-$$\mathbf{f}_t = \sigma\left(\mathbf{W}_f [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f\right)$$
+$$\mathbf{f}_t = \sigma\left(\mathbf{W}_f \cdot [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f\right)$$
 
 **輸入閘 (Input Gate)**：決定加入多少新資訊：
 
-$$\mathbf{i}_t = \sigma(\mathbf{W}_i [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_i)$$
+$$\mathbf{i}_t = \sigma(\mathbf{W}_i \cdot [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_i)$$
 
-$$\tilde{\mathbf{c}}_t = \tanh(\mathbf{W}_c [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_c)$$
+$$\tilde{\mathbf{c}}_t = \tanh(\mathbf{W}_c \cdot [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_c)$$
 
 **細胞狀態更新**：
 
@@ -156,7 +224,7 @@ $$\mathbf{h}_t = \mathbf{o}_t \odot \tanh(\mathbf{c}_t)$$
 
 **GRU**：LSTM 的簡化版（合併遺忘閘和輸入閘），參數更少，通常速度更快，效果相近。
 
-### 核心代碼
+### 3.2 進階門控模型實作
 
 ```python
 tf.random.set_seed(42)
@@ -194,15 +262,15 @@ model_multivar = tf.keras.Sequential([
 
 ---
 
-## 4. 多步預測與序列到序列模型
+## 4. 多步預測 (Multi-Step Forecasting) 與序列到序列模型 (Sequence-to-Sequence Models)
 
-### 理論背景
+### 4.1 多步預測策略
 
 **多步預測策略**：
 
-1. **迭代預測**：每次只預測 1 步，將預測值加入輸入，再預測下一步（誤差會累積）
-2. **直接多步輸出**：最後一層改為 `Dense(n_steps)`，一次輸出多步（不累積誤差）
-3. **Seq2Seq**：`TimeDistributed(Dense(n_steps))` 對每個時間步都輸出，訓練更高效
+1. **迭代預測**：每次只預測 1 步，將預測值加入輸入，再預測下一步（誤差會累積）。
+2. **直接多步輸出**：最後一層改為 `Dense(n_steps)`，一次輸出多步（不累積誤差）。
+3. **Seq2Seq**：`TimeDistributed(Dense(n_steps))` 對每個時間步都輸出，訓練更高效。
 
 **`TimeDistributed` 層**：將同一個 `Dense` 層應用到序列的每個時間步：
 
@@ -211,7 +279,7 @@ model_multivar = tf.keras.Sequential([
 TimeDistributed(Dense(14))  ≡  Dense(14)  # 對 LSTM 的 return_sequences=True 輸出
 ```
 
-### 核心代碼
+### 4.2 多步輸出與 Seq2Seq 實作
 
 ```python
 tf.random.set_seed(42)
@@ -241,25 +309,25 @@ model_seq2seq = tf.keras.Sequential([
 
 ---
 
-## 5. WaveNet：膨脹因果卷積
+## 5. WaveNet：膨脹因果卷積 (Dilated Causal Convolutions)
 
-### 理論背景
+### 5.1 膨脹因果卷積原理
 
 **WaveNet** 使用 **膨脹因果卷積 (Dilated Causal Convolutions)** 處理長序列：
 
-- **因果 (Causal)**：只看過去的輸入，不洩漏未來資訊（`padding="causal"`）
-- **膨脹 (Dilated)**：卷積核的「感受野」以指數速度增長
+- **因果 (Causal)**：只看過去的輸入，不洩漏未來資訊（`padding="causal"`）。
+- **膨脹 (Dilated)**：卷積核的「感受野」以指數速度增長。
 
 膨脹率倍增：1, 2, 4, 8, 16, ...
 
 - Dilation=1：感受野 = 2 步
 - Dilation=2：感受野 = 3 步（跳隔取樣）
 - Dilation=4：感受野 = 5 步
-- 10 層（膨脹率 1→512）：感受野 = **1023 步**（$2^{10} - 1$）
+- 10 層（膨脹率 1→512）：感受野 = **1023 步** ($2^{10} - 1$)
 
 優點：不受梯度消失影響、平行計算比 RNN 快、長期依賴性強。
 
-### 核心代碼
+### 5.2 WaveNet 核心代碼實作
 
 ```python
 tf.random.set_seed(42)
