@@ -12,14 +12,24 @@ Key features:
 - Functional execution test on GPU device
 """
 
+# CRITICAL: Backend must be set BEFORE importing ANY Keras or TensorFlow components.
 import os
-# CRITICAL: Backend must be set before importing any Keras components
-os.environ["KERAS_BACKEND"] = "torch"
 
-import keras
-import torch
-import numpy as np
+import keras.backend
+import tensorflow
+os.environ["KERAS_BACKEND"] = "torch" # Set Keras 3 backend to PyTorch
+
+import keras # Import Keras 3 (standalone library)
+import torch # Import PyTorch
+# If you explicitly need TensorFlow for other non-Keras functionalities,
+# import it AFTER keras. However, for Keras 3 with PyTorch backend testing,
+# it's often cleaner to avoid importing tensorflow if not strictly necessary.
+# import tensorflow as tf 
+
 from typing import Dict, Any, Union, Optional
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from datetime import datetime # Added for docstring example
 
 # =============================================================================
 # DIAGNOSTIC UTILITIES
@@ -45,7 +55,7 @@ def verify_gpu_status() -> Dict[str, Union[str, bool, float]]:
         ...     print(f"Running on {results['device_name']}")
     """
     status: Dict[str, Any] = {
-        "backend": keras.config.backend(),
+        "backend": tensorflow.keras.backend.backend(), # Using standalone Keras config to report backend
         "is_cuda_active": torch.cuda.is_available(),
         "device_name": "CPU",
         "total_memory_gb": 0.0
@@ -65,53 +75,83 @@ def verify_gpu_status() -> Dict[str, Union[str, bool, float]]:
 
 def execute_gpu_test(results: Dict[str, Any]) -> None:
     """
-    Execute a functional deep learning diagnostic.
-    
-    This function creates a minimal neural network to verify that tensors 
-    are correctly dispatched to the GPU device by the Torch backend.
-    
-    Args:
-        results (Dict[str, Any]): Metadata dictionary from verify_gpu_status()
-        
-    Returns:
-        None
-        
-    Note:
-        Success is indicated by a non-crashing forward pass and the 
-        presence of a torch.Tensor output.
-    """
-    print(f"Keras Backend: {results['backend']}")
-    print(f"PyTorch CUDA Available: {results['is_cuda_active']}")
-    
-    if results["is_cuda_active"]:
-        print(f"GPU Device: {results['device_name']}")
-        # Display memory in GB using KaTeX for the underlying logic:
-        # $$ GB = \frac{bytes}{1024^3} $$
-        print(f"GPU Memory: {results['total_memory_gb']:.2f} GB")
-    else:
-        # NOTE: If this prints False, verify the PyTorch installation index-url
-        # CRITICAL: Without CUDA, training performance will degrade by ~10-50x.
-        print("WARNING: CUDA is not detected. Training will be slow on CPU.")
+    Execute a small deep learning model to verify GPU functionality.
 
-    # Quick functional model test
-    # Standard: Use torch tensors when backend is set to 'torch'
-    X_test: torch.Tensor = torch.randn(10, 5)
-    
-    # Define a simple regression model to test layer connectivity
-    model: keras.Sequential = keras.Sequential([
-        keras.layers.Input(shape=(5,)),
-        keras.layers.Dense(64, activation='relu'),
-        keras.layers.Dense(1)
-    ])
-    
-    # CRITICAL: Compilation must succeed before execution to initialize weights
-    model.compile(optimizer='adam', loss='mse')
-    
-    # Forward pass: Keras 3 handles the conversion to the backend's native tensor
-    prediction: torch.Tensor | Any = model(X_test)
-    
-    print(f"\nModel Test Output Shape: {prediction.shape}")
-    print("✓ Diagnostic complete!")
+    This function creates a simple Keras Sequential model, compiles it,
+    generates dummy data, and attempts to run a prediction.
+    It prints results to the console, indicating success or failure
+    and the device used.
+
+    Args:
+        results: Dictionary containing diagnostic information from
+                 verify_gpu_status, especially 'is_cuda_active' and 'backend'.
+
+    Raises:
+        Exception: If the model compilation or prediction fails unexpectedly.
+
+    Example:
+        >>> diag_results = {'is_cuda_active': True, 'backend': 'torch'}
+        >>> execute_gpu_test(diag_results)
+        # Output will show model training/prediction info.
+    """
+    print("\n" + "=" * 50)
+    print("Executing GPU Test (Keras with PyTorch Backend)")
+    print("=" * 50)
+
+    try:
+        # Create a simple Keras model with PyTorch backend
+        model = keras.Sequential([
+            keras.layers.Dense(32, activation='relu', input_shape=(5,)),
+            keras.layers.Dense(16, activation='relu'),
+            keras.layers.Dense(1, activation='sigmoid')
+        ])
+
+        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        print("Keras model compiled successfully.")
+
+        # Generate dummy data (using numpy and then converting to torch tensor)
+        X_train_np = np.random.rand(100, 5).astype(np.float32)
+        y_train_np = (np.random.rand(100, 1) > 0.5).astype(np.float32)
+        X_test_np = np.random.rand(10, 5).astype(np.float32)
+
+        # Scale features
+        scaler = StandardScaler()
+        X_train_scaled_np = scaler.fit_transform(X_train_np)
+        X_test_scaled_np = scaler.transform(X_test_np)
+
+        # Convert NumPy arrays to PyTorch tensors
+        # Keras with PyTorch backend expects PyTorch tensors
+        X_train = torch.from_numpy(X_train_scaled_np)
+        y_train = torch.from_numpy(y_train_np)
+        X_test = torch.from_numpy(X_test_scaled_np)
+
+        # Move tensors to GPU if available and PyTorch can use CUDA
+        if results['is_cuda_active']:
+            device = torch.device("cuda:0")
+            X_train = X_train.to(device)
+            y_train = y_train.to(device)
+            X_test = X_test.to(device)
+            print(f"Data moved to GPU: {results['device_name']}")
+        else:
+            device = torch.device("cpu")
+            print("Data remains on CPU.")
+        
+        # Train the model briefly
+        print("Training Keras model...")
+        model.fit(X_train, y_train, epochs=2, batch_size=32, verbose=0)
+        print("Model training complete.")
+
+        # Make a prediction
+        print("Making a prediction...")
+        prediction: torch.Tensor | Any = model(X_test)
+        print("Prediction successful.")
+        print(f"Sample prediction (first 5 values): {prediction.flatten()[:5].tolist()}")
+
+        print("\nGPU test completed successfully.")
+
+    except Exception as e:
+        print(f"\nERROR during GPU test: {e}")
+        print("Please check your Keras/PyTorch/CUDA installation and configuration.")
 
 # =============================================================================
 # MAIN EXECUTION
@@ -123,4 +163,12 @@ if __name__ == "__main__":
     print("=" * 50)
     
     diagnostic_results = verify_gpu_status()
+    print(f"Keras Backend: {diagnostic_results['backend']}")
+    print(f"PyTorch CUDA Available: {diagnostic_results['is_cuda_active']}")
+    if diagnostic_results['is_cuda_active']:
+        print(f"Primary GPU Device: {diagnostic_results['device_name']}")
+        print(f"Total GPU Memory: {diagnostic_results['total_memory_gb']:.2f} GB")
+    else:
+        print("WARNING: CUDA is not detected. Training will be slow on CPU.")
+    
     execute_gpu_test(diagnostic_results)
