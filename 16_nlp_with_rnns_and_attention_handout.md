@@ -219,20 +219,30 @@ model_nmt = tf.keras.Model(inputs=[encoder_inputs, decoder_inputs],
 
 ### 理論背景
 
-**Attention 機制**：讓 Decoder 在每個時間步能夠「關注」Encoder 輸出序列的不同部分，而不只依賴固定的 Context Vector。
+**Attention 機制**
+
+*   **為何重要 (Why it matters)**：傳統 Encoder-Decoder 模型在處理長序列時，單一的 Context Vector 會形成資訊瓶頸，導致難以捕捉長距離依賴。Attention 機制讓 Decoder 在生成每個輸出詞時，能夠動態地「關注」Encoder 輸出序列中**最相關**的部分，從而顯著提升翻譯或序列生成品質。
+*   **運作原理 (How it works)**：Attention 核心思想是計算 Query 與所有 Keys 的相似度，透過 Softmax 得到注意力權重，再加權求和 Values。這使得模型能夠在不同時間步，將注意力分配給輸入序列的不同位置。
 
 $$\text{attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{softmax}\left(\frac{\mathbf{Q}\mathbf{K}^T}{\sqrt{d_k}}\right)\mathbf{V}$$
 
-- **Query (Q)**：當前 Decoder 隱藏狀態
-- **Key (K)**：所有 Encoder 輸出
-- **Value (V)**：所有 Encoder 輸出
-- $\sqrt{d_k}$：縮放因子，避免內積過大（Scaled Dot-Product Attention）
+其中：
+*   **查詢 (Query, Q)**：代表 Decoder 當前的狀態，用於詢問 Encoder 輸出的相關性。
+*   **鍵 (Key, K)**：代表所有 Encoder 輸出序列中的每個元素，用於與 Query 計算相似度。
+*   **值 (Value, V)**：通常與 Key 相同，代表所有 Encoder 輸出序列的實際內容，會根據注意力權重進行加權求和。
+*   $\sqrt{d_k}$：**縮放因子**，用於避免 $\mathbf{Q}\mathbf{K}^T$ 的內積結果過大，導致 Softmax 函數的梯度在訓練初期過於飽和，影響學習效率（Scaled Dot-Product Attention）。
 
-**Multi-Head Attention**：在多個子空間平行執行 Attention，再拼接：
+**Multi-Head Attention (多頭注意力)**
+
+*   **為何重要 (Why it matters)**：單一的 Attention 機制可能難以捕捉輸入序列中多樣化的關係。Multi-Head Attention 允許模型從多個「表示子空間」同時學習不同的注意力模式，例如，一個頭可能關注語法關係，另一個頭可能關注語義關係，從而增強模型的表達能力和捕捉複雜語境的能力。
+*   **運作原理 (How it works)**：將 Q, K, V 分別線性投射到多個不同的子空間（即多個「頭」），每個頭獨立執行 Attention 計算，然後將所有頭的輸出拼接起來，再進行一次線性投射得到最終結果。
 
 $$\text{MultiHead}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h) \mathbf{W}^O$$
 
-**Positional Encoding**：Transformer 無序列順序感知，需注入位置資訊：
+**Positional Encoding (位置編碼)**
+
+*   **為何重要 (Why it matters)**：Transformer 模型基於 Attention 機制，它在處理序列時是**並行**的，這意味著它**不具備** RNN 那樣的內建序列順序感知能力。因此，必須顯式地注入位置資訊，以讓模型知道每個詞在序列中的相對或絕對位置。
+*   **運作原理 (How it works)**：透過將具有不同頻率的正弦（sin）和餘弦（cos）函數應用於詞嵌入向量，為序列中的每個位置生成一個獨特的位置向量。這些位置向量會被加到原始的詞嵌入中，讓模型能夠區分相同詞彙在不同位置時的語義。
 
 $$PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$$
 

@@ -47,3 +47,7 @@ dependencies:
     - google-cloud-storage~=2.13.0  # used only in chapter 19
     - streamlit
     - google-generativeai
+    - pytorch
+    - torchvision
+    - torchaudio
+    - pytorch-cuda=12.4

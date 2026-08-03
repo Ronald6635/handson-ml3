@@ -1,7 +1,7 @@
 <!-- meta-title: NLP 與注意力機制完整指南：情感分析、機器翻譯、多頭注意力 -->
 <!-- meta-description: 深入 NLP 深度學習：字符級 RNN 文字生成、溫度採樣、Stateful RNN、詞嵌入情感分析、Encoder-Decoder 機器翻譯、Bahdanau 注意力機制，以及 Keras 多頭注意力層。 -->
 <!-- meta-keywords: Python, NLP, RNN, LSTM, 注意力機制, 機器翻譯, 情感分析, Transformer, Keras, TensorFlow -->
-<!-- meta-hashtags: #Python #NLP #LSTM #注意力機制 #機器翻譯 #情感分析 #Transformer #Keras #深度學習 #教學 -->
+<!-- meta-hashtags: #Python #NLP #DeepLearning #RNN #LSTM #Attention #Transformer #MachineTranslation #SentimentAnalysis #Keras #TensorFlow #DataScience -->
 
 # 🐍 NLP 與注意力機制：從文字生成到 Transformer 基礎
 
@@ -57,6 +57,7 @@ tokenizer.adapt([shakespeare_text])
 char_vocab = tokenizer.get_vocabulary()
 n_tokens = len(char_vocab)
 print(f"字符數量（詞彙表大小）: {n_tokens}")  # 約 40~50 個不同字符
+print(f"字符集: {char_vocab}")
 
 # 編碼整個文本
 encoded = tokenizer([shakespeare_text])[0]  # 1D 整數陣列
@@ -85,7 +86,13 @@ print(f"資料集準備完成，序列長度: {seq_length}")
 
 1. `split="character"`: 在字符級別分詞（而非詞語級別），每個字母/標點是一個 token
 2. `window(seq_length + 1, shift=1)`: 滑動視窗——每次移動 1 步，建立重疊的訓練序列
-3. `(seq[:-1], seq[1:])`: x 是前 n 個字符，y 是後 n 個字符（預測下一個字符）
+3. `flat_map(lambda window: window.batch(seq_length + 1))`：將視窗展平為張量序列。
+- 問題背景：`window()` 產生的輸出是「資料集的資料集」，直接使用會導致模型逐字元處理，無法有效學習字串規則。
+- 解決方案：
+    - `window.batch`: 先將每個子資料集內的元素，按照 `seq_length + 1` 打包成塊狀張量。
+    - `flat_map`: 將原本嵌套的大盒子拆開，讓這些塊狀張量攤平成為一個連續的資料串流。
+- 結果：每個樣本都是一個完整的序列，大幅提升模型訓練的效率。
+4. `(seq[:-1], seq[1:])`: x 是前 n 個字符，y 是後 n 個字符（預測下一個字符）
 
 ### 範例 2: 字符級 RNN 模型
 
@@ -112,6 +119,20 @@ char_model.compile(
 char_model.summary()
 ```
 
+```mermaid
+graph TD
+    Input([Input: Character Indices]) --> Embedding[<b>Embedding Layer</b><br/>Input Dim: n_tokens<br/>Output Dim: 16]
+    Embedding --> GRU[<b>GRU Layer</b><br/>Units: 128<br/>Return Sequences: True]
+    GRU --> Dense[<b>Dense Layer</b><br/>Units: n_tokens<br/>Activation: Softmax]
+    Dense --> Output([Output: Character Probabilities])
+
+    subgraph "Data Flow (Per Time Step)"
+    Embedding
+    GRU
+    Dense
+    end
+```
+
 ---
 
 ## <a id="temperature"></a>🌡️ 溫度採樣
@@ -123,10 +144,20 @@ char_model.summary()
 ```python
 def generate_text(model, tokenizer: tf.keras.layers.TextVectorization,
                   seed_text: str, n_chars: int = 200,
-                  temperature: float = 1.0) -> str:
+                  temperature: float = 1.0,
+                  seq_length: int = 100) -> str:
     """使用訓練好的模型生成文字
 
     temperature: < 1 更保守，> 1 更隨機/創意
+    Arguments:
+        model: 訓練好的字符級 RNN 模型
+        tokenizer: 字符級分詞器
+        seed_text: 生成文字的起始種子
+        n_chars: 要生成的字符數量
+        temperature: 溫度參數，控制隨機性
+        seq_length: 模型訓練時的輸入序列長度
+    Returns:
+        result: 生成的文字
     """
     char_vocab = tokenizer.get_vocabulary()
     index_to_char = {i: c for i, c in enumerate(char_vocab)}
@@ -159,12 +190,15 @@ print("溫度效果：低溫(0.3) = 保守重複；中溫(1.0) = 平衡；高溫
 **✅ 程式碼逐行解析：**
 
 1. `logits / temperature`: 溫度 < 1 使分佈更尖銳（集中在高機率字符）；> 1 使分佈更平坦（更均勻）
-2. `np.random.choice(len(vocab), p=probs)`: 按機率採樣（非貪婪）——保留一定的隨機性
+2. `np.random.choice(len(char_vocab), p=probs)`: 按機率採樣（非貪婪）——保留一定的隨機性
+    - 這裡使用 `np.random.choice` 而不是 `argmax`，是為了讓生成的文字更有多樣性和創意，而不是每次都選擇最高機率的字符，避免生成單調重複的文字。
+    - `len(char_vocab)` 是字符集的大小，`p=probs` 是每個字符被選中的機率分佈。
 
 **🎯 重點摘要:**
 
 - 貪婪解碼（每次選最高機率）會導致文字單調重複
-- `temperature=1.0` 是標準採樣；`0.5~0.8` 在創意和準確性間平衡
+- `temperature=1.0` 是未縮放的標準採樣；實務上 `0.5~0.8` 是兼顧創意與合理性的最佳平衡區間。
+    - 低溫（<1） → 保守、重複；高溫（>1） → 創意、隨機
 
 ---
 
@@ -420,4 +454,11 @@ A: Transformer 在大多數 NLP 任務上已超越 RNN，但 RNN 仍有優勢：
 
 ## <a id="hashtags"></a>🏷️ 推薦標籤 (Suggested Hashtags)
 
-\#Python #NLP #LSTM #注意力機制 #機器翻譯 #情感分析 #Transformer #MultiHeadAttention #Keras #深度學習 #程式設計 #教學 #DataScience #MachineLearning
+### 核心技術 (Core Tech)
+`#Python` `#NLP` `#DeepLearning` `#RNN` `#LSTM` `#Attention` `#Transformer` `#MultiHeadAttention`
+
+### 應用場景 (Applications)
+`#MachineTranslation` `#SentimentAnalysis` `#TextGeneration` `#NLP教學`
+
+### 工具與框架 (Tools & Frameworks)
+`#Keras` `#TensorFlow` `#DataScience` `#MachineLearning`
